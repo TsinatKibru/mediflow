@@ -31,6 +31,8 @@ export default function AppointmentsPage() {
     const { token } = useAuthStore();
     const [events, setEvents] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [currentDate, setCurrentDate] = useState(new Date());
+    const [currentView, setCurrentView] = useState<any>('week');
     const [selectedSlot, setSelectedSlot] = useState<Date | null>(null);
     const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
 
@@ -98,6 +100,10 @@ export default function AppointmentsPage() {
                         onSelectEvent={handleSelectEvent}
                         selectable
                         views={['month', 'week', 'day']}
+                        view={currentView}
+                        date={currentDate}
+                        onView={(view) => setCurrentView(view)}
+                        onNavigate={(date) => setCurrentDate(date)}
                         defaultView="week"
                         min={new Date(0, 0, 0, 8, 0, 0)}
                         max={new Date(0, 0, 0, 18, 0, 0)}
