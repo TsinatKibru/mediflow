@@ -1,0 +1,82 @@
+import { PrismaService } from '../prisma/prisma.service';
+import { CreateInsurancePolicyDto } from './dto/create-insurance-policy.dto';
+import { UpdateInsurancePolicyDto } from './dto/update-insurance-policy.dto';
+export declare class InsurancePoliciesService {
+    private prisma;
+    constructor(prisma: PrismaService);
+    create(createInsurancePolicyDto: CreateInsurancePolicyDto, tenantId: string): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        tenantId: string;
+        isActive: boolean;
+        patientId: string;
+        notes: string | null;
+        type: import(".prisma/client").$Enums.CoverageType;
+        issuedToName: string | null;
+        issueYear: number | null;
+        expiryYear: number | null;
+        policyNumber: string;
+        providerName: string | null;
+    }>;
+    findAllByPatient(patientId: string, tenantId: string): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        tenantId: string;
+        isActive: boolean;
+        patientId: string;
+        notes: string | null;
+        type: import(".prisma/client").$Enums.CoverageType;
+        issuedToName: string | null;
+        issueYear: number | null;
+        expiryYear: number | null;
+        policyNumber: string;
+        providerName: string | null;
+    }[]>;
+    findOne(id: string, tenantId: string): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        tenantId: string;
+        isActive: boolean;
+        patientId: string;
+        notes: string | null;
+        type: import(".prisma/client").$Enums.CoverageType;
+        issuedToName: string | null;
+        issueYear: number | null;
+        expiryYear: number | null;
+        policyNumber: string;
+        providerName: string | null;
+    }>;
+    update(id: string, updateInsurancePolicyDto: UpdateInsurancePolicyDto, tenantId: string): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        tenantId: string;
+        isActive: boolean;
+        patientId: string;
+        notes: string | null;
+        type: import(".prisma/client").$Enums.CoverageType;
+        issuedToName: string | null;
+        issueYear: number | null;
+        expiryYear: number | null;
+        policyNumber: string;
+        providerName: string | null;
+    }>;
+    remove(id: string, tenantId: string): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        tenantId: string;
+        isActive: boolean;
+        patientId: string;
+        notes: string | null;
+        type: import(".prisma/client").$Enums.CoverageType;
+        issuedToName: string | null;
+        issueYear: number | null;
+        expiryYear: number | null;
+        policyNumber: string;
+        providerName: string | null;
+    }>;
+}

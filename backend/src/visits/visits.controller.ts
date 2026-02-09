@@ -1,0 +1,54 @@
+import { Controller, Get, Post, Body, Patch, Param, UseGuards, Req } from '@nestjs/common';
+import { VisitsService } from './visits.service';
+import { CreateVisitDto, UpdateVitalsDto, UpdateConsultationDto } from './dto/visit.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { TenantGuard } from '../auth/guards/tenant.guard';
+
+@Controller('visits')
+@UseGuards(JwtAuthGuard, TenantGuard)
+export class VisitsController {
+    constructor(private readonly visitsService: VisitsService) { }
+
+    @Post()
+    create(@Req() req: any, @Body() createVisitDto: CreateVisitDto) {
+        return this.visitsService.create(req.user.tenantId, createVisitDto);
+    }
+
+    @Get()
+    findAll(@Req() req: any) {
+        return this.visitsService.findAll(req.user.tenantId);
+    }
+
+    @Get(':id')
+    findOne(@Req() req: any, @Param('id') id: string) {
+        return this.visitsService.findOne(req.user.tenantId, id);
+    }
+
+    @Patch(':id/triage')
+    updateVitals(
+        @Req() req: any,
+        @Param('id') id: string,
+        @Body() updateVitalsDto: UpdateVitalsDto,
+    ) {
+        return this.visitsService.updateVitals(
+            req.user.tenantId,
+            id,
+            req.user.userId,
+            updateVitalsDto,
+        );
+    }
+
+    @Patch(':id/consultation')
+    updateConsultation(
+        @Req() req: any,
+        @Param('id') id: string,
+        @Body() updateConsultationDto: UpdateConsultationDto,
+    ) {
+        return this.visitsService.updateConsultation(
+            req.user.tenantId,
+            id,
+            req.user.userId,
+            updateConsultationDto,
+        );
+    }
+}

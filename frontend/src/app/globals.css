@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@theme {
+  /* Custom theme configuration can go here */
+}
+
+/* Custom input text colors for visibility */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+input[type="number"],
+input[type="date"],
+select,
+textarea {
+  color: rgb(15 23 42);
+  /* slate-900 */
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgb(148 163 184);
+  /* slate-400 */
+}

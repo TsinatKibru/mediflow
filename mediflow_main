@@ -1,0 +1,353 @@
+Understood. Below is a **clean, complete rewrite of the MediFlow mind map**, **incorporating your new Phase 2 additions**, **without removing or weakening anything already agreed**, and written in a **precise, implementation-oriented form** suitable to hand directly to a **code agent**.
+
+I am **not re-arguing scope** here — this is a **frozen specification-style mind map**.
+
+---
+
+# **MediFlow — Hospital Operations SaaS**
+
+### *Operations-first, non-clinical hospital management platform*
+
+---
+
+## 1. Core Vision & Design Constraints
+
+### Purpose
+
+* Manage **patient flow, staff coordination, and operational visibility**
+* Focus on **how hospitals function daily**, not on medical decision-making
+* Serve outpatient-heavy hospitals and mid-sized facilities realistically
+
+### Design Principles
+
+* Operations-first, not clinical-first
+* Explicitly non-diagnostic
+* Multi-tenant SaaS
+* Backend-vendor-independent
+* Clear system boundaries to prevent scope creep
+* Mobile-responsive by default (tablets, reception, wards)
+
+---
+
+## 2. Explicit Non-Goals (Hard Boundaries)
+
+MediFlow **must NOT** include:
+
+* Diagnostic or clinical decision systems
+* Pharmacy inventory or dispensing systems
+* AI-based medical analysis
+* Insurance claims, reimbursements, or payer integrations
+* National or regional health registries
+* Certified / compliant full EMR or EHR systems
+
+  * No ICD/CPT enforcement
+  * No legal-grade medical record guarantees
+* Lab result interpretation or imaging integration
+
+> MediFlow stores **operational and clinician-entered notes only**.
+> All medical judgment remains outside the system.
+
+---
+
+## 3. SaaS & Tenant Architecture
+
+### Tenant Model
+
+* One tenant = one hospital or clinic
+* Strict tenant isolation
+* Shared database with mandatory `tenant_id` on all domain entities
+
+### Tenant Resolution
+
+* Primary: subdomain-based
+  `tenant-name.mediflow.app`
+* Optional Phase 2: custom domains
+
+### User–Tenant Relationship
+
+* Users belong to exactly one tenant
+* Roles are tenant-scoped
+* No cross-tenant data access under any circumstance
+
+---
+
+## 4. Roles & Access Control
+
+### Roles
+
+* Super Admin (platform owner)
+* Hospital Admin
+* Receptionist
+* Nurse
+* Doctor
+* Accountant / Finance
+
+### Access Enforcement
+
+* Role-based access control (RBAC)
+* Enforced via:
+
+  * NestJS Guards
+  * Service-layer authorization rules
+
+---
+
+## 5. Core Modules (MVP)
+
+### 5.1 Patient Registration & Visit Lifecycle
+
+* Patient registration (minimal demographics)
+* Visit creation
+* Referral source (walk-in, referral, emergency)
+* Visit priority:
+
+  * Normal
+  * Urgent
+  * Emergency
+* Visit status lifecycle:
+
+  * Registered
+  * Waiting
+  * In Consultation
+  * Completed
+  * No-show
+  * Cancelled
+
+No diagnosis modeling or clinical logic.
+
+---
+
+### 5.2 Queue & Flow Management
+
+* Department-based live queues
+* Real-time status visibility
+* Configurable queue rules:
+
+  * Max waiting time thresholds
+  * Priority overrides
+* Automatic and manual no-show handling
+
+---
+
+### 5.3 Nurse / Support Staff Workspace
+
+* View assigned patients
+* Capture basic vitals:
+
+  * Height
+  * Weight
+  * Blood pressure
+  * Temperature
+  * Pulse
+* Add preparation notes
+* Advance visit status to doctor
+
+Vitals are simple numeric fields — **no trends, no analysis**.
+
+---
+
+### 5.4 Doctor Workspace (Lightweight)
+
+* Daily schedule
+* Assigned patient list
+* Free-text consultation notes
+* File attachments (scans, reports)
+* Text-based prescription notes
+
+  * No drug database
+  * No dispensing logic
+
+---
+
+### 5.5 Billing & Payments (Bounded Scope)
+
+#### Billing
+
+* Visit-level billing
+* Simple line items
+* No insurance logic
+
+#### Payments
+
+* Cash
+* Stripe (card)
+
+#### Stripe Integration
+
+* Checkout session creation (backend-only)
+* Webhook verification and handling
+* Payment status synchronization
+
+#### Cash Payments
+
+* Manual marking by authorized staff
+* Optional receipt attachment
+
+---
+
+## 6. System Settings (Tenant-Level)
+
+### Operational Settings
+
+* Working hours
+* Departments & services
+* Visit fees
+* Queue timeout thresholds
+* No-show rules
+
+### User Management
+
+* Invite users
+* Assign roles
+* Deactivate users
+
+### Branding
+
+* Tenant logo
+* Primary color
+* Invoice / receipt header details
+
+---
+
+## 7. Analytics & Reporting
+
+### Operational Metrics (Derived)
+
+* Patients per day
+* Average wait time
+* No-show rate
+* Visits per department
+* Doctor utilization
+* Revenue breakdown (cash vs card)
+
+### Reporting
+
+* Date-range filtering
+* CSV export
+
+No predictive or clinical analytics.
+
+---
+
+## 8. Security & Auditing
+
+* JWT-based authentication
+* Password hashing
+* Role-based authorization
+* Audit logs for:
+
+  * Visit state changes
+  * Payment actions
+  * User management events
+* Secure file access controls
+
+Security-focused, but **not medical compliance software**.
+
+---
+
+## 9. File & Object Storage (Decoupled)
+
+### Storage Abstraction
+
+* File handling abstracted behind backend service interface
+* Backend controls object lifecycle
+* Storage provider can be swapped without domain changes
+
+### Initial Provider
+
+* Cloudinary (files, PDFs, images)
+
+### Future Flexibility
+
+* Switchable to S3-compatible storage (MinIO, DO Spaces, etc.)
+* No frontend dependency on provider URLs
+
+---
+
+## 10. Deployment Strategy
+
+### Frontend
+
+* Next.js
+* Deployed on **Vercel**
+
+### Backend
+
+* NestJS
+* Deployed on **Vercel (Serverless or Edge where appropriate)**
+
+### Database
+
+* Managed or self-hosted PostgreSQL
+* No BaaS dependency
+
+---
+
+## 11. Phase 2 — Careful Expansion (Approved)
+
+### Bed / Room Management
+
+* Room definitions
+* Bed occupancy tracking
+* Assignment to visits
+* Status only (occupied / free)
+
+No inpatient clinical workflows.
+
+---
+
+### Lab Test Request Tracking (Status-Only)
+
+* Lab test request creation
+* Status tracking:
+
+  * Requested
+  * Collected
+  * Processing
+  * Completed
+* Optional attachment of external lab result files
+
+No lab result interpretation or integration.
+
+---
+
+### Discharge Summaries
+
+* Generate discharge summary per visit
+* PDF generation
+* Stored via storage abstraction
+* Printable and downloadable
+
+---
+
+## 12. Explicitly Deferred (Phase 3+ or Never)
+
+* Pharmacy systems
+* Insurance & claims
+* Diagnostic engines
+* AI/ML features
+* Radiology integrations
+* National health systems
+* Telemedicine
+* Full inpatient clinical workflows
+
+---
+
+## Final Status
+
+**Mind map is complete, internally consistent, and frozen.**
+It is suitable for:
+
+* Direct implementation by a code agent
+* Portfolio presentation
+* Technical interviews
+* Incremental real-world deployment
+
+If you want, next we can:
+
+* Convert this into **domain entities**
+* Generate **NestJS module boundaries**
+* Produce **API contracts**
+* Or create a **task breakdown for an autonomous code agent**
+
+Just say which one.

@@ -1,0 +1,112 @@
+**Yes — but only in a very controlled, lightweight form.**
+This is important to be precise about.
+
+---
+
+## What MediFlow *DOES* Have (Allowed)
+
+### ✅ Patient Medical History (Lightweight, Non-Clinical)
+
+MediFlow stores **historical visit context**, not a full medical record.
+
+**Included:**
+
+* Visit history timeline per patient
+* For each visit:
+
+  * Date & department
+  * Attending doctor
+  * Free-text consultation notes
+  * Free-text prescription notes
+  * Attached files (PDFs, scans, external lab results)
+  * Discharge summary (PDF – Phase 2)
+
+This allows:
+
+* Doctors to see *past encounters*
+* Operational continuity
+* Realistic day-to-day hospital usage
+
+---
+
+## What MediFlow *DOES NOT* Have (Explicitly Excluded)
+
+### ❌ No Structured Clinical History
+
+MediFlow does **not** store:
+
+* Diagnoses (coded or structured)
+* ICD / CPT / SNOMED codes
+* Problem lists
+* Allergies database
+* Medication history with drug intelligence
+* Clinical timelines or condition tracking
+* Treatment plans or outcomes analysis
+
+All medical information is:
+
+* **Text-based**
+* **Clinician-entered**
+* **Non-interpreted**
+* **Non-decision-supporting**
+
+---
+
+## How This Should Be Described in the System
+
+### Correct Terminology to Use
+
+* “Visit history”
+* “Consultation notes”
+* “Encounter records”
+* “Operational medical notes”
+
+### Terminology to Avoid
+
+* “Medical history” (alone)
+* “Patient record” (without qualifier)
+* “EMR / EHR”
+* “Clinical record system”
+
+---
+
+## Canonical Definition (You Can Paste This Into Docs / README)
+
+> **Patient History in MediFlow**
+> MediFlow maintains a chronological history of patient visits, including clinician-entered notes, prescriptions (text only), attachments, and discharge summaries.
+>
+> It does not model diagnoses, conditions, or clinical decisions and does not function as a certified EMR or EHR system.
+
+---
+
+## Why This Is the Right Balance
+
+* Real hospitals **need history visibility**
+* Operations software **must show past visits**
+* But crossing into structured medical modeling:
+
+  * Raises regulatory concerns
+  * Explodes scope
+  * Undermines credibility
+
+This design keeps MediFlow:
+
+* Realistic
+* Defensible
+* Buildable
+* Interview-safe
+
+---
+
+### Bottom line
+
+✔ **Yes**, there is patient visit history
+❌ **No**, there is no full medical or diagnostic history system
+
+If you want next, I can:
+
+* Define the **exact data model** for patient history
+* Write the **UI copy** that avoids clinical wording
+* Or define **access rules** (who can see past notes)
+
+Just say the word.
