@@ -70,6 +70,7 @@ model Tenant {
   visits            Visit[]
   insurancePolicies InsurancePolicy[]
   appointments      Appointment[]
+  doctorSchedules   DoctorAvailability[]
 }
 
 model User {
@@ -88,6 +89,7 @@ model User {
   assignedVisits     Visit[]       @relation("DoctorVisits")
   nursedVisits       Visit[]       @relation("NurseVisits")
   doctorAppointments Appointment[] @relation("DoctorAppointments")
+  doctorSchedules    DoctorAvailability[] @relation("DoctorSchedules")
 
   verifiedPayments  Payments[]       @relation("CashierPayments")
   verifiedCoverages CoverageRecord[] @relation("CashierCoverages")
@@ -294,4 +296,22 @@ model Appointment {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model DoctorAvailability {
+  id        String   @id @default(uuid())
+  dayOfWeek Int      // 0-6 (Sunday to Saturday)
+  startTime String   // HH:mm format
+  endTime   String   // HH:mm format
+  isActive  Boolean  @default(true)
+
+  doctor    User     @relation("DoctorSchedules", fields: [doctorId], references: [id])
+  doctorId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  tenantId  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([doctorId, dayOfWeek, tenantId])
 }

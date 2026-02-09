@@ -9,6 +9,7 @@ import {
     Users,
     ClipboardList,
     Calendar,
+    Clock,
     Settings,
     LogOut
 } from 'lucide-react';
@@ -18,6 +19,7 @@ const navigation = [
     { name: 'Patients', href: '/dashboard/patients', icon: Users },
     { name: 'Visits', href: '/dashboard/visits', icon: ClipboardList },
     { name: 'Appointments', href: '/dashboard/appointments', icon: Calendar },
+    { name: 'Schedule', href: '/dashboard/schedule', icon: Clock },
     { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ];
 

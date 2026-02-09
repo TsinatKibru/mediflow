@@ -34,6 +34,8 @@ export function AppointmentModal({ isOpen, onClose, onSuccess, selectedDate, exi
     const [doctors, setDoctors] = useState<Doctor[]>([]);
     const [patients, setPatients] = useState<Patient[]>([]);
     const [searchPatient, setSearchPatient] = useState('');
+    const [doctorAvailability, setDoctorAvailability] = useState<any[]>([]);
+    const [isTimeValid, setIsTimeValid] = useState(true);
 
     const [formData, setFormData] = useState({
         patientId: '',
@@ -73,6 +75,48 @@ export function AppointmentModal({ isOpen, onClose, onSuccess, selectedDate, exi
         }
     }, [isOpen, selectedDate, existingAppointment]);
 
+    useEffect(() => {
+        if (formData.doctorId) {
+            fetchDoctorAvailability(formData.doctorId);
+        } else {
+            setDoctorAvailability([]);
+        }
+    }, [formData.doctorId]);
+
+    useEffect(() => {
+        validateTime();
+    }, [formData.startTime, formData.endTime, formData.date, doctorAvailability]);
+
+    const fetchDoctorAvailability = async (doctorId: string) => {
+        try {
+            const res = await fetch(`http://localhost:3000/schedule/${doctorId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.ok) setDoctorAvailability(await res.json());
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const validateTime = () => {
+        if (!formData.doctorId || doctorAvailability.length === 0) {
+            setIsTimeValid(true);
+            return;
+        }
+
+        const date = new Date(formData.date);
+        const dayOfWeek = date.getDay();
+        const schedule = doctorAvailability.find(a => a.dayOfWeek === dayOfWeek);
+
+        if (!schedule || !schedule.isActive) {
+            setIsTimeValid(false);
+            return;
+        }
+
+        const isValid = formData.startTime >= schedule.startTime && formData.endTime <= schedule.endTime;
+        setIsTimeValid(isValid);
+    };
+
     const fetchDoctors = async () => {
         try {
             const res = await fetch('http://localhost:3000/appointments/doctors', {
@@ -99,8 +143,23 @@ export function AppointmentModal({ isOpen, onClose, onSuccess, selectedDate, exi
         e.preventDefault();
         setLoading(true);
 
-        const startDateTime = new Date(`${formData.date}T${formData.startTime}`).toISOString();
-        const endDateTime = new Date(`${formData.date}T${formData.endTime}`).toISOString();
+        const start = new Date(`${formData.date}T${formData.startTime}`);
+        const end = new Date(`${formData.date}T${formData.endTime}`);
+
+        if (end <= start) {
+            toast.error('End time must be after start time');
+            setLoading(false);
+            return;
+        }
+
+        const startDateTime = start.toISOString();
+        const endDateTime = end.toISOString();
+
+        if (formData.doctorId && !isTimeValid) {
+            toast.error('Selected time is outside the doctor\'s working hours');
+            setLoading(false);
+            return;
+        }
 
         const payload = {
             patientId: formData.patientId,
@@ -225,6 +284,12 @@ export function AppointmentModal({ isOpen, onClose, onSuccess, selectedDate, exi
                             />
                         </div>
                     </div>
+
+                    {!isTimeValid && formData.doctorId && (
+                        <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-md text-sm">
+                            Warning: Selected time is outside the doctor's working hours for this day.
+                        </div>
+                    )}
 
                     <div>
                         <Label>Reason</Label>

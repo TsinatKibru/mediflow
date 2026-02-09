@@ -16,6 +16,13 @@ export class AppointmentsService {
 
         // Check for overlaps if a doctor is assigned
         if (doctorId) {
+            // 1. Check working hours
+            const isAvailable = await this.isDoctorAvailable(doctorId, startTime, endTime, tenantId);
+            if (!isAvailable) {
+                throw new BadRequestException('The selected time is outside the doctor\'s working hours.');
+            }
+
+            // 2. Check for overlaps
             const hasOverlap = await this.checkForOverlap(doctorId, startTime, endTime, tenantId);
             if (hasOverlap) {
                 throw new BadRequestException('The selected time slot is already booked for this doctor.');
@@ -86,9 +93,16 @@ export class AppointmentsService {
             throw new BadRequestException('End time must be after start time');
         }
 
-        // Check overlap only if time or doctor changes
+        // Check overlap/availability only if time or doctor changes
         const doctorId = updateAppointmentDto.doctorId || appointment.doctorId;
         if (doctorId && (updateAppointmentDto.startTime || updateAppointmentDto.endTime || updateAppointmentDto.doctorId)) {
+            // 1. Check working hours
+            const isAvailable = await this.isDoctorAvailable(doctorId, startTime, endTime, tenantId);
+            if (!isAvailable) {
+                throw new BadRequestException('The selected time is outside the doctor\'s working hours.');
+            }
+
+            // 2. Check for overlaps
             const hasOverlap = await this.checkForOverlap(doctorId, startTime, endTime, tenantId, id);
             if (hasOverlap) {
                 throw new BadRequestException('The selected time slot is already booked for this doctor.');
@@ -120,6 +134,33 @@ export class AppointmentsService {
                 lastName: true,
             },
         });
+    }
+
+    private async isDoctorAvailable(doctorId: string, start: string, end: string, tenantId: string): Promise<boolean> {
+        const startDate = new Date(start);
+        const dayOfWeek = startDate.getDay();
+
+        const availability = await this.prisma.doctorAvailability.findFirst({
+            where: {
+                doctorId,
+                dayOfWeek,
+                tenantId,
+                isActive: true,
+            },
+        });
+
+        if (!availability) {
+            // If no schedule is set, we could either allow or block. 
+            // In a strict system, we block or assume default hours. 
+            // Let's assume they must have a schedule set to be bookable.
+            return false;
+        }
+
+        // Compare times as strings "HH:mm"
+        const aptStartStr = startDate.toTimeString().slice(0, 5);
+        const aptEndStr = new Date(end).toTimeString().slice(0, 5);
+
+        return aptStartStr >= availability.startTime && aptEndStr <= availability.endTime;
     }
 
     private async checkForOverlap(doctorId: string, start: string, end: string, tenantId: string, excludeId?: string): Promise<boolean> {

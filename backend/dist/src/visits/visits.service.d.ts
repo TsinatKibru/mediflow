@@ -78,11 +78,11 @@ export declare class VisitsService {
             status: string;
             reason: string | null;
             visitId: string;
-            insurancePolicyId: string | null;
             amountCharged: import("@prisma/client/runtime/library").Decimal;
             amountPaid: import("@prisma/client/runtime/library").Decimal;
             method: import(".prisma/client").$Enums.PaymentMethod;
             serviceType: import(".prisma/client").$Enums.ServiceType;
+            insurancePolicyId: string | null;
             verifiedById: string | null;
         }[];
         coverage: {
@@ -91,13 +91,13 @@ export declare class VisitsService {
             updatedAt: Date;
             notes: string | null;
             visitId: string;
+            insurancePolicyId: string | null;
+            verifiedById: string | null;
             type: import(".prisma/client").$Enums.CoverageType;
             referenceNumber: string | null;
             issuedToName: string | null;
             issueYear: number | null;
             expiryYear: number | null;
-            insurancePolicyId: string | null;
-            verifiedById: string | null;
             verifiedAt: Date;
         } | null;
     } & {
@@ -181,11 +181,11 @@ export declare class VisitsService {
             status: string;
             reason: string | null;
             visitId: string;
-            insurancePolicyId: string | null;
             amountCharged: import("@prisma/client/runtime/library").Decimal;
             amountPaid: import("@prisma/client/runtime/library").Decimal;
             method: import(".prisma/client").$Enums.PaymentMethod;
             serviceType: import(".prisma/client").$Enums.ServiceType;
+            insurancePolicyId: string | null;
             verifiedById: string | null;
         }[];
         coverage: {
@@ -194,13 +194,13 @@ export declare class VisitsService {
             updatedAt: Date;
             notes: string | null;
             visitId: string;
+            insurancePolicyId: string | null;
+            verifiedById: string | null;
             type: import(".prisma/client").$Enums.CoverageType;
             referenceNumber: string | null;
             issuedToName: string | null;
             issueYear: number | null;
             expiryYear: number | null;
-            insurancePolicyId: string | null;
-            verifiedById: string | null;
             verifiedAt: Date;
         } | null;
     } & {

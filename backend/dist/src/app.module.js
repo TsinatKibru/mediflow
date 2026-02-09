@@ -20,6 +20,7 @@ const departments_module_1 = require("./departments/departments.module");
 const payments_module_1 = require("./payments/payments.module");
 const insurance_policies_module_1 = require("./insurance-policies/insurance-policies.module");
 const appointments_module_1 = require("./appointments/appointments.module");
+const schedule_module_1 = require("./schedule/schedule.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -35,7 +36,8 @@ exports.AppModule = AppModule = __decorate([
             departments_module_1.DepartmentsModule,
             payments_module_1.PaymentsModule,
             insurance_policies_module_1.InsurancePoliciesModule,
-            appointments_module_1.AppointmentsModule
+            appointments_module_1.AppointmentsModule,
+            schedule_module_1.ScheduleModule
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

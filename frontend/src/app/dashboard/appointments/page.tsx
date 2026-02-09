@@ -103,9 +103,9 @@ export default function AppointmentsPage() {
         ? events
         : events.filter((e: any) => e.resourceId === selectedDoctorId);
 
-    // Only show resource columns in 'day' view when "All Doctors" is selected.
-    // This prevents the week view from becoming too wide when many doctors are present.
-    const calendarResources = currentView === 'day' && selectedDoctorId === 'all'
+    // Show resource columns in 'day' view, or 'week' view if there aren't too many doctors.
+    // This provides a good balance between detail and horizontal space.
+    const calendarResources = (currentView === 'day' || (currentView === 'week' && doctors.length <= 5)) && selectedDoctorId === 'all'
         ? doctors
         : undefined;
 

@@ -23,6 +23,10 @@ let AppointmentsService = class AppointmentsService {
             throw new common_1.BadRequestException('End time must be after start time');
         }
         if (doctorId) {
+            const isAvailable = await this.isDoctorAvailable(doctorId, startTime, endTime, tenantId);
+            if (!isAvailable) {
+                throw new common_1.BadRequestException('The selected time is outside the doctor\'s working hours.');
+            }
             const hasOverlap = await this.checkForOverlap(doctorId, startTime, endTime, tenantId);
             if (hasOverlap) {
                 throw new common_1.BadRequestException('The selected time slot is already booked for this doctor.');
@@ -83,6 +87,10 @@ let AppointmentsService = class AppointmentsService {
         }
         const doctorId = updateAppointmentDto.doctorId || appointment.doctorId;
         if (doctorId && (updateAppointmentDto.startTime || updateAppointmentDto.endTime || updateAppointmentDto.doctorId)) {
+            const isAvailable = await this.isDoctorAvailable(doctorId, startTime, endTime, tenantId);
+            if (!isAvailable) {
+                throw new common_1.BadRequestException('The selected time is outside the doctor\'s working hours.');
+            }
             const hasOverlap = await this.checkForOverlap(doctorId, startTime, endTime, tenantId, id);
             if (hasOverlap) {
                 throw new common_1.BadRequestException('The selected time slot is already booked for this doctor.');
@@ -111,6 +119,24 @@ let AppointmentsService = class AppointmentsService {
                 lastName: true,
             },
         });
+    }
+    async isDoctorAvailable(doctorId, start, end, tenantId) {
+        const startDate = new Date(start);
+        const dayOfWeek = startDate.getDay();
+        const availability = await this.prisma.doctorAvailability.findFirst({
+            where: {
+                doctorId,
+                dayOfWeek,
+                tenantId,
+                isActive: true,
+            },
+        });
+        if (!availability) {
+            return false;
+        }
+        const aptStartStr = startDate.toTimeString().slice(0, 5);
+        const aptEndStr = new Date(end).toTimeString().slice(0, 5);
+        return aptStartStr >= availability.startTime && aptEndStr <= availability.endTime;
     }
     async checkForOverlap(doctorId, start, end, tenantId, excludeId) {
         const count = await this.prisma.appointment.count({

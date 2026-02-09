@@ -11,6 +11,7 @@ import { DepartmentsModule } from './departments/departments.module';
 import { PaymentsModule } from './payments/payments.module';
 import { InsurancePoliciesModule } from './insurance-policies/insurance-policies.module';
 import { AppointmentsModule } from './appointments/appointments.module';
+import { ScheduleModule } from './schedule/schedule.module';
 
 @Module({
   imports: [
@@ -23,7 +24,8 @@ import { AppointmentsModule } from './appointments/appointments.module';
     DepartmentsModule,
     PaymentsModule,
     InsurancePoliciesModule,
-    AppointmentsModule
+    AppointmentsModule,
+    ScheduleModule
   ],
   controllers: [AppController],
   providers: [AppService],
