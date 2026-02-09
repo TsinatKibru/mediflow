@@ -14,6 +14,7 @@ import { AppointmentModal } from './AppointmentModal';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import toast from 'react-hot-toast';
+import { Combobox } from '@/components/ui/Combobox';
 
 const locales = {
     'en-US': enUS,
@@ -30,6 +31,8 @@ const localizer = dateFnsLocalizer({
 export default function AppointmentsPage() {
     const { token } = useAuthStore();
     const [events, setEvents] = useState([]);
+    const [doctors, setDoctors] = useState<any[]>([]);
+    const [selectedDoctorId, setSelectedDoctorId] = useState('all');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentDate, setCurrentDate] = useState(new Date());
     const [currentView, setCurrentView] = useState<any>('week');
@@ -44,9 +47,10 @@ export default function AppointmentsPage() {
             if (res.ok) {
                 const data = await res.json();
                 const mappedEvents = data.map((apt: any) => ({
-                    title: `${apt.patient.firstName} ${apt.patient.lastName} ${apt.doctor ? `(w/ Dr. ${apt.doctor.lastName})` : ''}`,
+                    title: `${apt.patient.firstName} ${apt.patient.lastName} ${apt.doctor ? `(Dr. ${apt.doctor.lastName})` : ''}`,
                     start: new Date(apt.startTime),
                     end: new Date(apt.endTime),
+                    resourceId: apt.doctorId,
                     resource: apt,
                 }));
                 setEvents(mappedEvents);
@@ -59,8 +63,28 @@ export default function AppointmentsPage() {
         }
     };
 
+    const fetchDoctors = async () => {
+        try {
+            const res = await fetch('http://localhost:3000/appointments/doctors', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setDoctors(data.map((d: any) => ({
+                    id: d.id,
+                    title: `Dr. ${d.firstName} ${d.lastName}`
+                })));
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     useEffect(() => {
-        if (token) fetchAppointments();
+        if (token) {
+            fetchAppointments();
+            fetchDoctors();
+        }
     }, [token]);
 
     const handleSelectSlot = (slotInfo: { start: Date; end: Date }) => {
@@ -75,6 +99,21 @@ export default function AppointmentsPage() {
         setIsModalOpen(true);
     };
 
+    const filteredEvents = selectedDoctorId === 'all'
+        ? events
+        : events.filter((e: any) => e.resourceId === selectedDoctorId);
+
+    // Only show resource columns in 'day' view when "All Doctors" is selected.
+    // This prevents the week view from becoming too wide when many doctors are present.
+    const calendarResources = currentView === 'day' && selectedDoctorId === 'all'
+        ? doctors
+        : undefined;
+
+    const comboboxItems = [
+        { value: 'all', label: 'All Doctors' },
+        ...doctors.map(d => ({ value: d.id, label: d.title }))
+    ];
+
     return (
         <DashboardLayout>
             <div className="h-full flex flex-col space-y-4">
@@ -83,16 +122,27 @@ export default function AppointmentsPage() {
                         <h1 className="text-2xl font-bold text-slate-900">Appointments</h1>
                         <p className="text-slate-500 text-sm">Manage clinic schedule</p>
                     </div>
-                    <Button onClick={() => { setSelectedSlot(new Date()); setSelectedAppointment(null); setIsModalOpen(true); }}>
-                        <Plus className="h-4 w-4 mr-2" />
-                        New Appointment
-                    </Button>
+                    <div className="flex items-center gap-4">
+                        <div className="w-64">
+                            <Combobox
+                                items={comboboxItems}
+                                value={selectedDoctorId}
+                                onChange={(val) => setSelectedDoctorId(val || 'all')}
+                                placeholder="Select Doctor..."
+                                searchPlaceholder="Search doctors..."
+                            />
+                        </div>
+                        <Button onClick={() => { setSelectedSlot(new Date()); setSelectedAppointment(null); setIsModalOpen(true); }}>
+                            <Plus className="h-4 w-4 mr-2" />
+                            New Appointment
+                        </Button>
+                    </div>
                 </div>
 
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex-1 min-h-[600px]">
                     <Calendar
                         localizer={localizer}
-                        events={events}
+                        events={filteredEvents}
                         startAccessor="start"
                         endAccessor="end"
                         style={{ height: '100%' }}
@@ -104,6 +154,9 @@ export default function AppointmentsPage() {
                         date={currentDate}
                         onView={(view) => setCurrentView(view)}
                         onNavigate={(date) => setCurrentDate(date)}
+                        resources={calendarResources}
+                        resourceIdAccessor="id"
+                        resourceTitleAccessor="title"
                         defaultView="week"
                         min={new Date(0, 0, 0, 8, 0, 0)}
                         max={new Date(0, 0, 0, 18, 0, 0)}
