@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/Dialog';
 import { Button } from '@/components/ui/Button';
 import { Label } from '@/components/ui/Label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
+import { Combobox } from '@/components/ui/Combobox';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { useState, useEffect } from 'react';
@@ -170,37 +170,27 @@ export function AppointmentModal({ isOpen, onClose, onSuccess, selectedDate, exi
                     {!existingAppointment && (
                         <div>
                             <Label>Patient</Label>
-                            <Select
+                            <Combobox
+                                items={patients.map(p => ({ value: p.id, label: `${p.firstName} ${p.lastName}` }))}
                                 value={formData.patientId}
-                                onValueChange={(val: string) => setFormData({ ...formData, patientId: val })}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select patient" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {patients.map(p => (
-                                        <SelectItem key={p.id} value={p.id}>{p.firstName} {p.lastName}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                                onChange={(val: string) => setFormData({ ...formData, patientId: val })}
+                                placeholder="Select patient"
+                                searchPlaceholder="Search patients..."
+                                emptyText="No patient found."
+                            />
                         </div>
                     )}
 
                     <div>
                         <Label>Doctor</Label>
-                        <Select
+                        <Combobox
+                            items={doctors.map(d => ({ value: d.id, label: `Dr. ${d.firstName} ${d.lastName}` }))}
                             value={formData.doctorId}
-                            onValueChange={(val: string) => setFormData({ ...formData, doctorId: val })}
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder="Assign doctor (optional)" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {doctors.map(d => (
-                                    <SelectItem key={d.id} value={d.id}>Dr. {d.firstName} {d.lastName}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                            onChange={(val: string) => setFormData({ ...formData, doctorId: val })}
+                            placeholder="Assign doctor (optional)"
+                            searchPlaceholder="Search doctors..."
+                            emptyText="No doctor found."
+                        />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
