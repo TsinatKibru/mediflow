@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
+import { UpdatePaymentDto } from './dto/update-payment.dto';
 
 @Injectable()
 export class PaymentsService {
@@ -90,5 +91,40 @@ export class PaymentsService {
         });
 
         return { payments, coverage };
+    }
+
+    async update(id: string, dto: UpdatePaymentDto) {
+        const payment = await this.prisma.payments.findUnique({
+            where: { id }
+        });
+
+        if (!payment) {
+            throw new NotFoundException(`Payment with ID ${id} not found`);
+        }
+
+        return this.prisma.payments.update({
+            where: { id },
+            data: {
+                amountCharged: dto.amountCharged,
+                amountPaid: dto.amountPaid,
+                method: dto.method,
+                serviceType: dto.serviceType as any,
+                reason: dto.reason,
+            }
+        });
+    }
+
+    async remove(id: string) {
+        const payment = await this.prisma.payments.findUnique({
+            where: { id }
+        });
+
+        if (!payment) {
+            throw new NotFoundException(`Payment with ID ${id} not found`);
+        }
+
+        return this.prisma.payments.delete({
+            where: { id }
+        });
     }
 }

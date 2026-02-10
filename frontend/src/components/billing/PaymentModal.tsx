@@ -6,10 +6,14 @@ import { cn } from '@/lib/utils';
 import {
     AlertCircle,
     Printer,
-    Receipt,
-    ShieldCheck,
+    DollarSign,
+    Edit3,
+    Power,
+    Edit2,
+    Trash2,
     Activity,
-    UserPlus
+    UserPlus,
+    Receipt
 } from 'lucide-react';
 import {
     Patient,
@@ -35,6 +39,7 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [isAddingTransaction, setIsAddingTransaction] = useState(false);
+    const [editingPaymentId, setEditingPaymentId] = useState<string | null>(null);
     const [printMode, setPrintMode] = useState<'ledger' | 'receipt'>('ledger');
     const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
     const [hasCoverage, setHasCoverage] = useState(visit.coverage?.type !== 'SELF' && visit.coverage !== undefined);
@@ -45,8 +50,8 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
     const balance = totalBilled - totalPaid;
 
     const [formData, setFormData] = useState({
-        amountCharged: '0',
-        amountPaid: '0',
+        amountCharged: '',
+        amountPaid: '',
         method: 'CASH' as 'CASH' | 'WAIVED' | 'PARTIAL' | 'OTHER',
         serviceType: 'CONSULTATION' as 'REGISTRATION' | 'CONSULTATION' | 'LABORATORY' | 'PHARMACY' | 'PROCEDURE' | 'RADIOLOGY' | 'OTHER',
         reason: '',
@@ -65,6 +70,11 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
         setError('');
 
         try {
+            const url = editingPaymentId
+                ? `http://localhost:3000/payments/${editingPaymentId}`
+                : 'http://localhost:3000/payments';
+            const method = editingPaymentId ? 'PATCH' : 'POST';
+
             const body: any = {
                 visitId: visit.id,
                 amountCharged: parseFloat(formData.amountCharged),
@@ -94,8 +104,8 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
                 return;
             }
 
-            const response = await fetch('http://localhost:3000/payments', {
-                method: 'POST',
+            const response = await fetch(url, {
+                method,
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
@@ -110,9 +120,42 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
 
             onSuccess();
             setIsAddingTransaction(false);
-            setFormData({ ...formData, amountCharged: '0', amountPaid: '0', reason: '' });
+            setEditingPaymentId(null);
+            setFormData({ ...formData, amountCharged: '', amountPaid: '', reason: '' });
         } catch (err: any) {
             setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleEdit = (payment: any) => {
+        setEditingPaymentId(payment.id);
+        setFormData({
+            amountCharged: payment.amountCharged.toString(),
+            amountPaid: payment.amountPaid.toString(),
+            method: payment.method,
+            serviceType: payment.serviceType,
+            reason: payment.reason || ''
+        });
+        setIsAddingTransaction(true);
+    };
+
+    const handleDelete = async (paymentId: string) => {
+        if (!confirm('Are you sure you want to void this transaction?')) return;
+        setLoading(true);
+        try {
+            const res = await fetch(`http://localhost:3000/payments/${paymentId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (res.ok) {
+                onSuccess();
+            }
+        } catch (error) {
+            console.error('Error deleting transaction:', error);
         } finally {
             setLoading(false);
         }
@@ -310,7 +353,11 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
                                                 <td className="px-4 py-3 text-right font-medium text-emerald-600">{Number(p.amountPaid).toFixed(2)}</td>
                                                 <td className="px-4 py-3 text-slate-500 text-[10px]">{p.verifiedBy ? `${p.verifiedBy.firstName} ${p.verifiedBy.lastName}` : 'System'}</td>
                                                 <td className="px-4 py-3 text-center">
-                                                    <button onClick={() => handlePrintReceipt(p.id)} className="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg"><Printer className="h-3.5 w-3.5" /></button>
+                                                    <div className="flex items-center justify-center gap-1">
+                                                        <button onClick={() => handlePrintReceipt(p.id)} className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg" title="Print Receipt"><Printer className="h-3.5 w-3.5" /></button>
+                                                        <button onClick={() => handleEdit(p)} className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg" title="Edit"><Edit2 className="h-3.5 w-3.5" /></button>
+                                                        <button onClick={() => handleDelete(p.id)} className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg" title="Void"><Trash2 className="h-3.5 w-3.5" /></button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))
@@ -326,8 +373,14 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
                 {isAddingTransaction && (
                     <div className="bg-slate-50 border border-indigo-100 rounded-xl p-5 space-y-4">
                         <div className="flex items-center justify-between">
-                            <h4 className="font-bold text-slate-800 flex items-center"><Activity className="h-4 w-4 mr-2 text-indigo-500" /> Record New Charge or Payment</h4>
-                            <Button variant="ghost" size="sm" onClick={() => setIsAddingTransaction(false)}>Cancel</Button>
+                            <h4 className="font-bold text-slate-800 flex items-center">
+                                <Activity className="h-4 w-4 mr-2 text-indigo-500" />
+                                {editingPaymentId ? 'Update Transaction' : 'Record New Charge or Payment'}
+                            </h4>
+                            <Button variant="ghost" size="sm" onClick={() => {
+                                setIsAddingTransaction(false);
+                                setEditingPaymentId(null);
+                            }}>Cancel</Button>
                         </div>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
@@ -380,7 +433,9 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
                                     </select>
                                 )}
                             </div>
-                            <Button type="submit" disabled={loading} className="w-full">Post Transaction</Button>
+                            <Button type="submit" disabled={loading} className="w-full">
+                                {editingPaymentId ? 'Update Transaction' : 'Post Transaction'}
+                            </Button>
                         </form>
                     </div>
                 )}

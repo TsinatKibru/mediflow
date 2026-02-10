@@ -90,6 +90,35 @@ let PaymentsService = class PaymentsService {
         });
         return { payments, coverage };
     }
+    async update(id, dto) {
+        const payment = await this.prisma.payments.findUnique({
+            where: { id }
+        });
+        if (!payment) {
+            throw new common_1.NotFoundException(`Payment with ID ${id} not found`);
+        }
+        return this.prisma.payments.update({
+            where: { id },
+            data: {
+                amountCharged: dto.amountCharged,
+                amountPaid: dto.amountPaid,
+                method: dto.method,
+                serviceType: dto.serviceType,
+                reason: dto.reason,
+            }
+        });
+    }
+    async remove(id) {
+        const payment = await this.prisma.payments.findUnique({
+            where: { id }
+        });
+        if (!payment) {
+            throw new common_1.NotFoundException(`Payment with ID ${id} not found`);
+        }
+        return this.prisma.payments.delete({
+            where: { id }
+        });
+    }
 };
 exports.PaymentsService = PaymentsService;
 exports.PaymentsService = PaymentsService = __decorate([

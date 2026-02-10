@@ -22,6 +22,7 @@ import { Card } from '@/components/ui/Card';
 import { Visit, Payment, Patient, InsurancePolicy } from '@/types/billing';
 import { useAuthStore } from '@/store/authStore';
 import { PaymentModal } from '@/components/billing/PaymentModal';
+import { NewBillModal } from '@/components/billing/NewBillModal';
 
 export default function BillingPage() {
     const { token, isHydrated } = useAuthStore();
@@ -32,6 +33,7 @@ export default function BillingPage() {
     const [selectedVisit, setSelectedVisit] = useState<Visit | null>(null);
     const [selectedPatientPolicies, setSelectedPatientPolicies] = useState<InsurancePolicy[]>([]);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+    const [isNewBillModalOpen, setIsNewBillModalOpen] = useState(false);
 
     useEffect(() => {
         if (isHydrated && token) {
@@ -168,19 +170,29 @@ export default function BillingPage() {
                     />
                 </div>
 
-                <div className="flex gap-2 p-1 bg-white rounded-xl shadow-sm border border-slate-100">
-                    {['ALL', 'UNPAID', 'PARTIAL', 'PAID'].map((s) => (
-                        <button
-                            key={s}
-                            onClick={() => setStatusFilter(s as any)}
-                            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${statusFilter === s
-                                ? 'bg-indigo-600 text-white shadow-md'
-                                : 'text-slate-500 hover:bg-slate-50'
-                                }`}
-                        >
-                            {s}
-                        </button>
-                    ))}
+                <div className="flex gap-4">
+                    <div className="flex gap-2 p-1 bg-white rounded-xl shadow-sm border border-slate-100 h-fit">
+                        {['ALL', 'UNPAID', 'PARTIAL', 'PAID'].map((s) => (
+                            <button
+                                key={s}
+                                onClick={() => setStatusFilter(s as any)}
+                                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${statusFilter === s
+                                    ? 'bg-indigo-600 text-white shadow-md'
+                                    : 'text-slate-500 hover:bg-slate-50'
+                                    }`}
+                            >
+                                {s}
+                            </button>
+                        ))}
+                    </div>
+
+                    <Button
+                        onClick={() => setIsNewBillModalOpen(true)}
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-100 flex items-center gap-2"
+                    >
+                        <Receipt className="h-4 w-4" />
+                        New Bill
+                    </Button>
                 </div>
             </div>
 
@@ -305,6 +317,17 @@ export default function BillingPage() {
                     policies={selectedPatientPolicies}
                 />
             )}
+            {/* New Bill Creation Modal */}
+            <NewBillModal
+                isOpen={isNewBillModalOpen}
+                onClose={() => setIsNewBillModalOpen(false)}
+                onSuccess={(newVisit) => {
+                    if (token) fetchVisits(token);
+                    setSelectedVisit(newVisit);
+                    if (newVisit.patientId) fetchPatientPolicies(newVisit.patientId);
+                    setIsPaymentModalOpen(true);
+                }}
+            />
         </div>
     );
 }
