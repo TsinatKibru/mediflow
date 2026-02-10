@@ -49,6 +49,19 @@ export class VisitsService {
         });
     }
 
+    async findByPatient(tenantId: string, patientId: string) {
+        return this.prisma.visit.findMany({
+            where: { tenantId, patientId },
+            include: {
+                patient: true,
+                department: true,
+                vitals: true,
+                consultation: true,
+            },
+            orderBy: { createdAt: 'desc' },
+        });
+    }
+
     async findOne(tenantId: string, id: string) {
         const visit = await this.prisma.visit.findFirst({
             where: { id, tenantId },

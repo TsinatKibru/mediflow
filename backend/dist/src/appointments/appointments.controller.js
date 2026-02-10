@@ -44,6 +44,9 @@ let AppointmentsController = class AppointmentsController {
     update(id, updateAppointmentDto, req) {
         return this.appointmentsService.update(id, updateAppointmentDto, req.user.tenantId);
     }
+    async checkIn(id, departmentId, req) {
+        return this.appointmentsService.checkIn(id, departmentId, req.user.tenantId);
+    }
     remove(id, req) {
         return this.appointmentsService.remove(id, req.user.tenantId);
     }
@@ -91,6 +94,15 @@ __decorate([
     __metadata("design:paramtypes", [String, update_appointment_dto_1.UpdateAppointmentDto, Object]),
     __metadata("design:returntype", void 0)
 ], AppointmentsController.prototype, "update", null);
+__decorate([
+    (0, common_1.Post)(':id/check-in'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)('departmentId')),
+    __param(2, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, Object]),
+    __metadata("design:returntype", Promise)
+], AppointmentsController.prototype, "checkIn", null);
 __decorate([
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Param)('id')),

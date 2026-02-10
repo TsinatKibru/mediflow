@@ -4,11 +4,6 @@ export declare class VisitsController {
     private readonly visitsService;
     constructor(visitsService: VisitsService);
     create(req: any, createVisitDto: CreateVisitDto): Promise<{
-        department: {
-            id: string;
-            name: string;
-            tenantId: string;
-        };
         patient: {
             id: string;
             createdAt: Date;
@@ -21,25 +16,25 @@ export declare class VisitsController {
             phone: string | null;
             email: string | null;
         };
+        department: {
+            id: string;
+            tenantId: string;
+            name: string;
+        };
     } & {
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        tenantId: string;
         status: import(".prisma/client").$Enums.VisitStatus;
         priority: import(".prisma/client").$Enums.Priority;
         reason: string | null;
+        createdAt: Date;
+        updatedAt: Date;
         patientId: string;
+        tenantId: string;
         departmentId: string;
         doctorId: string | null;
         nurseId: string | null;
     }>;
     findAll(req: any): Promise<({
-        department: {
-            id: string;
-            name: string;
-            tenantId: string;
-        };
         patient: {
             id: string;
             createdAt: Date;
@@ -51,6 +46,11 @@ export declare class VisitsController {
             gender: string;
             phone: string | null;
             email: string | null;
+        };
+        department: {
+            id: string;
+            tenantId: string;
+            name: string;
         };
         vitals: {
             id: string;
@@ -73,10 +73,10 @@ export declare class VisitsController {
         } | null;
         payments: {
             id: string;
-            createdAt: Date;
-            updatedAt: Date;
             status: string;
             reason: string | null;
+            createdAt: Date;
+            updatedAt: Date;
             visitId: string;
             amountCharged: import("@prisma/client/runtime/library").Decimal;
             amountPaid: import("@prisma/client/runtime/library").Decimal;
@@ -102,23 +102,18 @@ export declare class VisitsController {
         } | null;
     } & {
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        tenantId: string;
         status: import(".prisma/client").$Enums.VisitStatus;
         priority: import(".prisma/client").$Enums.Priority;
         reason: string | null;
+        createdAt: Date;
+        updatedAt: Date;
         patientId: string;
+        tenantId: string;
         departmentId: string;
         doctorId: string | null;
         nurseId: string | null;
     })[]>;
-    findOne(req: any, id: string): Promise<{
-        department: {
-            id: string;
-            name: string;
-            tenantId: string;
-        };
+    findByPatient(req: any, patientId: string): Promise<({
         patient: {
             id: string;
             createdAt: Date;
@@ -130,6 +125,61 @@ export declare class VisitsController {
             gender: string;
             phone: string | null;
             email: string | null;
+        };
+        department: {
+            id: string;
+            tenantId: string;
+            name: string;
+        };
+        vitals: {
+            id: string;
+            createdAt: Date;
+            height: number | null;
+            weight: number | null;
+            bpSystolic: number | null;
+            bpDiastolic: number | null;
+            temperature: number | null;
+            pulse: number | null;
+            notes: string | null;
+            visitId: string;
+        } | null;
+        consultation: {
+            id: string;
+            createdAt: Date;
+            notes: string;
+            visitId: string;
+            prescription: string | null;
+        } | null;
+    } & {
+        id: string;
+        status: import(".prisma/client").$Enums.VisitStatus;
+        priority: import(".prisma/client").$Enums.Priority;
+        reason: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        patientId: string;
+        tenantId: string;
+        departmentId: string;
+        doctorId: string | null;
+        nurseId: string | null;
+    })[]>;
+    findOne(req: any, id: string): Promise<{
+        patient: {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            tenantId: string;
+            firstName: string;
+            lastName: string;
+            dateOfBirth: Date;
+            gender: string;
+            phone: string | null;
+            email: string | null;
+        };
+        department: {
+            id: string;
+            tenantId: string;
+            name: string;
         };
         doctor: {
             id: string;
@@ -176,10 +226,10 @@ export declare class VisitsController {
         } | null;
         payments: {
             id: string;
-            createdAt: Date;
-            updatedAt: Date;
             status: string;
             reason: string | null;
+            createdAt: Date;
+            updatedAt: Date;
             visitId: string;
             amountCharged: import("@prisma/client/runtime/library").Decimal;
             amountPaid: import("@prisma/client/runtime/library").Decimal;
@@ -205,13 +255,13 @@ export declare class VisitsController {
         } | null;
     } & {
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        tenantId: string;
         status: import(".prisma/client").$Enums.VisitStatus;
         priority: import(".prisma/client").$Enums.Priority;
         reason: string | null;
+        createdAt: Date;
+        updatedAt: Date;
         patientId: string;
+        tenantId: string;
         departmentId: string;
         doctorId: string | null;
         nurseId: string | null;

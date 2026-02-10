@@ -11,7 +11,8 @@ import {
     Calendar,
     Clock,
     Settings,
-    LogOut
+    LogOut,
+    CreditCard
 } from 'lucide-react';
 
 const navigation = [
@@ -20,6 +21,7 @@ const navigation = [
     { name: 'Visits', href: '/dashboard/visits', icon: ClipboardList },
     { name: 'Appointments', href: '/dashboard/appointments', icon: Calendar },
     { name: 'Schedule', href: '/dashboard/schedule', icon: Clock },
+    { name: 'Billing', href: '/dashboard/billing', icon: CreditCard },
     { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ];
 

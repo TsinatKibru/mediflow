@@ -29,6 +29,9 @@ let VisitsController = class VisitsController {
     findAll(req) {
         return this.visitsService.findAll(req.user.tenantId);
     }
+    findByPatient(req, patientId) {
+        return this.visitsService.findByPatient(req.user.tenantId, patientId);
+    }
     findOne(req, id) {
         return this.visitsService.findOne(req.user.tenantId, id);
     }
@@ -55,6 +58,14 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], VisitsController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)('patient/:patientId'),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('patientId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], VisitsController.prototype, "findByPatient", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Req)()),

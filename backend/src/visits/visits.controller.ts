@@ -19,6 +19,11 @@ export class VisitsController {
         return this.visitsService.findAll(req.user.tenantId);
     }
 
+    @Get('patient/:patientId')
+    findByPatient(@Req() req: any, @Param('patientId') patientId: string) {
+        return this.visitsService.findByPatient(req.user.tenantId, patientId);
+    }
+
     @Get(':id')
     findOne(@Req() req: any, @Param('id') id: string) {
         return this.visitsService.findOne(req.user.tenantId, id);

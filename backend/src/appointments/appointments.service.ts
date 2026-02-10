@@ -115,6 +115,38 @@ export class AppointmentsService {
         });
     }
 
+    async checkIn(id: string, departmentId: string, tenantId: string) {
+        const appointment = await this.findOne(id, tenantId);
+
+        if (appointment.status === 'COMPLETED') {
+            throw new BadRequestException('Appointment is already completed or checked-in');
+        }
+
+        // Use a transaction to ensure both visit creation and appointment update succeed
+        return this.prisma.$transaction(async (tx) => {
+            const visit = await tx.visit.create({
+                data: {
+                    tenantId,
+                    patientId: appointment.patientId,
+                    doctorId: appointment.doctorId,
+                    departmentId: departmentId,
+                    status: 'WAITING',
+                    reason: appointment.reason,
+                },
+            });
+
+            await tx.appointment.update({
+                where: { id },
+                data: {
+                    status: 'COMPLETED',
+                    visitId: visit.id,
+                },
+            });
+
+            return visit;
+        });
+    }
+
     async remove(id: string, tenantId: string) {
         await this.findOne(id, tenantId);
         return this.prisma.appointment.delete({

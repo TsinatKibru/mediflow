@@ -38,6 +38,7 @@ export default function AppointmentsPage() {
     const [currentView, setCurrentView] = useState<any>('week');
     const [selectedSlot, setSelectedSlot] = useState<Date | null>(null);
     const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
+    const [availabilities, setAvailabilities] = useState<any[]>([]);
 
     const fetchAppointments = async () => {
         try {
@@ -80,12 +81,39 @@ export default function AppointmentsPage() {
         }
     };
 
+    const fetchAllAvailabilities = async () => {
+        try {
+            // Optimization: Fetch all availabilities for the tenant if possible, 
+            // but our current endpoint is per-doctor. 
+            // For now, let's fetch for each doctor in the list.
+            const allAvails: any[] = [];
+            for (const doc of doctors) {
+                const res = await fetch(`http://localhost:3000/schedule/${doc.id}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    allAvails.push(...data);
+                }
+            }
+            setAvailabilities(allAvails);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     useEffect(() => {
         if (token) {
             fetchAppointments();
             fetchDoctors();
         }
     }, [token]);
+
+    useEffect(() => {
+        if (token && doctors.length > 0) {
+            fetchAllAvailabilities();
+        }
+    }, [token, doctors]);
 
     const handleSelectSlot = (slotInfo: { start: Date; end: Date }) => {
         setSelectedSlot(slotInfo.start);
@@ -97,6 +125,39 @@ export default function AppointmentsPage() {
         setSelectedAppointment(event);
         setSelectedSlot(null);
         setIsModalOpen(true);
+    };
+
+    const slotPropGetter = (date: Date, resourceId?: any) => {
+        // Only grey out if a specific doctor is selected OR in resource view
+        const targetDoctorId = resourceId || (selectedDoctorId !== 'all' ? selectedDoctorId : null);
+        if (!targetDoctorId) return {};
+
+        const dayOfWeek = getDay(date);
+        const schedule = availabilities.find(a => a.doctorId === targetDoctorId && a.dayOfWeek === dayOfWeek);
+
+        // If no schedule found or inactive, grey it out
+        if (!schedule || !schedule.isActive) {
+            return {
+                style: {
+                    backgroundColor: '#f8fafc', // slate-50
+                    opacity: 0.6,
+                }
+            };
+        }
+
+        const timeStr = format(date, 'HH:mm');
+        const isOutside = timeStr < schedule.startTime || timeStr >= schedule.endTime;
+
+        if (isOutside) {
+            return {
+                style: {
+                    backgroundColor: '#f8fafc',
+                    opacity: 0.6,
+                }
+            };
+        }
+
+        return {};
     };
 
     const filteredEvents = selectedDoctorId === 'all'
@@ -157,9 +218,10 @@ export default function AppointmentsPage() {
                         resources={calendarResources}
                         resourceIdAccessor="id"
                         resourceTitleAccessor="title"
+                        slotPropGetter={slotPropGetter}
                         defaultView="week"
-                        min={new Date(0, 0, 0, 8, 0, 0)}
-                        max={new Date(0, 0, 0, 18, 0, 0)}
+                        min={new Date(0, 0, 0, 7, 0, 0)}
+                        max={new Date(0, 0, 0, 20, 0, 0)}
                     />
                 </div>
 

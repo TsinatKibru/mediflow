@@ -8,16 +8,18 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import {
     ClipboardList,
-    Stethoscope,
-    UserPlus,
     Search,
     RefreshCw,
     Clock,
     User as UserIcon,
     Activity,
+    Stethoscope,
     Filter,
-    X
+    X,
+    FileText,
+    UserPlus
 } from 'lucide-react';
+import { ClinicalDashboard } from '@/components/clinical/ClinicalDashboard';
 
 interface Visit {
     id: string;
@@ -38,8 +40,7 @@ export default function VisitsPage() {
     const { token, tenant } = useAuthStore();
     const [visits, setVisits] = useState<Visit[]>([]);
     const [loading, setLoading] = useState(true);
-    const [isTriageModalOpen, setIsTriageModalOpen] = useState(false);
-    const [isConsultModalOpen, setIsConsultModalOpen] = useState(false);
+    const [isDashOpen, setIsDashOpen] = useState(false);
     const [isCheckInModalOpen, setIsCheckInModalOpen] = useState(false);
     const [selectedVisitId, setSelectedVisitId] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
@@ -295,34 +296,18 @@ export default function VisitsPage() {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
-                                                {visit.status === 'REGISTERED' && (
-                                                    <Button
-                                                        variant="primary"
-                                                        size="sm"
-                                                        className="h-8 py-0 px-3 bg-indigo-50 text-indigo-600 hover:bg-indigo-500 hover:text-white border-indigo-100 shadow-none"
-                                                        onClick={() => {
-                                                            setSelectedVisitId(visit.id);
-                                                            setIsTriageModalOpen(true);
-                                                        }}
-                                                    >
-                                                        <Activity className="h-3.5 w-3.5 mr-1.5" />
-                                                        Triage
-                                                    </Button>
-                                                )}
-                                                {visit.status === 'WAITING' && (
-                                                    <Button
-                                                        variant="primary"
-                                                        size="sm"
-                                                        className="h-8 py-0 px-3 bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white border-emerald-100 shadow-none"
-                                                        onClick={() => {
-                                                            setSelectedVisitId(visit.id);
-                                                            setIsConsultModalOpen(true);
-                                                        }}
-                                                    >
-                                                        <Stethoscope className="h-3.5 w-3.5 mr-1.5" />
-                                                        Consult
-                                                    </Button>
-                                                )}
+                                                <Button
+                                                    variant="primary"
+                                                    size="sm"
+                                                    className="h-8 py-0 px-3 bg-indigo-50 text-indigo-600 hover:bg-indigo-500 hover:text-white border-indigo-100 shadow-none"
+                                                    onClick={() => {
+                                                        setSelectedVisitId(visit.id);
+                                                        setIsDashOpen(true);
+                                                    }}
+                                                >
+                                                    <FileText className="h-3.5 w-3.5 mr-1.5" />
+                                                    Clinical View
+                                                </Button>
                                                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                                                     <Search className="h-4 w-4" />
                                                 </Button>
@@ -336,21 +321,15 @@ export default function VisitsPage() {
                 </div>
             </div>
 
-            {/* Triage Modal */}
-            <TriageModal
-                isOpen={isTriageModalOpen}
-                onClose={() => setIsTriageModalOpen(false)}
-                visitId={selectedVisitId}
-                onSuccess={fetchVisits}
-            />
-
-            {/* Consultation Modal */}
-            <ConsultationModal
-                isOpen={isConsultModalOpen}
-                onClose={() => setIsConsultModalOpen(false)}
-                visitId={selectedVisitId}
-                onSuccess={fetchVisits}
-            />
+            {/* Clinical Dashboard Slide-over */}
+            {selectedVisitId && (
+                <ClinicalDashboard
+                    isOpen={isDashOpen}
+                    onClose={() => setIsDashOpen(false)}
+                    visitId={selectedVisitId}
+                    onSuccess={fetchVisits}
+                />
+            )}
 
             {/* Check-in Modal */}
             <CheckInModal
@@ -363,159 +342,9 @@ export default function VisitsPage() {
     );
 }
 
-// Sub-components
+// Sub-components (TriageModal and ConsultationModal removed in favor of ClinicalDashboard)
 
-function TriageModal({ isOpen, onClose, visitId, onSuccess }: { isOpen: boolean, onClose: () => void, visitId: string | null, onSuccess: () => void }) {
-    const { token } = useAuthStore();
-    const [loading, setLoading] = useState(false);
-    const [formData, setFormData] = useState({
-        temperature: 37,
-        heartRate: 70,
-        bpSystolic: 120,
-        bpDiastolic: 80,
-        weight: 70,
-        height: 170
-    });
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        try {
-            const response = await fetch(`http://localhost:3000/visits/${visitId}/triage`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(formData)
-            });
-            if (response.ok) {
-                onSuccess();
-                onClose();
-            }
-        } catch (error) {
-            console.error('Error submitting triage:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Capture Patient Vitals (Triage)">
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Temp (°C)</label>
-                        <input
-                            type="number" step="0.1" required
-                            className="w-full rounded-lg border-slate-200 text-sm p-2 bg-slate-50 focus:bg-white focus:ring-indigo-500 focus:border-indigo-500 transition-all border"
-                            value={formData.temperature}
-                            onChange={e => setFormData({ ...formData, temperature: Number(e.target.value) })}
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Heart Rate (bpm)</label>
-                        <input
-                            type="number" required
-                            className="w-full rounded-lg border-slate-200 text-sm p-2 bg-slate-50 focus:bg-white focus:ring-indigo-500 focus:border-indigo-500 transition-all border"
-                            value={formData.heartRate}
-                            onChange={e => setFormData({ ...formData, heartRate: Number(e.target.value) })}
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1">BP (Systolic)</label>
-                        <input
-                            type="number" required
-                            className="w-full rounded-lg border-slate-200 text-sm p-2 bg-slate-50 focus:bg-white focus:ring-indigo-500 focus:border-indigo-500 transition-all border"
-                            value={formData.bpSystolic}
-                            onChange={e => setFormData({ ...formData, bpSystolic: Number(e.target.value) })}
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1">BP (Diastolic)</label>
-                        <input
-                            type="number" required
-                            className="w-full rounded-lg border-slate-200 text-sm p-2 bg-slate-50 focus:bg-white focus:ring-indigo-500 focus:border-indigo-500 transition-all border"
-                            value={formData.bpDiastolic}
-                            onChange={e => setFormData({ ...formData, bpDiastolic: Number(e.target.value) })}
-                        />
-                    </div>
-                </div>
-                <div className="flex justify-end space-x-3 pt-4 border-t">
-                    <Button variant="outline" onClick={onClose} type="button">Cancel</Button>
-                    <Button type="submit" disabled={loading}>
-                        {loading ? 'Submitting...' : 'Complete Triage'}
-                    </Button>
-                </div>
-            </form>
-        </Modal>
-    );
-}
-
-function ConsultationModal({ isOpen, onClose, visitId, onSuccess }: { isOpen: boolean, onClose: () => void, visitId: string | null, onSuccess: () => void }) {
-    const { token } = useAuthStore();
-    const [loading, setLoading] = useState(false);
-    const [formData, setFormData] = useState({
-        notes: '',
-        prescription: ''
-    });
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        try {
-            const response = await fetch(`http://localhost:3000/visits/${visitId}/consultation`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(formData)
-            });
-            if (response.ok) {
-                onSuccess();
-                onClose();
-            }
-        } catch (error) {
-            console.error('Error submitting consultation:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Physician Consultation">
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Clinical Notes</label>
-                    <textarea
-                        required rows={4}
-                        placeholder="Enter diagnosis and observation notes..."
-                        className="w-full rounded-lg border-slate-200 text-sm p-3 bg-slate-50 focus:bg-white focus:ring-indigo-500 focus:border-indigo-500 transition-all border"
-                        value={formData.notes}
-                        onChange={e => setFormData({ ...formData, notes: e.target.value })}
-                    />
-                </div>
-                <div>
-                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Prescription</label>
-                    <textarea
-                        rows={2}
-                        placeholder="List medications and dosages..."
-                        className="w-full rounded-lg border-slate-200 text-sm p-3 bg-slate-50 focus:bg-white focus:ring-indigo-500 focus:border-indigo-500 transition-all border"
-                        value={formData.prescription}
-                        onChange={e => setFormData({ ...formData, prescription: e.target.value })}
-                    />
-                </div>
-                <div className="flex justify-end space-x-3 pt-4 border-t">
-                    <Button variant="outline" onClick={onClose} type="button">Cancel</Button>
-                    <Button type="submit" disabled={loading}>
-                        {loading ? 'Submitting...' : 'Complete Consultation'}
-                    </Button>
-                </div>
-            </form>
-        </Modal>
-    );
-}
+// ... existing CheckInModal and cn function ...
 
 // Check-in Modal Component
 function CheckInModal({ isOpen, onClose, onSuccess, token }: { isOpen: boolean; onClose: () => void; onSuccess: () => void; token: string }) {

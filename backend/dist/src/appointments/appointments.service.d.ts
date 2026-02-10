@@ -94,6 +94,19 @@ export declare class AppointmentsService {
         tenantId: string;
         visitId: string | null;
     }>;
+    checkIn(id: string, departmentId: string, tenantId: string): Promise<{
+        id: string;
+        status: import(".prisma/client").$Enums.VisitStatus;
+        reason: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        patientId: string;
+        doctorId: string | null;
+        tenantId: string;
+        priority: import(".prisma/client").$Enums.Priority;
+        departmentId: string;
+        nurseId: string | null;
+    }>;
     remove(id: string, tenantId: string): Promise<{
         id: string;
         status: import(".prisma/client").$Enums.AppointmentStatus;

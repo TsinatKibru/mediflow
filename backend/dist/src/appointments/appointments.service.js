@@ -101,6 +101,32 @@ let AppointmentsService = class AppointmentsService {
             data: updateAppointmentDto,
         });
     }
+    async checkIn(id, departmentId, tenantId) {
+        const appointment = await this.findOne(id, tenantId);
+        if (appointment.status === 'COMPLETED') {
+            throw new common_1.BadRequestException('Appointment is already completed or checked-in');
+        }
+        return this.prisma.$transaction(async (tx) => {
+            const visit = await tx.visit.create({
+                data: {
+                    tenantId,
+                    patientId: appointment.patientId,
+                    doctorId: appointment.doctorId,
+                    departmentId: departmentId,
+                    status: 'WAITING',
+                    reason: appointment.reason,
+                },
+            });
+            await tx.appointment.update({
+                where: { id },
+                data: {
+                    status: 'COMPLETED',
+                    visitId: visit.id,
+                },
+            });
+            return visit;
+        });
+    }
     async remove(id, tenantId) {
         await this.findOne(id, tenantId);
         return this.prisma.appointment.delete({

@@ -36,6 +36,9 @@ export function AppointmentModal({ isOpen, onClose, onSuccess, selectedDate, exi
     const [searchPatient, setSearchPatient] = useState('');
     const [doctorAvailability, setDoctorAvailability] = useState<any[]>([]);
     const [isTimeValid, setIsTimeValid] = useState(true);
+    const [departments, setDepartments] = useState<any[]>([]);
+    const [checkingIn, setCheckingIn] = useState(false);
+    const [selectedDeptId, setSelectedDeptId] = useState('');
 
     const [formData, setFormData] = useState({
         patientId: '',
@@ -51,6 +54,7 @@ export function AppointmentModal({ isOpen, onClose, onSuccess, selectedDate, exi
         if (isOpen) {
             fetchDoctors();
             fetchPatients();
+            fetchDepartments();
 
             if (existingAppointment) {
                 const start = new Date(existingAppointment.start);
@@ -98,6 +102,21 @@ export function AppointmentModal({ isOpen, onClose, onSuccess, selectedDate, exi
         }
     };
 
+    const fetchDepartments = async () => {
+        try {
+            const res = await fetch('http://localhost:3000/departments', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setDepartments(data);
+                if (data.length > 0) setSelectedDeptId(data[0].id);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     const validateTime = () => {
         if (!formData.doctorId || doctorAvailability.length === 0) {
             setIsTimeValid(true);
@@ -136,6 +155,38 @@ export function AppointmentModal({ isOpen, onClose, onSuccess, selectedDate, exi
             if (res.ok) setPatients(await res.json());
         } catch (err) {
             console.error(err);
+        }
+    };
+
+    const handleCheckIn = async () => {
+        if (!selectedDeptId) {
+            toast.error('Please select a department');
+            return;
+        }
+
+        setCheckingIn(true);
+        try {
+            const res = await fetch(`http://localhost:3000/appointments/${existingAppointment.resource.id}/check-in`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ departmentId: selectedDeptId })
+            });
+
+            if (res.ok) {
+                toast.success('Patient checked in successfully');
+                onSuccess();
+                onClose();
+            } else {
+                throw new Error('Check-in failed');
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error('Failed to check-in patient');
+        } finally {
+            setCheckingIn(false);
         }
     };
 
@@ -311,11 +362,34 @@ export function AppointmentModal({ isOpen, onClose, onSuccess, selectedDate, exi
 
                     <DialogFooter className="gap-2">
                         {existingAppointment && (
-                            <Button type="button" variant="danger" onClick={handleDelete} disabled={loading}>
+                            <div className="flex gap-2 items-center mr-auto border-r pr-4 border-slate-200">
+                                <select
+                                    className="text-sm border-slate-200 rounded-md py-1.5 focus:ring-indigo-500"
+                                    value={selectedDeptId}
+                                    onChange={(e) => setSelectedDeptId(e.target.value)}
+                                    disabled={checkingIn || (existingAppointment.resource.status === 'COMPLETED')}
+                                >
+                                    <option value="">Select Dept...</option>
+                                    {departments.map((dept: any) => (
+                                        <option key={dept.id} value={dept.id}>{dept.name}</option>
+                                    ))}
+                                </select>
+                                <Button
+                                    type="button"
+                                    onClick={handleCheckIn}
+                                    disabled={checkingIn || loading || !selectedDeptId || (existingAppointment.resource.status === 'COMPLETED')}
+                                    className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                                >
+                                    {checkingIn ? '...' : 'Check-in'}
+                                </Button>
+                            </div>
+                        )}
+                        {existingAppointment && (
+                            <Button type="button" variant="danger" onClick={handleDelete} disabled={loading || checkingIn}>
                                 Cancel Appointment
                             </Button>
                         )}
-                        <Button type="submit" disabled={loading}>
+                        <Button type="submit" disabled={loading || checkingIn || (existingAppointment?.resource.status === 'COMPLETED')}>
                             {loading ? 'Saving...' : 'Save Appointment'}
                         </Button>
                     </DialogFooter>

@@ -54,6 +54,18 @@ let VisitsService = class VisitsService {
             orderBy: { createdAt: 'desc' },
         });
     }
+    async findByPatient(tenantId, patientId) {
+        return this.prisma.visit.findMany({
+            where: { tenantId, patientId },
+            include: {
+                patient: true,
+                department: true,
+                vitals: true,
+                consultation: true,
+            },
+            orderBy: { createdAt: 'desc' },
+        });
+    }
     async findOne(tenantId, id) {
         const visit = await this.prisma.visit.findFirst({
             where: { id, tenantId },

@@ -46,8 +46,12 @@ export class AppointmentsController {
 
 
 
-    @Delete(':id')
+    @Post(':id/check-in')
+    async checkIn(@Param('id') id: string, @Body('departmentId') departmentId: string, @Request() req) {
+        return this.appointmentsService.checkIn(id, departmentId, req.user.tenantId);
+    }
 
+    @Delete(':id')
     remove(@Param('id') id: string, @Request() req) {
         return this.appointmentsService.remove(id, req.user.tenantId);
     }
