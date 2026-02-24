@@ -5,17 +5,19 @@ import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
+import { useBrandColor } from '@/hooks/useBrandColor';
 import { Building2, Save, Link as LinkIcon, Palette } from 'lucide-react';
 
 export function ClinicSettings() {
     const { tenant, token, setTenant } = useAuthStore();
+    const { brandColor, brandAlpha } = useBrandColor();
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
 
     const [formData, setFormData] = useState({
         name: tenant?.name || '',
-        primaryColor: tenant?.primaryColor || '#3b82f6', // Default blue-500
+        primaryColor: tenant?.primaryColor || '#3b82f6',
     });
 
     useEffect(() => {
@@ -63,7 +65,10 @@ export function ClinicSettings() {
     return (
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
             <div className="flex items-center gap-3 mb-6 pb-6 border-b border-slate-100">
-                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+                <div
+                    className="p-2 rounded-lg"
+                    style={{ backgroundColor: brandAlpha(0.1), color: brandColor }}
+                >
                     <Building2 className="h-5 w-5" />
                 </div>
                 <div>
@@ -132,10 +137,15 @@ export function ClinicSettings() {
                 </div>
 
                 <div className="pt-6 border-t border-slate-100">
-                    <Button type="submit" disabled={loading} className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700">
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="flex items-center px-4 py-2 text-sm font-bold text-white rounded-lg transition-opacity disabled:opacity-60 hover:opacity-90"
+                        style={{ backgroundColor: brandColor }}
+                    >
                         <Save className="h-4 w-4 mr-2" />
                         {loading ? 'Saving updates...' : 'Save Clinic Settings'}
-                    </Button>
+                    </button>
                 </div>
             </form>
         </div>

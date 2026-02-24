@@ -381,7 +381,7 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
                 {visit.coverage && (
                     <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="p-2 bg-indigo-600 rounded-lg text-white">
+                            <div className="p-2 rounded-lg text-white" style={{ backgroundColor: 'var(--brand-color, #4f46e5)' }}>
                                 <ShieldCheck className="h-5 w-5" />
                             </div>
                             <div>

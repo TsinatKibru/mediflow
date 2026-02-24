@@ -6,12 +6,20 @@ import { useAuthStore } from '@/store/authStore';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+// Convert hex color to "R, G, B" string for rgba() usage
+function hexToRgb(hex: string): string {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result
+        ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
+        : '79, 70, 229'; // default indigo-600
+}
+
 export default function DashboardLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
-    const { token, isHydrated } = useAuthStore();
+    const { token, isHydrated, tenant } = useAuthStore();
     const router = useRouter();
     const [isReady, setIsReady] = useState(false);
 
@@ -38,8 +46,17 @@ export default function DashboardLayout({
         );
     }
 
+    const brandColor = tenant?.primaryColor || '#4f46e5';
+    const brandRgb = hexToRgb(brandColor);
+
     return (
-        <div className="flex h-screen bg-slate-50">
+        <div
+            className="flex h-screen bg-slate-50"
+            style={{
+                '--brand-color': brandColor,
+                '--brand-rgb': brandRgb,
+            } as React.CSSProperties}
+        >
             <Sidebar />
             <div className="flex flex-1 flex-col overflow-hidden">
                 <TopNav />

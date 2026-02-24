@@ -36,10 +36,12 @@ export function Sidebar() {
         router.push('/login');
     };
 
+    const brandColor = tenant?.primaryColor || '#4f46e5';
+
     return (
         <div className="flex h-full w-64 flex-col bg-slate-900 text-white">
             <div className="flex h-16 items-center justify-center border-b border-slate-800 px-4">
-                <h1 className="text-xl font-bold" style={{ color: tenant?.primaryColor || '#818cf8' }}>
+                <h1 className="text-xl font-bold" style={{ color: brandColor }}>
                     MediFlow
                 </h1>
             </div>
@@ -58,19 +60,24 @@ export function Sidebar() {
                             <Link
                                 key={item.name}
                                 href={item.href}
-                                style={isActive && tenant?.primaryColor ? { backgroundColor: `${tenant.primaryColor}15`, color: tenant.primaryColor } : {}}
+                                style={isActive ? {
+                                    backgroundColor: `rgba(var(--brand-rgb, 79, 70, 229), 0.15)`,
+                                    color: brandColor
+                                } : {}}
                                 className={cn(
                                     'group flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors',
                                     isActive
-                                        ? 'bg-slate-800 text-indigo-400'
+                                        ? ''
                                         : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                                 )}
                             >
-                                <item.icon className={cn(
-                                    'mr-3 h-5 w-5 flex-shrink-0',
-                                    isActive ? '' : 'text-slate-400 group-hover:text-white'
-                                )} aria-hidden="true"
-                                    style={isActive && tenant?.primaryColor ? { color: tenant.primaryColor } : {}}
+                                <item.icon
+                                    className={cn(
+                                        'mr-3 h-5 w-5 flex-shrink-0',
+                                        isActive ? '' : 'text-slate-400 group-hover:text-white'
+                                    )}
+                                    style={isActive ? { color: brandColor } : {}}
+                                    aria-hidden="true"
                                 />
                                 {item.name}
                             </Link>

@@ -115,7 +115,7 @@ export default function BillingPage() {
             {/* Header */}
             <div>
                 <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-                    <div className="p-2 bg-indigo-600 rounded-xl text-white shadow-lg shadow-indigo-100">
+                    <div className="p-2 rounded-xl text-white shadow-lg" style={{ backgroundColor: 'var(--brand-color, #4f46e5)' }}>
                         <CreditCard className="h-7 w-7" />
                     </div>
                     Billing & Finance Board
@@ -125,7 +125,7 @@ export default function BillingPage() {
 
             {/* Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="p-6 border-none shadow-sm bg-indigo-600 text-white relative overflow-hidden group">
+                <Card className="p-6 border-none shadow-sm text-white relative overflow-hidden group" style={{ backgroundColor: 'var(--brand-color, #4f46e5)' }}>
                     <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
                         <TrendingUp className="h-24 w-24" />
                     </div>
@@ -175,9 +175,10 @@ export default function BillingPage() {
                                 key={s}
                                 onClick={() => setStatusFilter(s as any)}
                                 className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${statusFilter === s
-                                    ? 'bg-indigo-600 text-white shadow-md'
-                                    : 'text-slate-500 hover:bg-slate-50'
+                                        ? 'text-white shadow-md'
+                                        : 'text-slate-500 hover:bg-slate-50'
                                     }`}
+                                style={statusFilter === s ? { backgroundColor: 'var(--brand-color, #4f46e5)' } : {}}
                             >
                                 {s}
                             </button>
@@ -186,7 +187,8 @@ export default function BillingPage() {
 
                     <Button
                         onClick={() => setIsNewBillModalOpen(true)}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-100 flex items-center gap-2"
+                        className="text-white shadow-lg flex items-center gap-2"
+                        style={{ backgroundColor: 'var(--brand-color, #4f46e5)' }}
                     >
                         <Receipt className="h-4 w-4" />
                         New Bill

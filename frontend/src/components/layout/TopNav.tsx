@@ -26,8 +26,11 @@ export function TopNav() {
                             {user?.role?.toLowerCase().replace('_', ' ')}
                         </p>
                     </div>
-                    <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200">
-                        <User className="h-6 w-6 text-slate-600" />
+                    <div
+                        className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center border-2"
+                        style={{ borderColor: 'var(--brand-color, #4f46e5)' }}
+                    >
+                        <User className="h-6 w-6" style={{ color: 'var(--brand-color, #4f46e5)' }} />
                     </div>
                 </div>
             </div>

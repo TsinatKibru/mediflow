@@ -303,33 +303,33 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
                 {/* Tab Navigation */}
                 <div className="flex border-b border-slate-200">
                     <button
-                        className={`px-6 py-3 text-sm font-medium transition-colors relative ${activeTab === 'medical' ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-700'
-                            }`}
+                        className={`px-6 py-3 text-sm font-medium transition-colors relative ${activeTab === 'medical' ? '' : 'text-slate-500 hover:text-slate-700'}`}
+                        style={activeTab === 'medical' ? { color: 'var(--brand-color, #4f46e5)' } : {}}
                         onClick={() => setActiveTab('medical')}
                     >
                         Medical History
                         {activeTab === 'medical' && (
-                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600" />
+                            <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ backgroundColor: 'var(--brand-color, #4f46e5)' }} />
                         )}
                     </button>
                     <button
-                        className={`px-6 py-3 text-sm font-medium transition-colors relative ${activeTab === 'billing' ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-700'
-                            }`}
+                        className={`px-6 py-3 text-sm font-medium transition-colors relative ${activeTab === 'billing' ? '' : 'text-slate-500 hover:text-slate-700'}`}
+                        style={activeTab === 'billing' ? { color: 'var(--brand-color, #4f46e5)' } : {}}
                         onClick={() => setActiveTab('billing')}
                     >
-                        Billing & Visits
+                        Billing &amp; Visits
                         {activeTab === 'billing' && (
-                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600" />
+                            <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ backgroundColor: 'var(--brand-color, #4f46e5)' }} />
                         )}
                     </button>
                     <button
-                        className={`px-6 py-3 text-sm font-medium transition-colors relative ${activeTab === 'insurance' ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-700'
-                            }`}
+                        className={`px-6 py-3 text-sm font-medium transition-colors relative ${activeTab === 'insurance' ? '' : 'text-slate-500 hover:text-slate-700'}`}
+                        style={activeTab === 'insurance' ? { color: 'var(--brand-color, #4f46e5)' } : {}}
                         onClick={() => setActiveTab('insurance')}
                     >
-                        Insurance & Policies
+                        Insurance &amp; Policies
                         {activeTab === 'insurance' && (
-                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600" />
+                            <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ backgroundColor: 'var(--brand-color, #4f46e5)' }} />
                         )}
                     </button>
                 </div>

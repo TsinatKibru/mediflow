@@ -17,6 +17,7 @@ import {
     Phone,
     Mail
 } from 'lucide-react';
+import { useBrandColor } from '@/hooks/useBrandColor';
 
 interface Patient {
     id: string;
@@ -32,6 +33,7 @@ interface Patient {
 export default function PatientsPage() {
     const router = useRouter();
     const { token, tenant } = useAuthStore();
+    const { brandColor, brandAlpha } = useBrandColor();
     const [patients, setPatients] = useState<Patient[]>([]);
     const [loading, setLoading] = useState(true);
     const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
@@ -184,7 +186,7 @@ export default function PatientsPage() {
                                 <tr>
                                     <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
                                         <div className="flex flex-col items-center">
-                                            <RefreshCw className="h-8 w-8 animate-spin text-indigo-500 mb-2" />
+                                            <RefreshCw className={cn("h-8 w-8 animate-spin mb-2", loading && "animate-spin")} style={{ color: brandColor }} />
                                             <p>Loading patients...</p>
                                         </div>
                                     </td>
@@ -204,8 +206,11 @@ export default function PatientsPage() {
                                     <tr key={patient.id} className="hover:bg-slate-50 transition-colors group">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center">
-                                                <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3 border border-indigo-200">
-                                                    <User className="h-5 w-5 text-indigo-600" />
+                                                <div
+                                                    className="h-10 w-10 rounded-full flex items-center justify-center mr-3 border"
+                                                    style={{ backgroundColor: brandAlpha(0.12), borderColor: brandAlpha(0.3) }}
+                                                >
+                                                    <User className="h-5 w-5" style={{ color: brandColor }} />
                                                 </div>
                                                 <div>
                                                     <p className="text-sm font-semibold text-slate-900">

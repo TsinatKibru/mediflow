@@ -7,9 +7,10 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-    ({ className, variant = 'primary', size = 'md', ...props }, ref) => {
+    ({ className, variant = 'primary', size = 'md', style, ...props }, ref) => {
         const variants = {
-            primary: 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm',
+            // primary uses --brand-color via inline style below
+            primary: 'text-white shadow-sm',
             secondary: 'bg-slate-100 text-slate-900 hover:bg-slate-200',
             outline: 'border border-slate-200 bg-transparent hover:bg-slate-50 text-slate-700',
             ghost: 'hover:bg-slate-100 text-slate-600',
@@ -23,15 +24,25 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             icon: 'h-10 w-10',
         };
 
+        // Inject brand color as background for primary variant
+        const brandStyle =
+            variant === 'primary'
+                ? {
+                    backgroundColor: 'var(--brand-color, #4f46e5)',
+                    ...style,
+                }
+                : style;
+
         return (
             <button
                 ref={ref}
                 className={cn(
-                    'inline-flex items-center justify-center rounded-lg font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]',
+                    'inline-flex items-center justify-center rounded-lg font-medium transition-all focus-visible:outline-none focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]',
                     variants[variant],
                     sizes[size],
                     className
                 )}
+                style={brandStyle}
                 {...props}
             />
         );

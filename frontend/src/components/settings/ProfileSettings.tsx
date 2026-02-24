@@ -5,10 +5,12 @@ import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
+import { useBrandColor } from '@/hooks/useBrandColor';
 import { User, Lock, Save } from 'lucide-react';
 
 export function ProfileSettings() {
     const { user, token, setUser } = useAuthStore();
+    const { brandColor, brandAlpha } = useBrandColor();
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
@@ -73,7 +75,10 @@ export function ProfileSettings() {
     return (
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
             <div className="flex items-center gap-3 mb-6 pb-6 border-b border-slate-100">
-                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+                <div
+                    className="p-2 rounded-lg"
+                    style={{ backgroundColor: brandAlpha(0.1), color: brandColor }}
+                >
                     <User className="h-5 w-5" />
                 </div>
                 <div>
