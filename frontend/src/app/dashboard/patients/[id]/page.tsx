@@ -28,6 +28,7 @@ import {
     Printer,
     DollarSign,
     Edit3,
+    Stethoscope,
     Power
 } from 'lucide-react';
 import {
@@ -39,6 +40,7 @@ import {
 } from '@/types/billing';
 import { PolicyModal } from '@/components/billing/PolicyModal';
 import { PaymentModal } from '@/components/billing/PaymentModal';
+import { ClinicalHistorySlideOver } from '@/components/clinical/ClinicalHistorySlideOver';
 
 
 export default function PatientDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -60,6 +62,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
     const [selectedVisitId, setSelectedVisitId] = useState<string | null>(null);
     const [editingPolicy, setEditingPolicy] = useState<InsurancePolicy | null>(null);
     const selectedVisit = visits.find(v => v.id === selectedVisitId);
+    const [clinicalSlideOverVisitId, setClinicalSlideOverVisitId] = useState<string | null>(null);
     useEffect(() => {
         if (token && id) {
             fetchPatientDetails();
@@ -417,7 +420,12 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
                             ) : (
                                 <div className="divide-y divide-slate-100">
                                     {filteredVisits.map((visit) => (
-                                        <div key={visit.id} className="p-6 hover:bg-slate-50 transition-colors">
+                                        <div
+                                            key={visit.id}
+                                            className="p-6 hover:bg-slate-50 transition-colors cursor-pointer group"
+                                            onClick={() => setClinicalSlideOverVisitId(visit.id)}
+                                            title="Click to view full clinical record"
+                                        >
                                             <div className="flex items-start justify-between mb-4">
                                                 <div className="flex items-start space-x-4">
                                                     <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
@@ -439,43 +447,24 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
                                                 </div>
                                             </div>
 
-                                            {/* Vitals */}
-                                            {visit.vitals && (
-                                                <div className="ml-14 mb-3 p-3 bg-slate-50 rounded-lg">
-                                                    <p className="text-xs font-bold text-slate-500 uppercase mb-2">Vitals</p>
-                                                    <div className="grid grid-cols-4 gap-4 text-sm">
-                                                        <div>
-                                                            <span className="text-slate-500">Temp:</span>{' '}
-                                                            <span className="font-medium">{visit.vitals.temperature}°C</span>
-                                                        </div>
-                                                        <div>
-                                                            <span className="text-slate-500">BP:</span>{' '}
-                                                            <span className="font-medium">{visit.vitals.bpSystolic}/{visit.vitals.bpDiastolic}</span>
-                                                        </div>
-                                                        <div>
-                                                            <span className="text-slate-500">Pulse:</span>{' '}
-                                                            <span className="font-medium">{visit.vitals.pulse} bpm</span>
-                                                        </div>
-                                                    </div>
+                                            <div className="flex items-center justify-between text-xs text-slate-400 mt-2 pt-2 border-t border-slate-50 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <div className="flex items-center gap-1">
+                                                    <FileText className="h-3 w-3" />
+                                                    Click to view clinical notes
                                                 </div>
-                                            )}
-
-                                            {/* Consultation */}
-                                            {visit.consultation && (
-                                                <div className="ml-14 p-3 bg-emerald-50 rounded-lg">
-                                                    <p className="text-xs font-bold text-emerald-700 uppercase mb-2 flex items-center">
-                                                        <FileText className="h-3.5 w-3.5 mr-1" />
-                                                        Consultation Notes
-                                                    </p>
-                                                    <p className="text-sm text-slate-700 mb-2">{visit.consultation.notes}</p>
-                                                    {visit.consultation.prescription && (
-                                                        <div className="mt-2 pt-2 border-t border-emerald-100">
-                                                            <p className="text-xs font-bold text-emerald-700 uppercase mb-1">Prescription</p>
-                                                            <p className="text-sm text-slate-700">{visit.consultation.prescription}</p>
-                                                        </div>
+                                                <div className="flex items-center gap-3">
+                                                    {visit.vitals && (
+                                                        <span className="flex items-center gap-1">
+                                                            <Activity className="h-3 w-3" /> Vitals
+                                                        </span>
+                                                    )}
+                                                    {visit.consultation && (
+                                                        <span className="flex items-center gap-1">
+                                                            <Stethoscope className="h-3 w-3" /> Consult
+                                                        </span>
                                                     )}
                                                 </div>
-                                            )}
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
@@ -739,6 +728,11 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
                     onResetEditing={() => setEditingPolicy(null)}
                 />
             )}
+            <ClinicalHistorySlideOver
+                visitId={clinicalSlideOverVisitId}
+                patientName={patient ? `${patient.firstName} ${patient.lastName}` : ''}
+                onClose={() => setClinicalSlideOverVisitId(null)}
+            />
         </DashboardLayout>
     );
 }

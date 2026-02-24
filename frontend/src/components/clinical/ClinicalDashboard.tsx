@@ -47,17 +47,19 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
         notes: '',
         prescription: ''
     });
+    const [viewingVisitId, setViewingVisitId] = useState(visitId);
+    const isHistorical = viewingVisitId !== visitId;
 
     useEffect(() => {
-        if (isOpen && visitId) {
+        if (isOpen && viewingVisitId) {
             fetchVisitDetails();
         }
-    }, [isOpen, visitId]);
+    }, [isOpen, viewingVisitId]);
 
     const fetchVisitDetails = async () => {
         setLoading(true);
         try {
-            const res = await fetch(`http://localhost:3000/visits/${visitId}`, {
+            const res = await fetch(`http://localhost:3000/visits/${viewingVisitId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -181,6 +183,21 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
                     </Button>
                 </div>
 
+                {isHistorical && (
+                    <div className="bg-amber-50 border-b border-amber-100 px-6 py-2 flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-amber-700">
+                            <History className="h-4 w-4" />
+                            <span className="text-xs font-bold uppercase tracking-wider">Viewing Historical Record</span>
+                        </div>
+                        <button
+                            onClick={() => setViewingVisitId(visitId)}
+                            className="text-xs font-bold text-amber-800 hover:underline"
+                        >
+                            Back to current
+                        </button>
+                    </div>
+                )}
+
                 <div className="flex-1 overflow-y-auto p-6 space-y-8">
                     {loading ? (
                         <div className="space-y-4">
@@ -212,10 +229,12 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
                                         <Activity className="h-5 w-5 text-indigo-600" />
                                         <h3>Clinical Vitals (Triage)</h3>
                                     </div>
-                                    <Button size="sm" onClick={() => handleSaveVitals(false)} disabled={saving}>
-                                        <Save className="h-4 w-4 mr-2" />
-                                        Save Vitals
-                                    </Button>
+                                    {!isHistorical && (
+                                        <Button size="sm" onClick={() => handleSaveVitals(false)} disabled={saving}>
+                                            <Save className="h-4 w-4 mr-2" />
+                                            Save Vitals
+                                        </Button>
+                                    )}
                                 </div>
 
                                 <div className="grid grid-cols-3 gap-4">
@@ -226,6 +245,7 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
                                             value={vitalsData.temperature}
                                             onChange={e => setVitalsData({ ...vitalsData, temperature: parseFloat(e.target.value) })}
                                             className="mt-1"
+                                            disabled={isHistorical}
                                         />
                                     </div>
                                     <div>
@@ -235,6 +255,7 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
                                             value={vitalsData.bpSystolic}
                                             onChange={e => setVitalsData({ ...vitalsData, bpSystolic: parseInt(e.target.value) })}
                                             className="mt-1"
+                                            disabled={isHistorical}
                                         />
                                     </div>
                                     <div>
@@ -244,6 +265,7 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
                                             value={vitalsData.bpDiastolic}
                                             onChange={e => setVitalsData({ ...vitalsData, bpDiastolic: parseInt(e.target.value) })}
                                             className="mt-1"
+                                            disabled={isHistorical}
                                         />
                                     </div>
                                     <div>
@@ -253,6 +275,7 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
                                             value={vitalsData.heartRate}
                                             onChange={e => setVitalsData({ ...vitalsData, heartRate: parseInt(e.target.value) })}
                                             className="mt-1"
+                                            disabled={isHistorical}
                                         />
                                     </div>
                                     <div>
@@ -262,6 +285,7 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
                                             value={vitalsData.weight}
                                             onChange={e => setVitalsData({ ...vitalsData, weight: parseFloat(e.target.value) })}
                                             className="mt-1"
+                                            disabled={isHistorical}
                                         />
                                     </div>
                                     <div>
@@ -271,6 +295,7 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
                                             value={vitalsData.height}
                                             onChange={e => setVitalsData({ ...vitalsData, height: parseFloat(e.target.value) })}
                                             className="mt-1"
+                                            disabled={isHistorical}
                                         />
                                     </div>
                                 </div>
@@ -291,16 +316,18 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
                                         <Stethoscope className="h-5 w-5 text-indigo-600" />
                                         <h3>Physician Consultation</h3>
                                     </div>
-                                    <div className="flex gap-2">
-                                        <Button variant="outline" size="sm" onClick={() => handleSaveConsultation(false)} disabled={saving}>
-                                            <Save className="h-4 w-4 mr-2" />
-                                            Draft
-                                        </Button>
-                                        <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={() => handleSaveConsultation(true)} disabled={saving}>
-                                            <CheckCircle2 className="h-4 w-4 mr-2" />
-                                            Finalize Visit
-                                        </Button>
-                                    </div>
+                                    {!isHistorical && (
+                                        <div className="flex gap-2">
+                                            <Button variant="outline" size="sm" onClick={() => handleSaveConsultation(false)} disabled={saving}>
+                                                <Save className="h-4 w-4 mr-2" />
+                                                Draft
+                                            </Button>
+                                            <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={() => handleSaveConsultation(true)} disabled={saving}>
+                                                <CheckCircle2 className="h-4 w-4 mr-2" />
+                                                Finalize Visit
+                                            </Button>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="space-y-4">
@@ -311,6 +338,7 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
                                             placeholder="Differential diagnosis, history of illness, etc."
                                             value={consultationData.notes}
                                             onChange={e => setConsultationData({ ...consultationData, notes: e.target.value })}
+                                            disabled={isHistorical}
                                         />
                                     </div>
                                     <div>
@@ -320,6 +348,7 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
                                             placeholder="Rx: Amoxicillin 500mg tid..."
                                             value={consultationData.prescription}
                                             onChange={e => setConsultationData({ ...consultationData, prescription: e.target.value })}
+                                            disabled={isHistorical}
                                         />
                                     </div>
                                 </div>
@@ -332,10 +361,19 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
                                     <h3>Recent Visit History</h3>
                                 </div>
                                 <div className="space-y-2">
-                                    {history.slice(0, 3).map((prev, i) => (
-                                        <div key={i} className="flex items-center justify-between p-3 rounded-lg border border-slate-100 hover:bg-slate-50 transition-colors cursor-default">
+                                    {history.slice(0, 5).map((prev, i) => (
+                                        <div
+                                            key={i}
+                                            className={`flex items-center justify-between p-3 rounded-lg border transition-all cursor-pointer ${viewingVisitId === prev.id
+                                                    ? 'border-indigo-200 bg-indigo-50/50 ring-1 ring-indigo-100'
+                                                    : 'border-slate-100 hover:bg-slate-50'
+                                                }`}
+                                            onClick={() => setViewingVisitId(prev.id)}
+                                        >
                                             <div>
-                                                <p className="text-sm font-semibold text-slate-700">{format(new Date(prev.createdAt), 'MMM dd, yyyy')}</p>
+                                                <p className={`text-sm font-semibold ${viewingVisitId === prev.id ? 'text-indigo-900' : 'text-slate-700'}`}>
+                                                    {format(new Date(prev.createdAt), 'MMM dd, yyyy')}
+                                                </p>
                                                 <p className="text-xs text-slate-500">{prev.reason || 'General Checkup'}</p>
                                             </div>
                                             <Badge variant={prev.status === 'COMPLETED' ? 'success' : 'default'}>{prev.status}</Badge>
