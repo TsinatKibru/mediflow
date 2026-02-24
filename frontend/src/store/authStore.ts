@@ -13,6 +13,7 @@ interface Tenant {
     id: string;
     name: string;
     subdomain: string;
+    primaryColor?: string;
 }
 
 interface AuthState {
@@ -21,6 +22,8 @@ interface AuthState {
     token: string | null;
     isHydrated: boolean;
     setAuth: (user: User, tenant: Tenant, token: string) => void;
+    setUser: (user: User) => void;
+    setTenant: (tenant: Tenant) => void;
     logout: () => void;
     setHydrated: () => void;
 }
@@ -33,6 +36,8 @@ export const useAuthStore = create<AuthState>()(
             token: null,
             isHydrated: false,
             setAuth: (user, tenant, token) => set({ user, tenant, token }),
+            setUser: (user) => set({ user }),
+            setTenant: (tenant) => set({ tenant }),
             logout: () => set({ user: null, tenant: null, token: null }),
             setHydrated: () => set({ isHydrated: true }),
         }),

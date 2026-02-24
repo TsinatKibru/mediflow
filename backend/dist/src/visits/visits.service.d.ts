@@ -4,6 +4,11 @@ export declare class VisitsService {
     private prisma;
     constructor(prisma: PrismaService);
     create(tenantId: string, dto: CreateVisitDto): Promise<{
+        department: {
+            id: string;
+            name: string;
+            tenantId: string;
+        };
         patient: {
             id: string;
             createdAt: Date;
@@ -16,25 +21,25 @@ export declare class VisitsService {
             phone: string | null;
             email: string | null;
         };
-        department: {
-            id: string;
-            tenantId: string;
-            name: string;
-        };
     } & {
         id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        tenantId: string;
         status: import(".prisma/client").$Enums.VisitStatus;
         priority: import(".prisma/client").$Enums.Priority;
         reason: string | null;
-        createdAt: Date;
-        updatedAt: Date;
         patientId: string;
-        tenantId: string;
         departmentId: string;
         doctorId: string | null;
         nurseId: string | null;
     }>;
     findAll(tenantId: string): Promise<({
+        department: {
+            id: string;
+            name: string;
+            tenantId: string;
+        };
         patient: {
             id: string;
             createdAt: Date;
@@ -46,11 +51,6 @@ export declare class VisitsService {
             gender: string;
             phone: string | null;
             email: string | null;
-        };
-        department: {
-            id: string;
-            tenantId: string;
-            name: string;
         };
         vitals: {
             id: string;
@@ -73,15 +73,19 @@ export declare class VisitsService {
         } | null;
         payments: {
             id: string;
-            status: string;
-            reason: string | null;
             createdAt: Date;
             updatedAt: Date;
+            status: string;
+            reason: string | null;
             visitId: string;
             amountCharged: import("@prisma/client/runtime/library").Decimal;
             amountPaid: import("@prisma/client/runtime/library").Decimal;
             method: import(".prisma/client").$Enums.PaymentMethod;
             serviceType: import(".prisma/client").$Enums.ServiceType;
+            isVoided: boolean;
+            voidReason: string | null;
+            voidedAt: Date | null;
+            voidedById: string | null;
             insurancePolicyId: string | null;
             verifiedById: string | null;
         }[];
@@ -98,22 +102,28 @@ export declare class VisitsService {
             issuedToName: string | null;
             issueYear: number | null;
             expiryYear: number | null;
+            claimStatus: import(".prisma/client").$Enums.ClaimStatus;
             verifiedAt: Date;
         } | null;
     } & {
         id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        tenantId: string;
         status: import(".prisma/client").$Enums.VisitStatus;
         priority: import(".prisma/client").$Enums.Priority;
         reason: string | null;
-        createdAt: Date;
-        updatedAt: Date;
         patientId: string;
-        tenantId: string;
         departmentId: string;
         doctorId: string | null;
         nurseId: string | null;
     })[]>;
     findByPatient(tenantId: string, patientId: string): Promise<({
+        department: {
+            id: string;
+            name: string;
+            tenantId: string;
+        };
         patient: {
             id: string;
             createdAt: Date;
@@ -125,11 +135,6 @@ export declare class VisitsService {
             gender: string;
             phone: string | null;
             email: string | null;
-        };
-        department: {
-            id: string;
-            tenantId: string;
-            name: string;
         };
         vitals: {
             id: string;
@@ -152,18 +157,23 @@ export declare class VisitsService {
         } | null;
     } & {
         id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        tenantId: string;
         status: import(".prisma/client").$Enums.VisitStatus;
         priority: import(".prisma/client").$Enums.Priority;
         reason: string | null;
-        createdAt: Date;
-        updatedAt: Date;
         patientId: string;
-        tenantId: string;
         departmentId: string;
         doctorId: string | null;
         nurseId: string | null;
     })[]>;
     findOne(tenantId: string, id: string): Promise<{
+        department: {
+            id: string;
+            name: string;
+            tenantId: string;
+        };
         patient: {
             id: string;
             createdAt: Date;
@@ -175,11 +185,6 @@ export declare class VisitsService {
             gender: string;
             phone: string | null;
             email: string | null;
-        };
-        department: {
-            id: string;
-            tenantId: string;
-            name: string;
         };
         doctor: {
             id: string;
@@ -226,15 +231,19 @@ export declare class VisitsService {
         } | null;
         payments: {
             id: string;
-            status: string;
-            reason: string | null;
             createdAt: Date;
             updatedAt: Date;
+            status: string;
+            reason: string | null;
             visitId: string;
             amountCharged: import("@prisma/client/runtime/library").Decimal;
             amountPaid: import("@prisma/client/runtime/library").Decimal;
             method: import(".prisma/client").$Enums.PaymentMethod;
             serviceType: import(".prisma/client").$Enums.ServiceType;
+            isVoided: boolean;
+            voidReason: string | null;
+            voidedAt: Date | null;
+            voidedById: string | null;
             insurancePolicyId: string | null;
             verifiedById: string | null;
         }[];
@@ -251,17 +260,18 @@ export declare class VisitsService {
             issuedToName: string | null;
             issueYear: number | null;
             expiryYear: number | null;
+            claimStatus: import(".prisma/client").$Enums.ClaimStatus;
             verifiedAt: Date;
         } | null;
     } & {
         id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        tenantId: string;
         status: import(".prisma/client").$Enums.VisitStatus;
         priority: import(".prisma/client").$Enums.Priority;
         reason: string | null;
-        createdAt: Date;
-        updatedAt: Date;
         patientId: string;
-        tenantId: string;
         departmentId: string;
         doctorId: string | null;
         nurseId: string | null;

@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterTenantDto } from './dto/register-tenant.dto';
 import { LoginDto } from './dto/login.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import * as bcrypt from 'bcrypt';
 import { Role } from '@prisma/client';
 
@@ -118,5 +119,29 @@ export class AuthService {
                 subdomain: tenant.subdomain,
             },
         };
+    }
+
+    async updateProfile(userId: string, dto: UpdateProfileDto) {
+        const data: any = {};
+        if (dto.firstName) data.firstName = dto.firstName;
+        if (dto.lastName) data.lastName = dto.lastName;
+        if (dto.password) {
+            data.password = await bcrypt.hash(dto.password, 10);
+        }
+
+        const user = await this.prisma.user.update({
+            where: { id: userId },
+            data,
+            select: {
+                id: true,
+                email: true,
+                firstName: true,
+                lastName: true,
+                role: true,
+                tenantId: true
+            }
+        });
+
+        return user;
     }
 }

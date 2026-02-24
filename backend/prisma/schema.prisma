@@ -55,6 +55,14 @@ enum ServiceType {
   OTHER
 }
 
+enum ClaimStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  DENIED
+  REIMBURSED
+}
+
 model Tenant {
   id           String   @id @default(uuid())
   name         String
@@ -93,6 +101,7 @@ model User {
 
   verifiedPayments  Payments[]       @relation("CashierPayments")
   verifiedCoverages CoverageRecord[] @relation("CashierCoverages")
+  voidedPayments    Payments[]       @relation("VoidedByPayments")
 
   @@unique([email, tenantId])
 }
@@ -225,6 +234,8 @@ model CoverageRecord {
 
   notes String? @db.Text
 
+  claimStatus ClaimStatus @default(SUBMITTED)
+
   // Relationship
   visit   Visit  @relation(fields: [visitId], references: [id])
   visitId String @unique
@@ -250,6 +261,13 @@ model Payments {
   serviceType   ServiceType   @default(CONSULTATION)
   status        String        @default("COMPLETED") // PENDING, COMPLETED, FAILED
   reason        String? // e.g. "Covered by Gov Book"
+
+  // Audit/Voiding
+  isVoided     Boolean   @default(false)
+  voidReason   String?
+  voidedAt     DateTime?
+  voidedById   String?
+  voidedBy     User?     @relation("VoidedByPayments", fields: [voidedById], references: [id])
 
   // Relationship
   visit   Visit  @relation(fields: [visitId], references: [id])

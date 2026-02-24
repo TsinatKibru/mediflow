@@ -75,6 +75,10 @@ export declare class PatientsController {
             amountPaid: import("@prisma/client/runtime/library").Decimal;
             method: import(".prisma/client").$Enums.PaymentMethod;
             serviceType: import(".prisma/client").$Enums.ServiceType;
+            isVoided: boolean;
+            voidReason: string | null;
+            voidedAt: Date | null;
+            voidedById: string | null;
             insurancePolicyId: string | null;
             verifiedById: string | null;
         }[];
@@ -91,6 +95,7 @@ export declare class PatientsController {
             issuedToName: string | null;
             issueYear: number | null;
             expiryYear: number | null;
+            claimStatus: import(".prisma/client").$Enums.ClaimStatus;
             verifiedAt: Date;
         } | null;
     } & {

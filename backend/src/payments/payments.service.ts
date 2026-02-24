@@ -1,7 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
+import { VoidPaymentDto } from './dto/void-payment.dto';
+import { BulkCreatePaymentDto } from './dto/bulk-create-payment.dto';
 
 @Injectable()
 export class PaymentsService {
@@ -102,6 +104,10 @@ export class PaymentsService {
             throw new NotFoundException(`Payment with ID ${id} not found`);
         }
 
+        if (payment.isVoided) {
+            throw new BadRequestException('Cannot update a voided transaction');
+        }
+
         return this.prisma.payments.update({
             where: { id },
             data: {
@@ -114,7 +120,7 @@ export class PaymentsService {
         });
     }
 
-    async remove(id: string) {
+    async void(id: string, dto: VoidPaymentDto, userId: string) {
         const payment = await this.prisma.payments.findUnique({
             where: { id }
         });
@@ -123,8 +129,78 @@ export class PaymentsService {
             throw new NotFoundException(`Payment with ID ${id} not found`);
         }
 
+        if (payment.isVoided) {
+            throw new BadRequestException('Transaction is already voided');
+        }
+
+        return this.prisma.payments.update({
+            where: { id },
+            data: {
+                isVoided: true,
+                voidReason: dto.reason,
+                voidedAt: new Date(),
+                voidedById: userId
+            }
+        });
+    }
+
+    async remove(id: string) {
+        // We no longer delete, we void. 
+        // This is kept for compatibility but should be replaced by void()
         return this.prisma.payments.delete({
             where: { id }
+        });
+    }
+
+    async bulkCreate(dto: BulkCreatePaymentDto, userId: string) {
+        const { visitId, payments } = dto;
+
+        // Check if visit exists
+        const visit = await this.prisma.visit.findUnique({
+            where: { id: visitId }
+        });
+
+        if (!visit) {
+            throw new NotFoundException(`Visit with ID ${visitId} not found`);
+        }
+
+        return this.prisma.$transaction(async (tx) => {
+            const results: any[] = [];
+            for (const p of payments) {
+                const created = await tx.payments.create({
+                    data: {
+                        visitId,
+                        amountCharged: p.amountCharged,
+                        amountPaid: p.amountPaid,
+                        method: p.method,
+                        serviceType: p.serviceType as any,
+                        reason: p.reason,
+                        verifiedById: userId,
+                        insurancePolicyId: p.insurancePolicyId
+                    }
+                });
+                results.push(created);
+            }
+            return results;
+        });
+    }
+
+    async updateClaimStatus(visitId: string, status: string, userId: string) {
+        const coverage = await this.prisma.coverageRecord.findUnique({
+            where: { visitId }
+        });
+
+        if (!coverage) {
+            throw new NotFoundException(`Coverage record for visit ${visitId} not found`);
+        }
+
+        return this.prisma.coverageRecord.update({
+            where: { visitId },
+            data: {
+                claimStatus: status as any,
+                verifiedById: userId,
+                verifiedAt: new Date()
+            }
         });
     }
 }

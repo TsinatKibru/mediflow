@@ -31,6 +31,8 @@ export interface Payment {
     serviceType: 'REGISTRATION' | 'CONSULTATION' | 'LABORATORY' | 'PHARMACY' | 'PROCEDURE' | 'RADIOLOGY' | 'OTHER';
     status: string;
     reason?: string;
+    isVoided?: boolean;
+    voidReason?: string;
     createdAt: string;
     verifiedBy?: {
         firstName: string;
@@ -47,6 +49,7 @@ export interface Coverage {
     expiryYear?: number;
     insurancePolicyId?: string;
     notes?: string;
+    claimStatus?: 'SUBMITTED' | 'UNDER_REVIEW' | 'APPROVED' | 'DENIED' | 'REIMBURSED';
     verifiedBy?: {
         firstName: string;
         lastName: string;

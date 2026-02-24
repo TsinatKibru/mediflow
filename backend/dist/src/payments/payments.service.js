@@ -97,6 +97,9 @@ let PaymentsService = class PaymentsService {
         if (!payment) {
             throw new common_1.NotFoundException(`Payment with ID ${id} not found`);
         }
+        if (payment.isVoided) {
+            throw new common_1.BadRequestException('Cannot update a voided transaction');
+        }
         return this.prisma.payments.update({
             where: { id },
             data: {
@@ -108,15 +111,73 @@ let PaymentsService = class PaymentsService {
             }
         });
     }
-    async remove(id) {
+    async void(id, dto, userId) {
         const payment = await this.prisma.payments.findUnique({
             where: { id }
         });
         if (!payment) {
             throw new common_1.NotFoundException(`Payment with ID ${id} not found`);
         }
+        if (payment.isVoided) {
+            throw new common_1.BadRequestException('Transaction is already voided');
+        }
+        return this.prisma.payments.update({
+            where: { id },
+            data: {
+                isVoided: true,
+                voidReason: dto.reason,
+                voidedAt: new Date(),
+                voidedById: userId
+            }
+        });
+    }
+    async remove(id) {
         return this.prisma.payments.delete({
             where: { id }
+        });
+    }
+    async bulkCreate(dto, userId) {
+        const { visitId, payments } = dto;
+        const visit = await this.prisma.visit.findUnique({
+            where: { id: visitId }
+        });
+        if (!visit) {
+            throw new common_1.NotFoundException(`Visit with ID ${visitId} not found`);
+        }
+        return this.prisma.$transaction(async (tx) => {
+            const results = [];
+            for (const p of payments) {
+                const created = await tx.payments.create({
+                    data: {
+                        visitId,
+                        amountCharged: p.amountCharged,
+                        amountPaid: p.amountPaid,
+                        method: p.method,
+                        serviceType: p.serviceType,
+                        reason: p.reason,
+                        verifiedById: userId,
+                        insurancePolicyId: p.insurancePolicyId
+                    }
+                });
+                results.push(created);
+            }
+            return results;
+        });
+    }
+    async updateClaimStatus(visitId, status, userId) {
+        const coverage = await this.prisma.coverageRecord.findUnique({
+            where: { visitId }
+        });
+        if (!coverage) {
+            throw new common_1.NotFoundException(`Coverage record for visit ${visitId} not found`);
+        }
+        return this.prisma.coverageRecord.update({
+            where: { visitId },
+            data: {
+                claimStatus: status,
+                verifiedById: userId,
+                verifiedAt: new Date()
+            }
         });
     }
 };

@@ -4,14 +4,14 @@ export declare class ScheduleController {
     constructor(scheduleService: ScheduleService);
     getAvailability(doctorId: string, req: any): Promise<{
         id: string;
-        dayOfWeek: number;
-        startTime: string;
-        endTime: string;
-        isActive: boolean;
-        doctorId: string;
-        tenantId: string;
         createdAt: Date;
         updatedAt: Date;
+        tenantId: string;
+        isActive: boolean;
+        doctorId: string;
+        startTime: string;
+        endTime: string;
+        dayOfWeek: number;
     }[]>;
     updateAvailability(doctorId: string, availabilities: any[], req: any): Promise<any[]>;
 }

@@ -111,6 +111,29 @@ let AuthService = class AuthService {
             },
         };
     }
+    async updateProfile(userId, dto) {
+        const data = {};
+        if (dto.firstName)
+            data.firstName = dto.firstName;
+        if (dto.lastName)
+            data.lastName = dto.lastName;
+        if (dto.password) {
+            data.password = await bcrypt.hash(dto.password, 10);
+        }
+        const user = await this.prisma.user.update({
+            where: { id: userId },
+            data,
+            select: {
+                id: true,
+                email: true,
+                firstName: true,
+                lastName: true,
+                role: true,
+                tenantId: true
+            }
+        });
+        return user;
+    }
 };
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([

@@ -6,17 +6,17 @@ export declare class AppointmentsService {
     constructor(prisma: PrismaService);
     create(createAppointmentDto: CreateAppointmentDto, tenantId: string): Promise<{
         id: string;
-        status: import(".prisma/client").$Enums.AppointmentStatus;
-        startTime: Date;
-        endTime: Date;
-        reason: string | null;
-        notes: string | null;
         createdAt: Date;
         updatedAt: Date;
+        tenantId: string;
+        status: import(".prisma/client").$Enums.AppointmentStatus;
+        reason: string | null;
         patientId: string;
         doctorId: string | null;
-        tenantId: string;
+        notes: string | null;
         visitId: string | null;
+        startTime: Date;
+        endTime: Date;
     }>;
     findAll(tenantId: string, doctorId?: string, startDate?: string, endDate?: string): Promise<({
         patient: {
@@ -29,17 +29,17 @@ export declare class AppointmentsService {
         } | null;
     } & {
         id: string;
-        status: import(".prisma/client").$Enums.AppointmentStatus;
-        startTime: Date;
-        endTime: Date;
-        reason: string | null;
-        notes: string | null;
         createdAt: Date;
         updatedAt: Date;
+        tenantId: string;
+        status: import(".prisma/client").$Enums.AppointmentStatus;
+        reason: string | null;
         patientId: string;
         doctorId: string | null;
-        tenantId: string;
+        notes: string | null;
         visitId: string | null;
+        startTime: Date;
+        endTime: Date;
     })[]>;
     findOne(id: string, tenantId: string): Promise<{
         patient: {
@@ -68,58 +68,58 @@ export declare class AppointmentsService {
         } | null;
     } & {
         id: string;
-        status: import(".prisma/client").$Enums.AppointmentStatus;
-        startTime: Date;
-        endTime: Date;
-        reason: string | null;
-        notes: string | null;
         createdAt: Date;
         updatedAt: Date;
+        tenantId: string;
+        status: import(".prisma/client").$Enums.AppointmentStatus;
+        reason: string | null;
         patientId: string;
         doctorId: string | null;
-        tenantId: string;
+        notes: string | null;
         visitId: string | null;
+        startTime: Date;
+        endTime: Date;
     }>;
     update(id: string, updateAppointmentDto: UpdateAppointmentDto, tenantId: string): Promise<{
         id: string;
-        status: import(".prisma/client").$Enums.AppointmentStatus;
-        startTime: Date;
-        endTime: Date;
-        reason: string | null;
-        notes: string | null;
         createdAt: Date;
         updatedAt: Date;
+        tenantId: string;
+        status: import(".prisma/client").$Enums.AppointmentStatus;
+        reason: string | null;
         patientId: string;
         doctorId: string | null;
-        tenantId: string;
+        notes: string | null;
         visitId: string | null;
+        startTime: Date;
+        endTime: Date;
     }>;
     checkIn(id: string, departmentId: string, tenantId: string): Promise<{
         id: string;
-        status: import(".prisma/client").$Enums.VisitStatus;
-        reason: string | null;
         createdAt: Date;
         updatedAt: Date;
-        patientId: string;
-        doctorId: string | null;
         tenantId: string;
+        status: import(".prisma/client").$Enums.VisitStatus;
         priority: import(".prisma/client").$Enums.Priority;
+        reason: string | null;
+        patientId: string;
         departmentId: string;
+        doctorId: string | null;
         nurseId: string | null;
     }>;
     remove(id: string, tenantId: string): Promise<{
         id: string;
-        status: import(".prisma/client").$Enums.AppointmentStatus;
-        startTime: Date;
-        endTime: Date;
-        reason: string | null;
-        notes: string | null;
         createdAt: Date;
         updatedAt: Date;
+        tenantId: string;
+        status: import(".prisma/client").$Enums.AppointmentStatus;
+        reason: string | null;
         patientId: string;
         doctorId: string | null;
-        tenantId: string;
+        notes: string | null;
         visitId: string | null;
+        startTime: Date;
+        endTime: Date;
     }>;
     getDoctors(tenantId: string): Promise<{
         id: string;

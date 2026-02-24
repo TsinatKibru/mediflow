@@ -19,7 +19,7 @@ export declare class InsurancePoliciesController {
         policyNumber: string;
         providerName: string | null;
     }>;
-    findAll(req: any, patientId: string): Promise<{
+    findAll(req: any, patientId: string): never[] | Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
@@ -33,7 +33,7 @@ export declare class InsurancePoliciesController {
         expiryYear: number | null;
         policyNumber: string;
         providerName: string | null;
-    }[]> | never[];
+    }[]>;
     findOne(req: any, id: string): Promise<{
         id: string;
         createdAt: Date;

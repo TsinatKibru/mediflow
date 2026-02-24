@@ -96,16 +96,14 @@ export default function BillingPage() {
 
     const stats = {
         totalOutstanding: visits.reduce((acc, v) => {
-            const billed = v.payments?.reduce((pacc, p) => pacc + Number(p.amountCharged), 0) || 0;
-            const paid = v.payments?.reduce((pacc, p) => pacc + Number(p.amountPaid), 0) || 0;
+            const activePayments = v.payments?.filter(p => !p.isVoided) || [];
+            const billed = activePayments.reduce((pacc, p) => pacc + Number(p.amountCharged), 0);
+            const paid = activePayments.reduce((pacc, p) => pacc + Number(p.amountPaid), 0);
             return acc + (billed - paid);
         }, 0),
-        collectedToday: visits.filter(v => {
+        collectedToday: visits.reduce((acc, v) => {
             const today = new Date().toISOString().split('T')[0];
-            return v.payments?.some(p => p.createdAt.startsWith(today));
-        }).reduce((acc, v) => {
-            const today = new Date().toISOString().split('T')[0];
-            const paidToday = v.payments?.filter(p => p.createdAt.startsWith(today))
+            const paidToday = v.payments?.filter(p => !p.isVoided && p.createdAt.startsWith(today))
                 .reduce((pacc, p) => pacc + Number(p.amountPaid), 0) || 0;
             return acc + paidToday;
         }, 0),

@@ -2,6 +2,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterTenantDto } from './dto/register-tenant.dto';
 import { LoginDto } from './dto/login.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 export declare class AuthService {
     private prisma;
     private jwtService;
@@ -35,5 +36,13 @@ export declare class AuthService {
             name: string;
             subdomain: string;
         };
+    }>;
+    updateProfile(userId: string, dto: UpdateProfileDto): Promise<{
+        id: string;
+        tenantId: string;
+        firstName: string;
+        lastName: string;
+        email: string;
+        role: import(".prisma/client").$Enums.Role;
     }>;
 }

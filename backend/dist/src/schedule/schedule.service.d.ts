@@ -4,14 +4,14 @@ export declare class ScheduleService {
     constructor(prisma: PrismaService);
     getDoctorAvailability(doctorId: string, tenantId: string): Promise<{
         id: string;
-        dayOfWeek: number;
-        startTime: string;
-        endTime: string;
-        isActive: boolean;
-        doctorId: string;
-        tenantId: string;
         createdAt: Date;
         updatedAt: Date;
+        tenantId: string;
+        isActive: boolean;
+        doctorId: string;
+        startTime: string;
+        endTime: string;
+        dayOfWeek: number;
     }[]>;
     updateAvailability(doctorId: string, tenantId: string, availabilities: any[]): Promise<any[]>;
 }

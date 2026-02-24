@@ -1,6 +1,7 @@
 import { AuthService } from './auth.service';
 import { RegisterTenantDto } from './dto/register-tenant.dto';
 import { LoginDto } from './dto/login.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 export declare class AuthController {
     private readonly authService;
     constructor(authService: AuthService);
@@ -35,4 +36,12 @@ export declare class AuthController {
         };
     }>;
     getProfile(req: any): Promise<any>;
+    updateProfile(req: any, dto: UpdateProfileDto): Promise<{
+        id: string;
+        tenantId: string;
+        firstName: string;
+        lastName: string;
+        email: string;
+        role: import(".prisma/client").$Enums.Role;
+    }>;
 }

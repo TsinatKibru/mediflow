@@ -2,6 +2,8 @@ import { Controller, Post, Get, Body, Param, UseGuards, Request, Patch, Delete }
 import { PaymentsService } from './payments.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
+import { VoidPaymentDto } from './dto/void-payment.dto';
+import { BulkCreatePaymentDto } from './dto/bulk-create-payment.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { TenantGuard } from '../auth/guards/tenant.guard';
 
@@ -28,5 +30,20 @@ export class PaymentsController {
     @Delete(':id')
     remove(@Param('id') id: string) {
         return this.paymentsService.remove(id);
+    }
+
+    @Post('bulk')
+    bulkCreate(@Body() bulkCreatePaymentDto: BulkCreatePaymentDto, @Request() req) {
+        return this.paymentsService.bulkCreate(bulkCreatePaymentDto, req.user.id);
+    }
+
+    @Post(':id/void')
+    void(@Param('id') id: string, @Body() voidPaymentDto: VoidPaymentDto, @Request() req) {
+        return this.paymentsService.void(id, voidPaymentDto, req.user.id);
+    }
+
+    @Patch('coverage/:visitId/status')
+    updateClaimStatus(@Param('visitId') visitId: string, @Body('status') status: string, @Request() req) {
+        return this.paymentsService.updateClaimStatus(visitId, status, req.user.id);
     }
 }

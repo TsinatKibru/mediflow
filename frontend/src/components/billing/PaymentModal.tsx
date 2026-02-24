@@ -13,7 +13,9 @@ import {
     Trash2,
     Activity,
     UserPlus,
-    Receipt
+    Receipt,
+    ShieldCheck,
+    Layers
 } from 'lucide-react';
 import {
     Patient,
@@ -45,8 +47,9 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
     const [hasCoverage, setHasCoverage] = useState(visit.coverage?.type !== 'SELF' && visit.coverage !== undefined);
     const [selectedPolicyId, setSelectedPolicyId] = useState<string>(visit.coverage?.insurancePolicyId || '');
 
-    const totalBilled = visit.payments?.reduce((acc, p) => acc + Number(p.amountCharged), 0) || 0;
-    const totalPaid = visit.payments?.reduce((acc, p) => acc + Number(p.amountPaid), 0) || 0;
+    const activePayments = visit.payments?.filter(p => !p.isVoided) || [];
+    const totalBilled = activePayments.reduce((acc, p) => acc + Number(p.amountCharged), 0);
+    const totalPaid = activePayments.reduce((acc, p) => acc + Number(p.amountPaid), 0);
     const balance = totalBilled - totalPaid;
 
     const [formData, setFormData] = useState({
@@ -142,20 +145,77 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
     };
 
     const handleDelete = async (paymentId: string) => {
-        if (!confirm('Are you sure you want to void this transaction?')) return;
+        const reason = prompt('Please enter a reason for voiding this transaction:');
+        if (!reason) return;
+
         setLoading(true);
         try {
-            const res = await fetch(`http://localhost:3000/payments/${paymentId}`, {
-                method: 'DELETE',
+            const res = await fetch(`http://localhost:3000/payments/${paymentId}/void`, {
+                method: 'POST',
                 headers: {
+                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
-                }
+                },
+                body: JSON.stringify({ reason })
             });
             if (res.ok) {
                 onSuccess();
             }
         } catch (error) {
-            console.error('Error deleting transaction:', error);
+            console.error('Error voiding transaction:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleUpdateClaimStatus = async (status: string) => {
+        setLoading(true);
+        try {
+            const res = await fetch(`http://localhost:3000/payments/coverage/${visit.id}/status`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ status })
+            });
+            if (res.ok) {
+                onSuccess();
+            }
+        } catch (error) {
+            console.error('Error updating claim status:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleBulkCharges = async () => {
+        if (!confirm('Add standard Inpatient Bulk Charges? (Bed, Nursing, Ward Consult)')) return;
+
+        const bulkCharges = [
+            { serviceType: 'PROCEDURE', amountCharged: 500, amountPaid: 0, method: 'CASH', reason: 'Daily Bed Charge' },
+            { serviceType: 'PROCEDURE', amountCharged: 150, amountPaid: 0, method: 'CASH', reason: 'Nursing Services' },
+            { serviceType: 'CONSULTATION', amountCharged: 300, amountPaid: 0, method: 'CASH', reason: 'Daily Ward Rounds' }
+        ];
+
+        setLoading(true);
+        try {
+            const res = await fetch('http://localhost:3000/payments/bulk', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    visitId: visit.id,
+                    payments: bulkCharges
+                })
+            });
+            if (res.ok) {
+                onSuccess();
+            }
+        } catch (error) {
+            console.error('Error posting bulk charges:', error);
         } finally {
             setLoading(false);
         }
@@ -221,7 +281,7 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-200">
-                        {visit.payments?.map(p => (
+                        {(visit.payments?.filter(p => !p.isVoided) || []).map(p => (
                             <tr key={p.id}>
                                 <td className="py-3">{new Date(p.createdAt).toLocaleDateString()}</td>
                                 <td className="py-3 font-medium">{p.serviceType.split('_').join(' ')} - {p.reason || 'Service Charge'}</td>
@@ -318,14 +378,50 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
                     </div>
                 </div>
 
+                {visit.coverage && (
+                    <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-indigo-600 rounded-lg text-white">
+                                <ShieldCheck className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <p className="text-xs font-bold text-indigo-700 uppercase">Insurance Claim Tracking</p>
+                                <p className="text-sm font-medium text-indigo-900">
+                                    {visit.coverage.type.replace('_', ' ')} - #{visit.coverage.referenceNumber}
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-indigo-600 uppercase">Status:</span>
+                            <select
+                                className="text-sm rounded-lg border-indigo-200 bg-white p-1.5 outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-indigo-700"
+                                value={visit.coverage.claimStatus || 'SUBMITTED'}
+                                onChange={(e) => handleUpdateClaimStatus(e.target.value)}
+                            >
+                                <option value="SUBMITTED">Submitted</option>
+                                <option value="UNDER_REVIEW">Under Review</option>
+                                <option value="APPROVED">Approved</option>
+                                <option value="DENIED">Denied</option>
+                                <option value="REIMBURSED">Reimbursed</option>
+                            </select>
+                        </div>
+                    </div>
+                )}
+
                 {!isAddingTransaction && (
                     <div>
                         <div className="flex items-center justify-between mb-3">
                             <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Transaction History</h3>
-                            <Button size="sm" onClick={() => setIsAddingTransaction(true)}>
-                                <UserPlus className="h-3.5 w-3.5 mr-1" />
-                                Add Transaction
-                            </Button>
+                            <div className="flex gap-2">
+                                <Button size="sm" variant="outline" onClick={handleBulkCharges} className="text-indigo-600 border-indigo-200 hover:bg-indigo-50">
+                                    <Layers className="h-3.5 w-3.5 mr-1" />
+                                    Bulk Inpatient
+                                </Button>
+                                <Button size="sm" onClick={() => setIsAddingTransaction(true)}>
+                                    <UserPlus className="h-3.5 w-3.5 mr-1" />
+                                    Add Transaction
+                                </Button>
+                            </div>
                         </div>
                         <div className="border border-slate-200 rounded-lg overflow-hidden bg-white">
                             <table className="w-full text-sm text-left">
@@ -343,20 +439,41 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
                                     {visit.payments && visit.payments.length > 0 ? (
                                         visit.payments.map((p) => (
                                             <tr key={p.id} className="hover:bg-slate-50 transition-colors">
-                                                <td className="px-4 py-3 text-slate-500 text-xs">{new Date(p.createdAt).toLocaleDateString()}</td>
+                                                <td className="px-4 py-3 text-slate-500 text-xs">
+                                                    {new Date(p.createdAt).toLocaleDateString()}
+                                                    {p.isVoided && (
+                                                        <div className="mt-1">
+                                                            <Badge variant="outline" className="bg-rose-50 text-rose-600 border-none text-[8px] py-0 px-1 font-black">VOIDED</Badge>
+                                                        </div>
+                                                    )}
+                                                </td>
                                                 <td className="px-4 py-3">
-                                                    <Badge variant="outline" size="sm" className="bg-slate-100 text-slate-600 border-none font-bold text-[10px]">
+                                                    <Badge variant="outline" size="sm" className={cn(
+                                                        "bg-slate-100 text-slate-600 border-none font-bold text-[10px]",
+                                                        p.isVoided && "opacity-40 grayscale"
+                                                    )}>
                                                         {p.serviceType.split('_').join(' ')}
                                                     </Badge>
                                                 </td>
-                                                <td className="px-4 py-3 text-right font-medium">{Number(p.amountCharged).toFixed(2)}</td>
-                                                <td className="px-4 py-3 text-right font-medium text-emerald-600">{Number(p.amountPaid).toFixed(2)}</td>
-                                                <td className="px-4 py-3 text-slate-500 text-[10px]">{p.verifiedBy ? `${p.verifiedBy.firstName} ${p.verifiedBy.lastName}` : 'System'}</td>
+                                                <td className={cn("px-4 py-3 text-right font-medium", p.isVoided && "line-through text-slate-300 decoration-rose-400 decoration-2")}>{Number(p.amountCharged).toFixed(2)}</td>
+                                                <td className={cn("px-4 py-3 text-right font-medium text-emerald-600", p.isVoided && "line-through text-slate-300 decoration-rose-400 decoration-2")}>{Number(p.amountPaid).toFixed(2)}</td>
+                                                <td className="px-4 py-3 text-slate-500 text-[10px]">
+                                                    {p.verifiedBy ? `${p.verifiedBy.firstName} ${p.verifiedBy.lastName}` : 'System'}
+                                                    {p.isVoided && p.voidReason && (
+                                                        <div className="text-[8px] text-rose-400 italic mt-1 max-w-[100px] truncate" title={p.voidReason}>
+                                                            {p.voidReason}
+                                                        </div>
+                                                    )}
+                                                </td>
                                                 <td className="px-4 py-3 text-center">
                                                     <div className="flex items-center justify-center gap-1">
                                                         <button onClick={() => handlePrintReceipt(p.id)} className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg" title="Print Receipt"><Printer className="h-3.5 w-3.5" /></button>
-                                                        <button onClick={() => handleEdit(p)} className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg" title="Edit"><Edit2 className="h-3.5 w-3.5" /></button>
-                                                        <button onClick={() => handleDelete(p.id)} className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg" title="Void"><Trash2 className="h-3.5 w-3.5" /></button>
+                                                        {!p.isVoided && (
+                                                            <>
+                                                                <button onClick={() => handleEdit(p)} className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg" title="Edit"><Edit2 className="h-3.5 w-3.5" /></button>
+                                                                <button onClick={() => handleDelete(p.id)} className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg" title="Void"><Trash2 className="h-3.5 w-3.5" /></button>
+                                                            </>
+                                                        )}
                                                     </div>
                                                 </td>
                                             </tr>
