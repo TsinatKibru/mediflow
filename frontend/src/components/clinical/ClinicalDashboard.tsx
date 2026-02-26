@@ -558,6 +558,94 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
                                 </div>
                             </div>
 
+                            {/* Section: Pharmacy */}
+                            <div className="space-y-4 pt-4 border-t border-slate-100">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2 text-slate-900 font-bold">
+                                        <Pill className="h-5 w-5 text-indigo-600" />
+                                        <h3>Pharmacy Prescriptions</h3>
+                                    </div>
+                                </div>
+
+                                {!isHistorical && visit?.status !== 'COMPLETED' && (
+                                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                                        <div className="space-y-3">
+                                            <div>
+                                                <Label className="text-[10px] uppercase font-bold text-slate-500">Select Medication</Label>
+                                                <div className="mt-1">
+                                                    <Combobox
+                                                        items={medications.map(m => ({ value: m.id, label: `${m.name} (${m.strength})` }))}
+                                                        value={selectedMedicationId}
+                                                        onChange={setSelectedMedicationId}
+                                                        placeholder="Search medications..."
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <div>
+                                                    <Label className="text-[10px] uppercase font-bold text-slate-500">Quantity</Label>
+                                                    <Input
+                                                        type="number"
+                                                        min="1"
+                                                        value={prescriptionQuantity}
+                                                        onChange={e => setPrescriptionQuantity(parseInt(e.target.value))}
+                                                        className="bg-white mt-1 h-9 text-sm"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label className="text-[10px] uppercase font-bold text-slate-500">Instructions</Label>
+                                                    <Input
+                                                        placeholder="e.g. 1 tab thrice daily"
+                                                        value={prescriptionInstructions}
+                                                        onChange={e => setPrescriptionInstructions(e.target.value)}
+                                                        className="bg-white mt-1 h-9 text-sm"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <Button
+                                            size="sm"
+                                            className="w-full bg-emerald-600 hover:bg-emerald-700 h-9"
+                                            onClick={handleAddPharmacyOrder}
+                                            disabled={saving || !selectedMedicationId}
+                                        >
+                                            <Plus className="h-4 w-4 mr-2" />
+                                            Prescribe Medication
+                                        </Button>
+                                    </div>
+                                )}
+
+                                <div className="space-y-2">
+                                    {pharmacyOrders.length === 0 ? (
+                                        <p className="text-center py-4 text-sm text-slate-400 italic">No medications prescribed for this visit.</p>
+                                    ) : (
+                                        pharmacyOrders.map((order) => (
+                                            <div key={order.id} className="flex items-center justify-between p-3 bg-white border border-slate-100 rounded-lg group hover:border-indigo-100 transition-all shadow-sm">
+                                                <div className="flex-1">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="font-semibold text-sm text-slate-900">{order.medication.name}</span>
+                                                        <Badge variant={order.status === 'DISPENSED' ? 'success' : order.status === 'CANCELLED' ? 'danger' : 'warning'} className="text-[10px] py-0 px-1.5">
+                                                            {order.status}
+                                                        </Badge>
+                                                    </div>
+                                                    <p className="text-[10px] text-slate-500 mt-0.5">
+                                                        {order.medication.strength} • Qty: {order.quantity}
+                                                    </p>
+                                                    {order.instructions && (
+                                                        <p className="text-xs text-slate-500 italic mt-1 font-medium">"{order.instructions}"</p>
+                                                    )}
+                                                </div>
+                                                <div className="text-right">
+                                                    {order.status === 'DISPENSED' && (
+                                                        <p className="text-[10px] text-emerald-600 font-bold uppercase">Dispensed</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+
                             {/* Section: Visit History */}
                             <div className="space-y-4 pt-4 border-t border-slate-100">
                                 <div className="flex items-center gap-2 text-slate-900 font-bold">

@@ -39,6 +39,7 @@ export class PharmacyOrdersService {
                 visit: {
                     include: {
                         patient: true,
+                        consultation: true,
                     },
                 },
                 prescribedBy: true,

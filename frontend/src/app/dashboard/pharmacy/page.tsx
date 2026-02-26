@@ -154,6 +154,13 @@ export default function PharmacyPage() {
                                         <span className="font-bold text-slate-900">{order.quantity} units</span>
                                     </div>
 
+                                    {order.visit?.consultation?.prescription && (
+                                        <div className="bg-indigo-50/50 p-3 rounded-lg border border-indigo-100/50">
+                                            <p className="text-[10px] font-bold text-indigo-600 uppercase mb-1">Physician's Manual RX</p>
+                                            <p className="text-xs text-slate-700 font-medium">"{order.visit.consultation.prescription}"</p>
+                                        </div>
+                                    )}
+
                                     {order.instructions && (
                                         <div className="bg-amber-50/50 p-3 rounded-lg border border-amber-100/50">
                                             <p className="text-[10px] font-bold text-amber-600 uppercase mb-1">Dosage Instructions</p>

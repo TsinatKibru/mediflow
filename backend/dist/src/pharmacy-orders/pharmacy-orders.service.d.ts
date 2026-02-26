@@ -6,29 +6,41 @@ export declare class PharmacyOrdersService {
     create(tenantId: string, prescribedById: string, dto: CreatePharmacyOrderDto): Promise<{
         medication: {
             id: string;
-            name: string;
             createdAt: Date;
             updatedAt: Date;
-            tenantId: string;
+            name: string;
             genericName: string | null;
             dosageForm: string;
             strength: string;
             stockBalance: number;
             unitPrice: import("@prisma/client/runtime/library").Decimal;
+            tenantId: string;
         };
     } & {
         id: string;
+        quantity: number;
+        instructions: string | null;
+        status: string;
         createdAt: Date;
         updatedAt: Date;
-        status: string;
-        visitId: string;
-        instructions: string | null;
-        prescribedById: string;
         medicationId: string;
-        quantity: number;
+        visitId: string;
+        prescribedById: string;
         dispensedById: string | null;
     }>;
     findAll(tenantId: string, status?: string): Promise<({
+        medication: {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            name: string;
+            genericName: string | null;
+            dosageForm: string;
+            strength: string;
+            stockBalance: number;
+            unitPrice: import("@prisma/client/runtime/library").Decimal;
+            tenantId: string;
+        };
         visit: {
             patient: {
                 id: string;
@@ -42,16 +54,23 @@ export declare class PharmacyOrdersService {
                 phone: string | null;
                 email: string | null;
             };
+            consultation: {
+                id: string;
+                createdAt: Date;
+                visitId: string;
+                notes: string;
+                prescription: string | null;
+            } | null;
         } & {
             id: string;
+            status: import(".prisma/client").$Enums.VisitStatus;
             createdAt: Date;
             updatedAt: Date;
             tenantId: string;
-            departmentId: string;
-            status: import(".prisma/client").$Enums.VisitStatus;
             priority: import(".prisma/client").$Enums.Priority;
             reason: string | null;
             patientId: string;
+            departmentId: string;
             doctorId: string | null;
             nurseId: string | null;
         };
@@ -60,86 +79,74 @@ export declare class PharmacyOrdersService {
             createdAt: Date;
             updatedAt: Date;
             tenantId: string;
+            departmentId: string | null;
             firstName: string;
             lastName: string;
             email: string;
             password: string;
             role: import(".prisma/client").$Enums.Role;
             isActive: boolean;
-            departmentId: string | null;
-        };
-        medication: {
-            id: string;
-            name: string;
-            createdAt: Date;
-            updatedAt: Date;
-            tenantId: string;
-            genericName: string | null;
-            dosageForm: string;
-            strength: string;
-            stockBalance: number;
-            unitPrice: import("@prisma/client/runtime/library").Decimal;
         };
         dispensedBy: {
             id: string;
             createdAt: Date;
             updatedAt: Date;
             tenantId: string;
+            departmentId: string | null;
             firstName: string;
             lastName: string;
             email: string;
             password: string;
             role: import(".prisma/client").$Enums.Role;
             isActive: boolean;
-            departmentId: string | null;
         } | null;
     } & {
         id: string;
+        quantity: number;
+        instructions: string | null;
+        status: string;
         createdAt: Date;
         updatedAt: Date;
-        status: string;
-        visitId: string;
-        instructions: string | null;
-        prescribedById: string;
         medicationId: string;
-        quantity: number;
+        visitId: string;
+        prescribedById: string;
         dispensedById: string | null;
     })[]>;
     findByVisit(tenantId: string, visitId: string): Promise<({
         medication: {
             id: string;
-            name: string;
             createdAt: Date;
             updatedAt: Date;
-            tenantId: string;
+            name: string;
             genericName: string | null;
             dosageForm: string;
             strength: string;
             stockBalance: number;
             unitPrice: import("@prisma/client/runtime/library").Decimal;
+            tenantId: string;
         };
     } & {
         id: string;
+        quantity: number;
+        instructions: string | null;
+        status: string;
         createdAt: Date;
         updatedAt: Date;
-        status: string;
-        visitId: string;
-        instructions: string | null;
-        prescribedById: string;
         medicationId: string;
-        quantity: number;
+        visitId: string;
+        prescribedById: string;
         dispensedById: string | null;
     })[]>;
     updateStatus(tenantId: string, id: string, userId: string, dto: UpdatePharmacyOrderStatusDto): Promise<{
         id: string;
+        quantity: number;
+        instructions: string | null;
+        status: string;
         createdAt: Date;
         updatedAt: Date;
-        status: string;
-        visitId: string;
-        instructions: string | null;
-        prescribedById: string;
         medicationId: string;
-        quantity: number;
+        visitId: string;
+        prescribedById: string;
         dispensedById: string | null;
     }>;
 }
