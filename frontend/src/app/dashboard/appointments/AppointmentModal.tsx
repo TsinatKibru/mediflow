@@ -152,7 +152,10 @@ export function AppointmentModal({ isOpen, onClose, onSuccess, selectedDate, exi
             const res = await fetch('http://localhost:3000/patients', {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            if (res.ok) setPatients(await res.json());
+            if (res.ok) {
+                const result = await res.json();
+                setPatients(result.data || result);
+            }
         } catch (err) {
             console.error(err);
         }

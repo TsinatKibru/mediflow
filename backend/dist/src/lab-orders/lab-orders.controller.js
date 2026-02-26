@@ -43,7 +43,7 @@ exports.LabOrdersController = LabOrdersController;
 __decorate([
     (0, common_1.Get)(),
     __param(0, (0, common_1.Req)()),
-    __param(1, (0, common_1.Body)('status')),
+    __param(1, (0, common_1.Query)('status')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", void 0)

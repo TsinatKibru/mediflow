@@ -70,11 +70,11 @@ export default function LaboratoryPage() {
         }
     };
 
-    const filteredOrders = orders.filter(order =>
-        order.testName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    const filteredOrders = orders?.filter(order =>
+        order.testName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         order.visit?.patient?.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         order.visit?.patient?.lastName?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    ) || [];
 
     return (
         <DashboardLayout>

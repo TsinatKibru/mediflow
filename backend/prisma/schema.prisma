@@ -241,6 +241,8 @@ model LabOrder {
   prescribedBy   User   @relation("PhysicianLabOrders", fields: [prescribedById], references: [id])
   prescribedById String
 
+  payments Payments[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -292,6 +294,12 @@ model Payments {
   serviceType   ServiceType   @default(CONSULTATION)
   status        String        @default("COMPLETED") // PENDING, COMPLETED, FAILED
   reason        String? // e.g. "Covered by Gov Book"
+
+  // New optional links for clinical order integration
+  labOrderId      String?
+  labOrder       LabOrder? @relation(fields: [labOrderId], references: [id])
+  pharmacyOrderId String?
+  pharmacyOrder  PharmacyOrder? @relation(fields: [pharmacyOrderId], references: [id])
 
   // Audit/Voiding
   isVoided     Boolean   @default(false)
@@ -402,6 +410,8 @@ model PharmacyOrder {
   
   dispensedBy    User?    @relation("PharmacistDispensed", fields: [dispensedById], references: [id])
   dispensedById  String?
+
+  payments Payments[]
 
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt

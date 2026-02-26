@@ -74,10 +74,14 @@ export default function DashboardPage() {
                 fetch('http://localhost:3000/payments', { headers: { Authorization: `Bearer ${token}` } }),
             ]);
 
-            const patients = patientsRes.ok ? await patientsRes.json() : [];
-            const visits = visitsRes.ok ? await visitsRes.json() : [];
+            const patientsResult = patientsRes.ok ? await patientsRes.json() : { data: [], total: 0 };
+            const visitsResult = visitsRes.ok ? await visitsRes.json() : { data: [], total: 0 };
             const appointments = appointmentsRes.ok ? await appointmentsRes.json() : [];
-            const payments = paymentsRes.ok ? await paymentsRes.json() : [];
+            const paymentsResult = paymentsRes.ok ? await paymentsRes.json() : { data: [], total: 0 };
+
+            const patients = patientsResult.data || [];
+            const visits = visitsResult.data || [];
+            const payments = paymentsResult.data || [];
 
             const today = new Date().toDateString();
 
@@ -94,7 +98,7 @@ export default function DashboardPage() {
             // Today's collected revenue (non-voided)
             const collectedToday = payments
                 .filter((p: any) => !p.isVoided && new Date(p.createdAt).toDateString() === today)
-                .reduce((sum: number, p: any) => sum + Number(p.amount || 0), 0);
+                .reduce((sum: number, p: any) => sum + Number(p.amountPaid || 0), 0);
 
             // Visits completed today
             const completedToday = visits.filter((v: any) =>
@@ -104,12 +108,12 @@ export default function DashboardPage() {
             setActiveVisits(active);
             setTodayAppointments(todayAppts);
             setStats({
-                totalPatients: patients.length,
+                totalPatients: patientsResult.total || patients.length,
                 activeVisits: visits.filter((v: any) => ['WAITING', 'IN_PROGRESS', 'CHECKED_IN'].includes(v.status)).length,
                 waitingVisits: visits.filter((v: any) => v.status === 'WAITING').length,
                 completedToday,
                 collectedToday,
-                upcomingToday: todayAppts.length,
+                upcomingToday: todayAppts.length
             });
         } catch (err) {
             console.error('Dashboard data fetch error:', err);

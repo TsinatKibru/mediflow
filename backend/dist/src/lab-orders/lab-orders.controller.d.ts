@@ -12,14 +12,14 @@ export declare class LabOrdersController {
             };
         } & {
             id: string;
+            status: import(".prisma/client").$Enums.VisitStatus;
             createdAt: Date;
             updatedAt: Date;
-            tenantId: string;
-            departmentId: string;
-            status: import(".prisma/client").$Enums.VisitStatus;
             priority: import(".prisma/client").$Enums.Priority;
             reason: string | null;
             patientId: string;
+            tenantId: string;
+            departmentId: string;
             doctorId: string | null;
             nurseId: string | null;
         };
@@ -28,26 +28,26 @@ export declare class LabOrdersController {
             lastName: string;
         };
     } & {
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
         result: string | null;
+        id: string;
+        testName: string;
+        instructions: string | null;
         status: string;
         visitId: string;
-        instructions: string | null;
-        testName: string;
         prescribedById: string;
+        createdAt: Date;
+        updatedAt: Date;
     })[]>;
     create(req: any, createLabOrderDto: CreateLabOrderDto): Promise<{
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
         result: string | null;
+        id: string;
+        testName: string;
+        instructions: string | null;
         status: string;
         visitId: string;
-        instructions: string | null;
-        testName: string;
         prescribedById: string;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     findByVisit(req: any, visitId: string): Promise<({
         prescribedBy: {
@@ -55,36 +55,36 @@ export declare class LabOrdersController {
             lastName: string;
         };
     } & {
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
         result: string | null;
+        id: string;
+        testName: string;
+        instructions: string | null;
         status: string;
         visitId: string;
-        instructions: string | null;
-        testName: string;
         prescribedById: string;
+        createdAt: Date;
+        updatedAt: Date;
     })[]>;
     update(req: any, id: string, updateLabOrderDto: UpdateLabOrderDto): Promise<{
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
         result: string | null;
+        id: string;
+        testName: string;
+        instructions: string | null;
         status: string;
         visitId: string;
-        instructions: string | null;
-        testName: string;
         prescribedById: string;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     remove(req: any, id: string): Promise<{
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
         result: string | null;
+        id: string;
+        testName: string;
+        instructions: string | null;
         status: string;
         visitId: string;
-        instructions: string | null;
-        testName: string;
         prescribedById: string;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
 }

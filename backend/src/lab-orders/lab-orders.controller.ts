@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Query } from '@nestjs/common';
 import { LabOrdersService } from './lab-orders.service';
 import { CreateLabOrderDto, UpdateLabOrderDto } from './dto/lab-order.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -10,7 +10,7 @@ export class LabOrdersController {
     constructor(private readonly labOrdersService: LabOrdersService) { }
 
     @Get()
-    findAll(@Req() req: any, @Body('status') status?: string) {
+    findAll(@Req() req: any, @Query('status') status?: string) {
         return this.labOrdersService.findAll(req.user.tenantId, status);
     }
 

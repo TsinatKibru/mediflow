@@ -129,7 +129,7 @@ export default function MedicationsPage() {
                                             <Badge variant={med.stockBalance <= 10 ? 'danger' : med.stockBalance <= 50 ? 'warning' : 'success'}>
                                                 {med.stockBalance} in stock
                                             </Badge>
-                                            <p className="text-xs font-bold text-slate-900 mt-1.5">${med.unitPrice.toFixed(2)} / unit</p>
+                                            <p className="text-xs font-bold text-slate-900 mt-1.5">${Number(med.unitPrice || 0).toFixed(2)} / unit</p>
                                         </div>
                                     </div>
 
