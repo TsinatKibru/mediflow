@@ -47,6 +47,8 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
     const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
     const [hasCoverage, setHasCoverage] = useState(false);
     const [selectedPolicyId, setSelectedPolicyId] = useState<string>(visit.coverage?.insurancePolicyId || '');
+    const [catalogItems, setCatalogItems] = useState<{ id: string; category: string; name: string; price: number; code?: string; description?: string }[]>([]);
+    const [selectedCatalogItem, setSelectedCatalogItem] = useState<string>(''); // catalog item name
 
     const activePayments = visit.payments?.filter(p => !p.isVoided) || [];
     const totalBilled = activePayments.reduce((acc, p) => acc + Number(p.amountCharged), 0);
@@ -61,12 +63,67 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
         reason: '',
     });
 
+    // Catalog items for the currently selected service type
+    const catalogMatch = catalogItems
+        .filter(c => c.category === formData.serviceType)
+        .sort((a, b) => a.name.localeCompare(b.name));
+
+    // The currently selected catalog item object
+    const activeCatalogEntry = catalogMatch.find(c => c.name === selectedCatalogItem) ?? null;
+    const standardPrice = activeCatalogEntry ? activeCatalogEntry.price : (catalogMatch.length === 1 ? catalogMatch[0].price : null);
+
+    useEffect(() => {
+        if (isOpen) {
+            fetch('http://localhost:3000/service-catalog', {
+                headers: { Authorization: `Bearer ${token}` }
+            })
+                .then(r => r.ok ? r.json() : [])
+                .then(data => setCatalogItems(data.filter((c: any) => c.isActive)))
+                .catch(() => { });
+        }
+    }, [isOpen, token]);
+
     useEffect(() => {
         if (hasCoverage && policies.length > 0 && !selectedPolicyId) {
             const activePolicy = policies.find(p => p.isActive);
             if (activePolicy) setSelectedPolicyId(activePolicy.id);
         }
     }, [hasCoverage, policies, selectedPolicyId]);
+
+    // When service type changes: reset item picker and auto-fill if only 1 catalog entry
+    const handleServiceTypeChange = (newType: string) => {
+        const matches = catalogItems
+            .filter(c => c.category === newType)
+            .sort((a, b) => a.name.localeCompare(b.name));
+
+        if (matches.length === 1) {
+            // Only one option — auto-select and fill everything
+            setSelectedCatalogItem(matches[0].name);
+            setFormData(prev => ({
+                ...prev,
+                serviceType: newType as any,
+                amountCharged: String(matches[0].price),
+                reason: matches[0].name,
+            }));
+        } else {
+            // Multiple or none — reset and let user pick
+            setSelectedCatalogItem('');
+            setFormData(prev => ({ ...prev, serviceType: newType as any, amountCharged: '', reason: '' }));
+        }
+    };
+
+    // When a specific catalog item is selected from the sub-dropdown
+    const handleCatalogItemChange = (itemName: string) => {
+        const item = catalogMatch.find(c => c.name === itemName);
+        setSelectedCatalogItem(itemName);
+        if (item) {
+            setFormData(prev => ({
+                ...prev,
+                amountCharged: String(item.price),
+                reason: item.name,
+            }));
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -582,7 +639,11 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Service Category</label>
-                                    <select className="w-full rounded-lg border-slate-200 text-sm p-2" value={formData.serviceType} onChange={(e) => setFormData({ ...formData, serviceType: e.target.value as any })}>
+                                    <select
+                                        className="w-full rounded-lg border-slate-200 text-sm p-2"
+                                        value={formData.serviceType}
+                                        onChange={(e) => handleServiceTypeChange(e.target.value)}
+                                    >
                                         <option value="REGISTRATION">Registration (Check-in)</option>
                                         <option value="CONSULTATION">Consultation</option>
                                         <option value="LABORATORY">Laboratory</option>
@@ -591,6 +652,26 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
                                         <option value="RADIOLOGY">Radiology</option>
                                         <option value="OTHER">Other Service</option>
                                     </select>
+                                    {catalogMatch.length > 1 && (
+                                        <div className="mt-2">
+                                            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Specific Service</label>
+                                            <select
+                                                className="w-full rounded-lg border-slate-200 text-sm p-2 border"
+                                                value={selectedCatalogItem}
+                                                onChange={e => handleCatalogItemChange(e.target.value)}
+                                            >
+                                                <option value="">-- Select a specific service --</option>
+                                                {catalogMatch.map(item => (
+                                                    <option key={item.name} value={item.name}>
+                                                        {item.name} — {Number(item.price).toLocaleString()} ETB
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    )}
+                                    {catalogMatch.length === 0 && (
+                                        <p className="text-[10px] text-slate-400 mt-1 italic">Not in price list — prices must be entered manually</p>
+                                    )}
                                 </div>
                                 <div>
                                     <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Method</label>
@@ -603,8 +684,27 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
                                 </div>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
-                                <div><label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Billed</label><input type="number" step="0.01" className="w-full rounded-lg border-slate-200 text-sm p-2" value={formData.amountCharged} onChange={(e) => setFormData({ ...formData, amountCharged: e.target.value })} /></div>
-                                <div><label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Paid</label><input type="number" step="0.01" className="w-full rounded-lg border-slate-200 text-sm p-2" value={formData.amountPaid} onChange={(e) => setFormData({ ...formData, amountPaid: e.target.value })} /></div>
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Billed</label>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        className="w-full rounded-lg border-slate-200 text-sm p-2"
+                                        value={formData.amountCharged}
+                                        onChange={(e) => setFormData({ ...formData, amountCharged: e.target.value })}
+                                    />
+                                    {activeCatalogEntry ? (
+                                        <p className="text-[10px] font-bold text-emerald-600 mt-1">
+                                            ✓ Catalog price: {Number(activeCatalogEntry.price).toLocaleString()} ETB
+                                        </p>
+                                    ) : catalogMatch.length === 0 ? (
+                                        <p className="text-[10px] text-slate-400 mt-1 italic">No catalog price — enter manually</p>
+                                    ) : null}
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Paid</label>
+                                    <input type="number" step="0.01" className="w-full rounded-lg border-slate-200 text-sm p-2" value={formData.amountPaid} onChange={(e) => setFormData({ ...formData, amountPaid: e.target.value })} />
+                                </div>
                             </div>
                             <div>
                                 <label className={cn(

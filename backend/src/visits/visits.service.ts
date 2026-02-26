@@ -19,18 +19,40 @@ export class VisitsService {
             throw new NotFoundException('Patient not found in this tenant');
         }
 
-        return this.prisma.visit.create({
-            data: {
-                status: VisitStatus.REGISTERED,
-                reason,
-                patientId,
-                departmentId,
-                tenantId,
-            },
-            include: {
-                patient: true,
-                department: true,
-            },
+        return this.prisma.$transaction(async (tx) => {
+            const visit = await tx.visit.create({
+                data: {
+                    status: VisitStatus.REGISTERED,
+                    reason,
+                    patientId,
+                    departmentId,
+                    tenantId,
+                },
+                include: {
+                    patient: true,
+                    department: true,
+                },
+            });
+
+            // Auto-create a PENDING registration charge from the catalog
+            const regCatalog = await tx.serviceCatalog.findFirst({
+                where: { tenantId, category: 'REGISTRATION', isActive: true },
+                orderBy: { name: 'asc' },
+            });
+
+            await tx.payments.create({
+                data: {
+                    visitId: visit.id,
+                    amountCharged: regCatalog ? Number(regCatalog.price) : 0,
+                    amountPaid: 0,
+                    method: 'CASH',
+                    serviceType: 'REGISTRATION',
+                    status: 'PENDING',
+                    reason: regCatalog ? regCatalog.name : 'Registration Fee',
+                },
+            });
+
+            return visit;
         });
     }
 
