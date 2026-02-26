@@ -45,7 +45,7 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
     const [editingPaymentId, setEditingPaymentId] = useState<string | null>(null);
     const [printMode, setPrintMode] = useState<'ledger' | 'receipt'>('ledger');
     const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
-    const [hasCoverage, setHasCoverage] = useState(visit.coverage?.type !== 'SELF' && visit.coverage !== undefined);
+    const [hasCoverage, setHasCoverage] = useState(false);
     const [selectedPolicyId, setSelectedPolicyId] = useState<string>(visit.coverage?.insurancePolicyId || '');
 
     const activePayments = visit.payments?.filter(p => !p.isVoided) || [];
@@ -79,10 +79,25 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
                 : 'http://localhost:3000/payments';
             const method = editingPaymentId ? 'PATCH' : 'POST';
 
+            const charged = parseFloat(formData.amountCharged);
+            const paid = parseFloat(formData.amountPaid);
+
+            if (isNaN(charged)) {
+                setError('Please enter a valid amount for "Billed"');
+                setLoading(false);
+                return;
+            }
+
+            if (isNaN(paid)) {
+                setError('Please enter a valid amount for "Paid" (Enter 0 if unpaid)');
+                setLoading(false);
+                return;
+            }
+
             const body: any = {
                 visitId: visit.id,
-                amountCharged: parseFloat(formData.amountCharged),
-                amountPaid: parseFloat(formData.amountPaid),
+                amountCharged: charged,
+                amountPaid: paid,
                 method: formData.method,
                 serviceType: formData.serviceType,
                 reason: formData.reason,
@@ -103,7 +118,7 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
                     if (!body.reason) body.reason = `Covered by ${policy.type.split('_').join(' ')} (#${policy.policyNumber})`;
                 }
             } else if (hasCoverage && !selectedPolicyId) {
-                setError('Please select an insurance policy or uncheck coverage.');
+                setError('Please select an insurance policy or uncheck "Apply Coverage".');
                 setLoading(false);
                 return;
             }
@@ -614,6 +629,12 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
                                     </select>
                                 )}
                             </div>
+                            {error && (
+                                <div className="p-3 bg-rose-50 border border-rose-100 rounded-lg text-xs text-rose-600 font-medium flex items-center gap-2">
+                                    <AlertCircle className="h-4 w-4" />
+                                    {error}
+                                </div>
+                            )}
                             <Button type="submit" disabled={loading} className="w-full">
                                 {editingPaymentId ? 'Update Transaction' : 'Post Transaction'}
                             </Button>

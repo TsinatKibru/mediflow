@@ -35,6 +35,9 @@ export declare class CreatePaymentDto {
     method: PaymentMethod;
     serviceType: ServiceType;
     reason?: string;
+    status?: string;
+    labOrderId?: string;
+    pharmacyOrderId?: string;
     insurancePolicyId?: string;
     coverage?: CoverageDto;
 }

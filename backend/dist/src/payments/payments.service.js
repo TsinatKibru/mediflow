@@ -34,6 +34,9 @@ let PaymentsService = class PaymentsService {
                     amountPaid,
                     method,
                     serviceType: serviceType,
+                    status: createPaymentDto.status || 'COMPLETED',
+                    labOrderId: createPaymentDto.labOrderId,
+                    pharmacyOrderId: createPaymentDto.pharmacyOrderId,
                     reason,
                     verifiedById: userId,
                     insurancePolicyId: insurancePolicyId || coverage?.insurancePolicyId,
@@ -106,6 +109,7 @@ let PaymentsService = class PaymentsService {
                 amountCharged: dto.amountCharged,
                 amountPaid: dto.amountPaid,
                 method: dto.method,
+                status: dto.status,
                 serviceType: dto.serviceType,
                 reason: dto.reason,
             }

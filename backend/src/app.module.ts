@@ -15,6 +15,7 @@ import { ScheduleModule } from './schedule/schedule.module';
 import { LabOrdersModule } from './lab-orders/lab-orders.module';
 import { MedicationsModule } from './medications/medications.module';
 import { PharmacyOrdersModule } from './pharmacy-orders/pharmacy-orders.module';
+import { ServiceCatalogModule } from './service-catalog/service-catalog.module';
 
 @Module({
   imports: [
@@ -31,7 +32,8 @@ import { PharmacyOrdersModule } from './pharmacy-orders/pharmacy-orders.module';
     ScheduleModule,
     LabOrdersModule,
     MedicationsModule,
-    PharmacyOrdersModule
+    PharmacyOrdersModule,
+    ServiceCatalogModule
   ],
   controllers: [AppController],
   providers: [AppService],

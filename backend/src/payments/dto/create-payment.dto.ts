@@ -75,6 +75,18 @@ export class CreatePaymentDto {
     reason?: string;
 
     @IsOptional()
+    @IsString()
+    status?: string;
+
+    @IsOptional()
+    @IsUUID()
+    labOrderId?: string;
+
+    @IsOptional()
+    @IsUUID()
+    pharmacyOrderId?: string;
+
+    @IsOptional()
     @IsUUID()
     insurancePolicyId?: string;
 

@@ -31,6 +31,9 @@ export class PaymentsService {
                     amountPaid,
                     method,
                     serviceType: serviceType as any,
+                    status: createPaymentDto.status || 'COMPLETED',
+                    labOrderId: createPaymentDto.labOrderId,
+                    pharmacyOrderId: createPaymentDto.pharmacyOrderId,
                     reason,
                     verifiedById: userId,
                     insurancePolicyId: insurancePolicyId || coverage?.insurancePolicyId,
@@ -114,6 +117,7 @@ export class PaymentsService {
                 amountCharged: dto.amountCharged,
                 amountPaid: dto.amountPaid,
                 method: dto.method,
+                status: dto.status,
                 serviceType: dto.serviceType as any,
                 reason: dto.reason,
             }

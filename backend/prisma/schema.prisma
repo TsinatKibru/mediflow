@@ -82,6 +82,7 @@ model Tenant {
   appointments      Appointment[]
   doctorSchedules   DoctorAvailability[]
   medications       Medication[]
+  serviceCatalog    ServiceCatalog[]
 }
 
 model User {
@@ -411,8 +412,26 @@ model PharmacyOrder {
   dispensedBy    User?    @relation("PharmacistDispensed", fields: [dispensedById], references: [id])
   dispensedById  String?
 
-  payments Payments[]
+  payments      Payments[]
 
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model ServiceCatalog {
+  id          String      @id @default(uuid())
+  category    ServiceType @default(OTHER)
+  name        String      // e.g. "Full Blood Count", "Specialist Consultation"
+  code        String?     // Optional: Billing code or SKU
+  description String?     @db.Text
+  price       Decimal     @db.Decimal(10, 2)
+  isActive    Boolean     @default(true)
+  
+  tenant      Tenant      @relation(fields: [tenantId], references: [id])
+  tenantId    String
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@unique([name, category, tenantId])
 }

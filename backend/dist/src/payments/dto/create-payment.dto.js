@@ -86,6 +86,9 @@ class CreatePaymentDto {
     method;
     serviceType;
     reason;
+    status;
+    labOrderId;
+    pharmacyOrderId;
     insurancePolicyId;
     coverage;
 }
@@ -115,6 +118,21 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreatePaymentDto.prototype, "reason", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreatePaymentDto.prototype, "status", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsUUID)(),
+    __metadata("design:type", String)
+], CreatePaymentDto.prototype, "labOrderId", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsUUID)(),
+    __metadata("design:type", String)
+], CreatePaymentDto.prototype, "pharmacyOrderId", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsUUID)(),
