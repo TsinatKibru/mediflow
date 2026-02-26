@@ -15,11 +15,11 @@ export declare class LabOrdersService {
             amountPaid: import("@prisma/client/runtime/library").Decimal;
             method: import(".prisma/client").$Enums.PaymentMethod;
             serviceType: import(".prisma/client").$Enums.ServiceType;
-            labOrderId: string | null;
-            pharmacyOrderId: string | null;
             isVoided: boolean;
             voidReason: string | null;
             voidedAt: Date | null;
+            labOrderId: string | null;
+            pharmacyOrderId: string | null;
             voidedById: string | null;
             insurancePolicyId: string | null;
             verifiedById: string | null;
@@ -54,8 +54,8 @@ export declare class LabOrdersService {
         result: string | null;
         status: string;
         visitId: string;
-        instructions: string | null;
         testName: string;
+        instructions: string | null;
         prescribedById: string;
     })[]>;
     create(tenantId: string, doctorId: string, dto: CreateLabOrderDto): Promise<{
@@ -65,8 +65,8 @@ export declare class LabOrdersService {
         result: string | null;
         status: string;
         visitId: string;
-        instructions: string | null;
         testName: string;
+        instructions: string | null;
         prescribedById: string;
     }>;
     findByVisit(tenantId: string, visitId: string): Promise<({
@@ -81,11 +81,11 @@ export declare class LabOrdersService {
             amountPaid: import("@prisma/client/runtime/library").Decimal;
             method: import(".prisma/client").$Enums.PaymentMethod;
             serviceType: import(".prisma/client").$Enums.ServiceType;
-            labOrderId: string | null;
-            pharmacyOrderId: string | null;
             isVoided: boolean;
             voidReason: string | null;
             voidedAt: Date | null;
+            labOrderId: string | null;
+            pharmacyOrderId: string | null;
             voidedById: string | null;
             insurancePolicyId: string | null;
             verifiedById: string | null;
@@ -101,8 +101,8 @@ export declare class LabOrdersService {
         result: string | null;
         status: string;
         visitId: string;
-        instructions: string | null;
         testName: string;
+        instructions: string | null;
         prescribedById: string;
     })[]>;
     update(tenantId: string, id: string, dto: UpdateLabOrderDto): Promise<{
@@ -112,8 +112,8 @@ export declare class LabOrdersService {
         result: string | null;
         status: string;
         visitId: string;
-        instructions: string | null;
         testName: string;
+        instructions: string | null;
         prescribedById: string;
     }>;
     delete(tenantId: string, id: string): Promise<{
@@ -123,8 +123,8 @@ export declare class LabOrdersService {
         result: string | null;
         status: string;
         visitId: string;
-        instructions: string | null;
         testName: string;
+        instructions: string | null;
         prescribedById: string;
     }>;
 }

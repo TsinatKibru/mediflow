@@ -24,6 +24,7 @@ import { Visit, Payment, Patient, InsurancePolicy } from '@/types/billing';
 import { useAuthStore } from '@/store/authStore';
 import { PaymentModal } from '@/components/billing/PaymentModal';
 import { NewBillModal } from '@/components/billing/NewBillModal';
+import { CurrencyDisplay } from '@/components/common/CurrencyDisplay';
 
 export default function BillingPage() {
     const { token, isHydrated } = useAuthStore();
@@ -147,7 +148,9 @@ export default function BillingPage() {
                     </div>
                     <div className="relative z-10">
                         <p className="text-indigo-100 text-xs font-bold uppercase tracking-wider mb-2">Total Outstanding Balance</p>
-                        <h3 className="text-3xl font-black">{stats.totalOutstanding.toLocaleString()} <span className="text-base font-normal opacity-80 uppercase">ETB</span></h3>
+                        <h3 className="text-3xl font-black">
+                            <CurrencyDisplay amount={stats.totalOutstanding} showCode />
+                        </h3>
                         <div className="mt-4 flex items-center gap-2 text-xs font-bold bg-white/10 w-fit px-2 py-1 rounded-lg">
                             <ArrowUpRight className="h-3 w-3" /> 12% from last week
                         </div>
@@ -156,9 +159,11 @@ export default function BillingPage() {
 
                 <Card className="p-6 border-none shadow-sm bg-white border-l-4 border-emerald-500">
                     <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Collected Today</p>
-                    <h3 className="text-3xl font-black text-slate-900">{stats.collectedToday.toLocaleString()} <span className="text-base font-normal text-slate-400 uppercase">ETB</span></h3>
+                    <h3 className="text-3xl font-black text-slate-900">
+                        <CurrencyDisplay amount={stats.collectedToday} showCode />
+                    </h3>
                     <div className="mt-4 flex items-center gap-2 text-xs font-bold text-emerald-600">
-                        <CheckCircle2 className="h-3 w-3" /> Goal: 50,000 ETB
+                        <CheckCircle2 className="h-3 w-3" /> Goal: <CurrencyDisplay amount={50000} />
                     </div>
                 </Card>
 
@@ -252,11 +257,13 @@ export default function BillingPage() {
                                             <p className="text-xs text-slate-500">{visit.patient?.phone}</p>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <p className="text-sm font-bold text-slate-900">{billed.toLocaleString()} <span className="text-[10px] text-slate-400">ETB</span></p>
+                                            <p className="text-sm font-bold text-slate-900">
+                                                <CurrencyDisplay amount={billed} />
+                                            </p>
                                         </td>
                                         <td className="px-6 py-4">
                                             <p className={`text-sm font-bold ${balance > 0 ? 'text-amber-600' : 'text-emerald-600'}`}>
-                                                {balance.toLocaleString()} <span className="text-[10px] opacity-70">ETB</span>
+                                                <CurrencyDisplay amount={balance} />
                                             </p>
                                         </td>
                                         <td className="px-6 py-4">

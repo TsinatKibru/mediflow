@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { useAuthStore } from '@/store/authStore';
+import { CurrencyDisplay } from '@/components/common/CurrencyDisplay';
 import toast from 'react-hot-toast';
 
 interface ServiceItem {
@@ -205,9 +206,11 @@ export function ServiceCatalogSettings() {
                             />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Standard Price (ETB)</label>
+                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Standard Price ({useAuthStore.getState().tenant?.currency || 'ETB'})</label>
                             <div className="relative">
-                                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 font-bold text-xs flex items-center justify-center">
+                                    {useAuthStore.getState().tenant?.currencySymbol || 'ETB'}
+                                </span>
                                 <input
                                     type="number"
                                     step="0.01"
@@ -284,9 +287,10 @@ export function ServiceCatalogSettings() {
                                 </div>
 
                                 <div className="flex items-center justify-between pt-4 border-t border-slate-50">
-                                    <div className="flex items-baseline gap-1">
-                                        <span className="text-lg font-black text-indigo-600">{Number(service.price).toLocaleString()}</span>
-                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">ETB</span>
+                                    <div className="flex items-center gap-1">
+                                        <span className="text-lg font-black text-indigo-600">
+                                            <CurrencyDisplay amount={service.price} />
+                                        </span>
                                     </div>
                                     <Badge className={service.isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-400'}>
                                         {service.isActive ? 'Active' : 'Disabled'}

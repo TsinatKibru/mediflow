@@ -14,6 +14,8 @@ const class_validator_1 = require("class-validator");
 class UpdateTenantDto {
     name;
     primaryColor;
+    currency;
+    currencySymbol;
 }
 exports.UpdateTenantDto = UpdateTenantDto;
 __decorate([
@@ -26,4 +28,14 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], UpdateTenantDto.prototype, "primaryColor", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateTenantDto.prototype, "currency", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateTenantDto.prototype, "currencySymbol", void 0);
 //# sourceMappingURL=update-tenant.dto.js.map

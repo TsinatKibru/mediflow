@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { CurrencyDisplay } from '@/components/common/CurrencyDisplay';
 import { cn } from '@/lib/utils';
 import {
     AlertCircle,
@@ -410,8 +411,8 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
                         <tr className="border-b-2 border-slate-900">
                             <th className="py-3 text-left font-bold uppercase text-xs">Date</th>
                             <th className="py-3 text-left font-bold uppercase text-xs">Description</th>
-                            <th className="py-3 text-right font-bold uppercase text-xs">Billed (ETB)</th>
-                            <th className="py-3 text-right font-bold uppercase text-xs">Paid (ETB)</th>
+                            <th className="py-3 text-right font-bold uppercase text-xs">Billed</th>
+                            <th className="py-3 text-right font-bold uppercase text-xs">Paid</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-200">
@@ -431,9 +432,8 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
                             <td className="py-4 text-right font-bold text-lg text-emerald-700">{totalPaid.toFixed(2)}</td>
                         </tr>
                         <tr>
-                            <td colSpan={3} className="py-4 text-right font-black uppercase text-sm">Outstanding Balance:</td>
                             <td className="py-4 text-right font-black text-xl border-double border-b-4 border-slate-900">
-                                {balance.toFixed(2)} ETB
+                                <CurrencyDisplay amount={balance} showCode />
                             </td>
                         </tr>
                     </tfoot>
@@ -480,11 +480,11 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
                 <div className="bg-slate-50 p-4 rounded-lg space-y-2">
                     <div className="flex justify-between text-xs">
                         <span>Amount Charged:</span>
-                        <span>{Number(selectedPayment?.amountCharged || 0).toFixed(2)} ETB</span>
+                        <span><CurrencyDisplay amount={selectedPayment?.amountCharged || 0} /></span>
                     </div>
                     <div className="flex justify-between font-bold text-sm pt-2 border-t border-slate-200">
                         <span>Amount Paid:</span>
-                        <span className="text-indigo-600">{Number(selectedPayment?.amountPaid || 0).toFixed(2)} ETB</span>
+                        <span className="text-indigo-600"><CurrencyDisplay amount={selectedPayment?.amountPaid || 0} /></span>
                     </div>
                 </div>
 
@@ -500,15 +500,15 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
                 <div className="grid grid-cols-3 gap-4">
                     <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
                         <p className="text-xs font-bold text-slate-500 uppercase mb-1">Total Billed</p>
-                        <p className="text-xl font-bold text-slate-900">{totalBilled.toFixed(2)} <span className="text-xs font-normal text-slate-500">ETB</span></p>
+                        <p className="text-xl font-bold text-slate-900"><CurrencyDisplay amount={totalBilled} /></p>
                     </div>
                     <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4">
                         <p className="text-xs font-bold text-emerald-700 uppercase mb-1">Total Paid</p>
-                        <p className="text-xl font-bold text-emerald-600">{totalPaid.toFixed(2)} <span className="text-xs font-normal text-emerald-500">ETB</span></p>
+                        <p className="text-xl font-bold text-emerald-600"><CurrencyDisplay amount={totalPaid} /></p>
                     </div>
                     <div className={`${balance > 0 ? 'bg-amber-50 border-amber-100' : 'bg-slate-50 border-slate-200'} border rounded-xl p-4`}>
                         <p className="text-xs font-bold text-slate-500 uppercase mb-1">Balance Due</p>
-                        <p className={`text-xl font-bold ${balance > 0 ? 'text-amber-600' : 'text-slate-900'}`}>{balance.toFixed(2)} <span className="text-xs font-normal text-slate-500">ETB</span></p>
+                        <p className={`text-xl font-bold ${balance > 0 ? 'text-amber-600' : 'text-slate-900'}`}><CurrencyDisplay amount={balance} /></p>
                     </div>
                 </div>
 

@@ -61,8 +61,8 @@ export declare class VisitsController {
                 result: string | null;
                 status: string;
                 visitId: string;
-                instructions: string | null;
                 testName: string;
+                instructions: string | null;
                 prescribedById: string;
             }[];
             pharmacyOrders: ({
@@ -86,8 +86,8 @@ export declare class VisitsController {
                 visitId: string;
                 instructions: string | null;
                 prescribedById: string;
-                medicationId: string;
                 quantity: number;
+                medicationId: string;
                 dispensedById: string | null;
             })[];
             vitals: {
@@ -120,11 +120,11 @@ export declare class VisitsController {
                 amountPaid: import("@prisma/client/runtime/library").Decimal;
                 method: import(".prisma/client").$Enums.PaymentMethod;
                 serviceType: import(".prisma/client").$Enums.ServiceType;
-                labOrderId: string | null;
-                pharmacyOrderId: string | null;
                 isVoided: boolean;
                 voidReason: string | null;
                 voidedAt: Date | null;
+                labOrderId: string | null;
+                pharmacyOrderId: string | null;
                 voidedById: string | null;
                 insurancePolicyId: string | null;
                 verifiedById: string | null;
@@ -283,11 +283,11 @@ export declare class VisitsController {
             amountPaid: import("@prisma/client/runtime/library").Decimal;
             method: import(".prisma/client").$Enums.PaymentMethod;
             serviceType: import(".prisma/client").$Enums.ServiceType;
-            labOrderId: string | null;
-            pharmacyOrderId: string | null;
             isVoided: boolean;
             voidReason: string | null;
             voidedAt: Date | null;
+            labOrderId: string | null;
+            pharmacyOrderId: string | null;
             voidedById: string | null;
             insurancePolicyId: string | null;
             verifiedById: string | null;

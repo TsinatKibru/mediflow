@@ -8,4 +8,12 @@ export class UpdateTenantDto {
     @IsString()
     @IsOptional()
     primaryColor?: string;
+
+    @IsString()
+    @IsOptional()
+    currency?: string;
+
+    @IsString()
+    @IsOptional()
+    currencySymbol?: string;
 }

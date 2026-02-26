@@ -15,6 +15,8 @@ interface Tenant {
     name: string;
     subdomain: string;
     primaryColor?: string;
+    currency?: string;
+    currencySymbol?: string;
 }
 
 interface AuthState {

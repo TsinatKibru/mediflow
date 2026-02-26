@@ -24,8 +24,8 @@ export declare class PharmacyOrdersService {
         visitId: string;
         instructions: string | null;
         prescribedById: string;
-        medicationId: string;
         quantity: number;
+        medicationId: string;
         dispensedById: string | null;
     }>;
     findAll(tenantId: string, status?: string): Promise<({
@@ -40,11 +40,11 @@ export declare class PharmacyOrdersService {
             amountPaid: import("@prisma/client/runtime/library").Decimal;
             method: import(".prisma/client").$Enums.PaymentMethod;
             serviceType: import(".prisma/client").$Enums.ServiceType;
-            labOrderId: string | null;
-            pharmacyOrderId: string | null;
             isVoided: boolean;
             voidReason: string | null;
             voidedAt: Date | null;
+            labOrderId: string | null;
+            pharmacyOrderId: string | null;
             voidedById: string | null;
             insurancePolicyId: string | null;
             verifiedById: string | null;
@@ -128,8 +128,8 @@ export declare class PharmacyOrdersService {
         visitId: string;
         instructions: string | null;
         prescribedById: string;
-        medicationId: string;
         quantity: number;
+        medicationId: string;
         dispensedById: string | null;
     })[]>;
     findByVisit(tenantId: string, visitId: string): Promise<({
@@ -144,11 +144,11 @@ export declare class PharmacyOrdersService {
             amountPaid: import("@prisma/client/runtime/library").Decimal;
             method: import(".prisma/client").$Enums.PaymentMethod;
             serviceType: import(".prisma/client").$Enums.ServiceType;
-            labOrderId: string | null;
-            pharmacyOrderId: string | null;
             isVoided: boolean;
             voidReason: string | null;
             voidedAt: Date | null;
+            labOrderId: string | null;
+            pharmacyOrderId: string | null;
             voidedById: string | null;
             insurancePolicyId: string | null;
             verifiedById: string | null;
@@ -173,8 +173,8 @@ export declare class PharmacyOrdersService {
         visitId: string;
         instructions: string | null;
         prescribedById: string;
-        medicationId: string;
         quantity: number;
+        medicationId: string;
         dispensedById: string | null;
     })[]>;
     updateStatus(tenantId: string, id: string, userId: string, dto: UpdatePharmacyOrderStatusDto): Promise<{
@@ -185,8 +185,8 @@ export declare class PharmacyOrdersService {
         visitId: string;
         instructions: string | null;
         prescribedById: string;
-        medicationId: string;
         quantity: number;
+        medicationId: string;
         dispensedById: string | null;
     }>;
 }

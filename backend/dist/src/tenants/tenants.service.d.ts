@@ -9,6 +9,8 @@ export declare class TenantsService {
         name: string;
         logoUrl: string | null;
         primaryColor: string | null;
+        currency: string;
+        currencySymbol: string;
         createdAt: Date;
         updatedAt: Date;
     } | null>;
@@ -18,6 +20,8 @@ export declare class TenantsService {
         name: string;
         logoUrl: string | null;
         primaryColor: string | null;
+        currency: string;
+        currencySymbol: string;
         createdAt: Date;
         updatedAt: Date;
     }>;
