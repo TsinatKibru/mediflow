@@ -314,7 +314,7 @@ export default function VisitsPage() {
                                                 <Button
                                                     variant="primary"
                                                     size="sm"
-                                                    className="h-8 py-0 px-3 bg-indigo-50 text-indigo-600 hover:bg-indigo-500 hover:text-white border-indigo-100 shadow-none"
+                                                    className="h-8 py-0 px-3 bg-indigo-50 text-gray-200 hover:bg-indigo-500 hover:text-white border-indigo-100 shadow-none"
                                                     onClick={() => {
                                                         setSelectedVisitId(visit.id);
                                                         setIsDashOpen(true);
