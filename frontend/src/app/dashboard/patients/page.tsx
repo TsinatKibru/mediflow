@@ -153,7 +153,7 @@ export default function PatientsPage() {
                             <option value="ALL">All Genders</option>
                             <option value="MALE">Male</option>
                             <option value="FEMALE">Female</option>
-                            <option value="OTHER">Other</option>
+
                         </select>
                     </div>
                     <div className="flex items-center space-x-2">
