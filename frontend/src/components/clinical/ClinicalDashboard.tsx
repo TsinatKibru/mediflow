@@ -59,6 +59,7 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
     const [labOrders, setLabOrders] = useState<any[]>([]);
     const [newLabTest, setNewLabTest] = useState('');
     const [labInstructions, setLabInstructions] = useState('');
+    const [catalogTests, setCatalogTests] = useState<{ id: string; name: string; price: number; code?: string }[]>([]);
 
     // Pharmacy state
     const [medications, setMedications] = useState<Medication[]>([]);
@@ -75,8 +76,23 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
             fetchLabOrders();
             fetchPharmacyOrders();
             fetchMedications();
+            fetchCatalogTests();
         }
     }, [isOpen, viewingVisitId]);
+
+    const fetchCatalogTests = async () => {
+        try {
+            const res = await fetch('http://localhost:3000/service-catalog?category=LABORATORY', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setCatalogTests(data.filter((s: any) => s.isActive));
+            }
+        } catch (err) {
+            console.error('Failed to load lab test catalog:', err);
+        }
+    };
 
     const fetchVisitDetails = async () => {
         setLoading(true);
@@ -489,13 +505,35 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
                                     <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
                                         <div className="grid grid-cols-2 gap-3">
                                             <div>
-                                                <Label className="text-[10px] uppercase font-bold text-slate-500">Test Name</Label>
-                                                <Input
-                                                    placeholder="e.g. CBC, Lipid Profile"
-                                                    value={newLabTest}
-                                                    onChange={e => setNewLabTest(e.target.value)}
-                                                    className="bg-white mt-1 h-9 text-sm"
-                                                />
+                                                <Label className="text-[10px] uppercase font-bold text-slate-500">Select Lab Test</Label>
+                                                {catalogTests.length > 0 ? (
+                                                    <>
+                                                        <Combobox
+                                                            items={catalogTests.map(t => ({ value: t.name, label: `${t.name}${t.code ? ` (${t.code})` : ''}` }))}
+                                                            value={newLabTest}
+                                                            onChange={setNewLabTest}
+                                                            placeholder="Search catalog tests..."
+                                                        />
+                                                        {newLabTest && (() => {
+                                                            const selected = catalogTests.find(t => t.name === newLabTest);
+                                                            return selected ? (
+                                                                <p className="text-[10px] font-bold text-emerald-600 mt-1">✓ Price: {Number(selected.price).toLocaleString()} ETB</p>
+                                                            ) : (
+                                                                <p className="text-[10px] text-amber-600 font-bold mt-1">⚠ Test not in catalog — charge will be 0</p>
+                                                            );
+                                                        })()}
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Input
+                                                            placeholder="e.g. CBC, Lipid Profile"
+                                                            value={newLabTest}
+                                                            onChange={e => setNewLabTest(e.target.value)}
+                                                            className="bg-white mt-1 h-9 text-sm"
+                                                        />
+                                                        <p className="text-[10px] text-amber-600 font-bold mt-1">⚠ No lab tests in price list. Go to Settings → Price List to add.</p>
+                                                    </>
+                                                )}
                                             </div>
                                             <div>
                                                 <Label className="text-[10px] uppercase font-bold text-slate-500">Special Instructions</Label>
