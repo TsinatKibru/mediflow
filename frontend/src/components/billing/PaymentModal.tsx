@@ -496,7 +496,7 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
                 </div>
             </div>
 
-            <div className="space-y-6 print:hidden">
+            <div className="space-y-6 print:hidden max-h-[75vh] overflow-y-auto pr-2 custom-scrollbar">
                 <div className="grid grid-cols-3 gap-4">
                     <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
                         <p className="text-xs font-bold text-slate-500 uppercase mb-1">Total Billed</p>
@@ -864,14 +864,14 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
                         </form>
                     </div>
                 )}
+            </div>
 
-                <div className="flex justify-between items-center pt-4 border-t">
-                    <div className="flex space-x-2">
-                        <Button variant="outline" size="sm" onClick={handlePrintLedger}><Printer className="h-4 w-4 mr-2" /> Ledger</Button>
-                        <Button variant="ghost" size="sm" onClick={() => handlePrintReceipt()}><Receipt className="h-4 w-4 mr-2" /> Receipt</Button>
-                    </div>
-                    <Button variant="primary" onClick={onClose}>Close</Button>
+            <div className="flex justify-between items-center pt-4 border-t mt-auto">
+                <div className="flex space-x-2">
+                    <Button variant="outline" size="sm" onClick={handlePrintLedger}><Printer className="h-4 w-4 mr-2" /> Ledger</Button>
+                    <Button variant="ghost" size="sm" onClick={() => handlePrintReceipt()}><Receipt className="h-4 w-4 mr-2" /> Receipt</Button>
                 </div>
+                <Button variant="primary" onClick={onClose}>Close</Button>
             </div>
         </Modal>
     );

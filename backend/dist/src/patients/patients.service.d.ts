@@ -5,85 +5,49 @@ export declare class PatientsService {
     constructor(prisma: PrismaService);
     create(tenantId: string, dto: CreatePatientDto): Promise<{
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        tenantId: string;
         firstName: string;
         lastName: string;
         dateOfBirth: Date;
         gender: string;
         phone: string | null;
         email: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        tenantId: string;
     }>;
     findAll(tenantId: string, skip?: number, take?: number, search?: string): Promise<{
         total: number;
         data: {
             id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            tenantId: string;
             firstName: string;
             lastName: string;
             dateOfBirth: Date;
             gender: string;
             phone: string | null;
             email: string | null;
+            createdAt: Date;
+            updatedAt: Date;
+            tenantId: string;
         }[];
     }>;
     findOne(tenantId: string, id: string): Promise<{
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        tenantId: string;
         firstName: string;
         lastName: string;
         dateOfBirth: Date;
         gender: string;
         phone: string | null;
         email: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        tenantId: string;
     }>;
     findPatientVisits(tenantId: string, patientId: string): Promise<({
         department: {
             id: string;
-            name: string;
             tenantId: string;
+            name: string;
         };
-        labOrders: {
-            id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            result: string | null;
-            status: string;
-            visitId: string;
-            instructions: string | null;
-            testName: string;
-            prescribedById: string;
-        }[];
-        pharmacyOrders: ({
-            medication: {
-                id: string;
-                name: string;
-                createdAt: Date;
-                updatedAt: Date;
-                tenantId: string;
-                genericName: string | null;
-                dosageForm: string;
-                strength: string;
-                stockBalance: number;
-                unitPrice: import("@prisma/client/runtime/library").Decimal;
-            };
-        } & {
-            id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            status: string;
-            visitId: string;
-            instructions: string | null;
-            prescribedById: string;
-            medicationId: string;
-            quantity: number;
-            dispensedById: string | null;
-        })[];
         vitals: {
             id: string;
             createdAt: Date;
@@ -139,41 +103,77 @@ export declare class PatientsService {
             claimStatus: import(".prisma/client").$Enums.ClaimStatus;
             verifiedAt: Date;
         } | null;
+        labOrders: {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            result: string | null;
+            status: string;
+            visitId: string;
+            testName: string;
+            instructions: string | null;
+            prescribedById: string;
+        }[];
+        pharmacyOrders: ({
+            medication: {
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                tenantId: string;
+                name: string;
+                genericName: string | null;
+                dosageForm: string;
+                strength: string;
+                stockBalance: number;
+                unitPrice: import("@prisma/client/runtime/library").Decimal;
+            };
+        } & {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            status: string;
+            visitId: string;
+            instructions: string | null;
+            prescribedById: string;
+            medicationId: string;
+            quantity: number;
+            dispensedById: string | null;
+        })[];
     } & {
         id: string;
         createdAt: Date;
         updatedAt: Date;
         tenantId: string;
-        departmentId: string;
         status: import(".prisma/client").$Enums.VisitStatus;
         priority: import(".prisma/client").$Enums.Priority;
         reason: string | null;
         patientId: string;
+        departmentId: string;
         doctorId: string | null;
         nurseId: string | null;
     })[]>;
     update(tenantId: string, id: string, dto: UpdatePatientDto): Promise<{
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        tenantId: string;
         firstName: string;
         lastName: string;
         dateOfBirth: Date;
         gender: string;
         phone: string | null;
         email: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        tenantId: string;
     }>;
     remove(tenantId: string, id: string): Promise<{
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        tenantId: string;
         firstName: string;
         lastName: string;
         dateOfBirth: Date;
         gender: string;
         phone: string | null;
         email: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        tenantId: string;
     }>;
 }

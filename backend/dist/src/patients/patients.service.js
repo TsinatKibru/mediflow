@@ -21,6 +21,7 @@ let PatientsService = class PatientsService {
         return this.prisma.patient.create({
             data: {
                 ...dto,
+                dateOfBirth: new Date(dto.dateOfBirth),
                 tenantId,
             },
         });
@@ -82,7 +83,10 @@ let PatientsService = class PatientsService {
         await this.findOne(tenantId, id);
         return this.prisma.patient.update({
             where: { id },
-            data: dto,
+            data: {
+                ...dto,
+                dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined,
+            },
         });
     }
     async remove(tenantId, id) {

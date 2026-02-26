@@ -10,6 +10,7 @@ export class PatientsService {
         return this.prisma.patient.create({
             data: {
                 ...dto,
+                dateOfBirth: new Date(dto.dateOfBirth),
                 tenantId,
             },
         });
@@ -89,7 +90,10 @@ export class PatientsService {
 
         return this.prisma.patient.update({
             where: { id },
-            data: dto,
+            data: {
+                ...dto,
+                dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined,
+            },
         });
     }
 

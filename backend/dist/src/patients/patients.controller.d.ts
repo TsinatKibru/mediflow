@@ -5,85 +5,49 @@ export declare class PatientsController {
     constructor(patientsService: PatientsService);
     create(req: any, createPatientDto: CreatePatientDto): Promise<{
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        tenantId: string;
         firstName: string;
         lastName: string;
         dateOfBirth: Date;
         gender: string;
         phone: string | null;
         email: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        tenantId: string;
     }>;
     findAll(req: any, skip?: string, take?: string, search?: string): Promise<{
         total: number;
         data: {
             id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            tenantId: string;
             firstName: string;
             lastName: string;
             dateOfBirth: Date;
             gender: string;
             phone: string | null;
             email: string | null;
+            createdAt: Date;
+            updatedAt: Date;
+            tenantId: string;
         }[];
     }>;
     findOne(req: any, id: string): Promise<{
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        tenantId: string;
         firstName: string;
         lastName: string;
         dateOfBirth: Date;
         gender: string;
         phone: string | null;
         email: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        tenantId: string;
     }>;
     findPatientVisits(req: any, id: string): Promise<({
         department: {
             id: string;
-            name: string;
             tenantId: string;
+            name: string;
         };
-        labOrders: {
-            id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            result: string | null;
-            status: string;
-            visitId: string;
-            instructions: string | null;
-            testName: string;
-            prescribedById: string;
-        }[];
-        pharmacyOrders: ({
-            medication: {
-                id: string;
-                name: string;
-                createdAt: Date;
-                updatedAt: Date;
-                tenantId: string;
-                genericName: string | null;
-                dosageForm: string;
-                strength: string;
-                stockBalance: number;
-                unitPrice: import("@prisma/client/runtime/library").Decimal;
-            };
-        } & {
-            id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            status: string;
-            visitId: string;
-            instructions: string | null;
-            prescribedById: string;
-            medicationId: string;
-            quantity: number;
-            dispensedById: string | null;
-        })[];
         vitals: {
             id: string;
             createdAt: Date;
@@ -139,41 +103,77 @@ export declare class PatientsController {
             claimStatus: import(".prisma/client").$Enums.ClaimStatus;
             verifiedAt: Date;
         } | null;
+        labOrders: {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            result: string | null;
+            status: string;
+            visitId: string;
+            testName: string;
+            instructions: string | null;
+            prescribedById: string;
+        }[];
+        pharmacyOrders: ({
+            medication: {
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                tenantId: string;
+                name: string;
+                genericName: string | null;
+                dosageForm: string;
+                strength: string;
+                stockBalance: number;
+                unitPrice: import("@prisma/client/runtime/library").Decimal;
+            };
+        } & {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            status: string;
+            visitId: string;
+            instructions: string | null;
+            prescribedById: string;
+            medicationId: string;
+            quantity: number;
+            dispensedById: string | null;
+        })[];
     } & {
         id: string;
         createdAt: Date;
         updatedAt: Date;
         tenantId: string;
-        departmentId: string;
         status: import(".prisma/client").$Enums.VisitStatus;
         priority: import(".prisma/client").$Enums.Priority;
         reason: string | null;
         patientId: string;
+        departmentId: string;
         doctorId: string | null;
         nurseId: string | null;
     })[]>;
     update(req: any, id: string, updatePatientDto: UpdatePatientDto): Promise<{
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        tenantId: string;
         firstName: string;
         lastName: string;
         dateOfBirth: Date;
         gender: string;
         phone: string | null;
         email: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        tenantId: string;
     }>;
     remove(req: any, id: string): Promise<{
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        tenantId: string;
         firstName: string;
         lastName: string;
         dateOfBirth: Date;
         gender: string;
         phone: string | null;
         email: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        tenantId: string;
     }>;
 }
