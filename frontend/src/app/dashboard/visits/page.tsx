@@ -20,6 +20,7 @@ import {
     UserPlus
 } from 'lucide-react';
 import { ClinicalDashboard } from '@/components/clinical/ClinicalDashboard';
+import { Pagination } from '@/components/ui/Pagination';
 
 interface Visit {
     id: string;
@@ -39,6 +40,9 @@ interface Visit {
 export default function VisitsPage() {
     const { token, tenant } = useAuthStore();
     const [visits, setVisits] = useState<Visit[]>([]);
+    const [total, setTotal] = useState(0);
+    const [skip, setSkip] = useState(0);
+    const [take, setTake] = useState(20);
     const [loading, setLoading] = useState(true);
     const [isDashOpen, setIsDashOpen] = useState(false);
     const [isCheckInModalOpen, setIsCheckInModalOpen] = useState(false);
@@ -46,19 +50,30 @@ export default function VisitsPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState<string>('all');
     const [departmentFilter, setDepartmentFilter] = useState<string>('all');
+    const [allDepartments, setAllDepartments] = useState<{ id: string, name: string }[]>([]);
     const [showFilters, setShowFilters] = useState(false);
 
     const fetchVisits = async () => {
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:3000/visits', {
+            const params = new URLSearchParams({
+                skip: skip.toString(),
+                take: take.toString(),
+            });
+
+            if (searchQuery) params.append('search', searchQuery);
+            if (statusFilter !== 'all') params.append('status', statusFilter);
+            if (departmentFilter !== 'all') params.append('departmentId', departmentFilter);
+
+            const response = await fetch(`http://localhost:3000/visits?${params.toString()}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
             if (!response.ok) throw new Error('Failed to fetch visits');
-            const data = await response.json();
-            setVisits(data);
+            const result = await response.json();
+            setVisits(result.data);
+            setTotal(result.total);
         } catch (error) {
             console.error('Error fetching visits:', error);
         } finally {
@@ -66,9 +81,37 @@ export default function VisitsPage() {
         }
     };
 
+    const fetchAllDepartments = async () => {
+        try {
+            const response = await fetch('http://localhost:3000/departments', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                setAllDepartments(await response.json());
+            }
+        } catch (error) {
+            console.error('Error fetching departments:', error);
+        }
+    };
+
     useEffect(() => {
-        if (token) fetchVisits();
-    }, [token]);
+        if (token) {
+            fetchVisits();
+            fetchAllDepartments();
+        }
+    }, [token, skip, take, statusFilter, departmentFilter]);
+
+    // Handle search with debounce or just trigger on enter/button
+    // For now, let's just use an effect with a small delay for search
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (token) {
+                setSkip(0); // Reset to first page on search
+                fetchVisits();
+            }
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
 
     const getStatusVariant = (status: string) => {
         switch (status) {
@@ -83,35 +126,7 @@ export default function VisitsPage() {
 
     const formatStatus = (status: string) => status.split('_').join(' ');
 
-    // Get unique departments
-    const departments = Array.from(new Set(visits.map(v => v.department.name)));
-
     // Filter visits based on search query, status, and department
-    const filteredVisits = visits.filter(visit => {
-        // Search filter
-        if (searchQuery) {
-            const query = searchQuery.toLowerCase();
-            const patientName = `${visit.patient.firstName} ${visit.patient.lastName}`.toLowerCase();
-            const department = visit.department.name.toLowerCase();
-            const status = visit.status.toLowerCase();
-            const reason = (visit.reason || '').toLowerCase();
-            const matchesSearch = patientName.includes(query) || department.includes(query) || status.includes(query) || reason.includes(query);
-            if (!matchesSearch) return false;
-        }
-
-        // Status filter
-        if (statusFilter !== 'all' && visit.status !== statusFilter) {
-            return false;
-        }
-
-        // Department filter
-        if (departmentFilter !== 'all' && visit.department.name !== departmentFilter) {
-            return false;
-        }
-
-        return true;
-    });
-
     const activeFiltersCount = (statusFilter !== 'all' ? 1 : 0) + (departmentFilter !== 'all' ? 1 : 0);
 
     return (
@@ -193,7 +208,7 @@ export default function VisitsPage() {
                             )}
                         </div>
                         <div className="text-sm text-slate-500">
-                            Showing {filteredVisits.length} of {visits.length} visits
+                            Showing <span className="font-medium">{visits.length}</span> results on this page
                         </div>
                     </div>
 
@@ -223,8 +238,8 @@ export default function VisitsPage() {
                                     className="w-full rounded-lg border-slate-200 text-sm p-2 bg-slate-50 focus:bg-white focus:ring-indigo-500 focus:border-indigo-500 transition-all border"
                                 >
                                     <option value="all">All Departments</option>
-                                    {departments.map(dept => (
-                                        <option key={dept} value={dept}>{dept}</option>
+                                    {allDepartments.map(dept => (
+                                        <option key={dept.id} value={dept.id}>{dept.name}</option>
                                     ))}
                                 </select>
                             </div>
@@ -254,7 +269,7 @@ export default function VisitsPage() {
                                         </div>
                                     </td>
                                 </tr>
-                            ) : filteredVisits.length === 0 ? (
+                            ) : visits.length === 0 ? (
                                 <tr>
                                     <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
                                         <div className="flex flex-col items-center">
@@ -265,7 +280,7 @@ export default function VisitsPage() {
                                     </td>
                                 </tr>
                             ) : (
-                                filteredVisits.map((visit) => (
+                                visits.map((visit) => (
                                     <tr key={visit.id} className="hover:bg-slate-50 transition-colors group">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center">
@@ -314,30 +329,40 @@ export default function VisitsPage() {
                                             </div>
                                         </td>
                                     </tr>
-                                ))
-                            )}
+                                )))}
                         </tbody>
                     </table>
                 </div>
-            </div>
 
-            {/* Clinical Dashboard Slide-over */}
-            {selectedVisitId && (
-                <ClinicalDashboard
-                    isOpen={isDashOpen}
-                    onClose={() => setIsDashOpen(false)}
-                    visitId={selectedVisitId}
-                    onSuccess={fetchVisits}
+                <Pagination
+                    total={total}
+                    skip={skip}
+                    take={take}
+                    onPageChange={setSkip}
+                    onPageSizeChange={(newTake) => {
+                        setTake(newTake);
+                        setSkip(0);
+                    }}
                 />
-            )}
 
-            {/* Check-in Modal */}
-            <CheckInModal
-                isOpen={isCheckInModalOpen}
-                onClose={() => setIsCheckInModalOpen(false)}
-                onSuccess={fetchVisits}
-                token={token || ''}
-            />
+                {/* Clinical Dashboard Slide-over */}
+                {selectedVisitId && (
+                    <ClinicalDashboard
+                        isOpen={isDashOpen}
+                        onClose={() => setIsDashOpen(false)}
+                        visitId={selectedVisitId}
+                        onSuccess={fetchVisits}
+                    />
+                )}
+
+                {/* Check-in Modal */}
+                <CheckInModal
+                    isOpen={isCheckInModalOpen}
+                    onClose={() => setIsCheckInModalOpen(false)}
+                    onSuccess={fetchVisits}
+                    token={token || ''}
+                />
+            </div>
         </DashboardLayout>
     );
 }

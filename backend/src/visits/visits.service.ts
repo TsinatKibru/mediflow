@@ -34,19 +34,62 @@ export class VisitsService {
         });
     }
 
-    async findAll(tenantId: string) {
-        return this.prisma.visit.findMany({
-            where: { tenantId },
-            include: {
-                patient: true,
-                department: true,
-                vitals: true,
-                consultation: true,
-                payments: true,
-                coverage: true,
-            },
-            orderBy: { createdAt: 'desc' },
-        });
+    async findAll(
+        tenantId: string,
+        options: {
+            skip?: number;
+            take?: number;
+            search?: string;
+            departmentId?: string;
+            status?: string;
+            userRole?: string;
+            userDepartmentId?: string;
+        },
+    ) {
+        const { skip, take, search, departmentId, status, userRole, userDepartmentId } = options;
+
+        const where: any = { tenantId };
+
+        // If it's a doctor and no specific department is requested, default to their department
+        if (userRole === 'DOCTOR' && userDepartmentId && !departmentId) {
+            where.departmentId = userDepartmentId;
+        } else if (departmentId) {
+            where.departmentId = departmentId;
+        }
+
+        if (status) {
+            where.status = status;
+        }
+
+        if (search) {
+            where.patient = {
+                OR: [
+                    { firstName: { contains: search, mode: 'insensitive' } },
+                    { lastName: { contains: search, mode: 'insensitive' } },
+                ],
+            };
+        }
+
+        const [total, data] = await Promise.all([
+            this.prisma.visit.count({ where }),
+            this.prisma.visit.findMany({
+                where,
+                skip,
+                take,
+                include: {
+                    patient: true,
+                    department: true,
+                    vitals: true,
+                    consultation: true,
+                    payments: true,
+                    coverage: true,
+                    labOrders: true,
+                },
+                orderBy: { createdAt: 'desc' },
+            }),
+        ]);
+
+        return { total, data };
     }
 
     async findByPatient(tenantId: string, patientId: string) {

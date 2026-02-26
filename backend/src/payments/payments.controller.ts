@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, Param, UseGuards, Request, Patch, Delete } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, UseGuards, Request, Patch, Delete, Query } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
@@ -11,6 +11,15 @@ import { TenantGuard } from '../auth/guards/tenant.guard';
 @UseGuards(JwtAuthGuard, TenantGuard)
 export class PaymentsController {
     constructor(private readonly paymentsService: PaymentsService) { }
+
+    @Get()
+    findAll(@Request() req, @Query('skip') skip?: string, @Query('take') take?: string) {
+        return this.paymentsService.findAll(
+            req.user.tenantId,
+            skip ? parseInt(skip) : undefined,
+            take ? parseInt(take) : undefined
+        );
+    }
 
     @Post()
     create(@Body() createPaymentDto: CreatePaymentDto, @Request() req) {

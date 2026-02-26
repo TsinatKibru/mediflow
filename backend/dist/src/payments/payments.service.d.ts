@@ -144,4 +144,61 @@ export declare class PaymentsService {
         claimStatus: import(".prisma/client").$Enums.ClaimStatus;
         verifiedAt: Date;
     }>;
+    findAll(tenantId: string, skip?: number, take?: number): Promise<{
+        total: number;
+        data: ({
+            visit: {
+                department: {
+                    id: string;
+                    name: string;
+                    tenantId: string;
+                };
+                patient: {
+                    id: string;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    tenantId: string;
+                    firstName: string;
+                    lastName: string;
+                    dateOfBirth: Date;
+                    gender: string;
+                    phone: string | null;
+                    email: string | null;
+                };
+            } & {
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                tenantId: string;
+                departmentId: string;
+                status: import(".prisma/client").$Enums.VisitStatus;
+                priority: import(".prisma/client").$Enums.Priority;
+                reason: string | null;
+                patientId: string;
+                doctorId: string | null;
+                nurseId: string | null;
+            };
+            verifiedBy: {
+                firstName: string;
+                lastName: string;
+            } | null;
+        } & {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            status: string;
+            reason: string | null;
+            visitId: string;
+            amountCharged: import("@prisma/client/runtime/library").Decimal;
+            amountPaid: import("@prisma/client/runtime/library").Decimal;
+            method: import(".prisma/client").$Enums.PaymentMethod;
+            serviceType: import(".prisma/client").$Enums.ServiceType;
+            isVoided: boolean;
+            voidReason: string | null;
+            voidedAt: Date | null;
+            voidedById: string | null;
+            insurancePolicyId: string | null;
+            verifiedById: string | null;
+        })[];
+    }>;
 }

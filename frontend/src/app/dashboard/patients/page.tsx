@@ -18,6 +18,7 @@ import {
     Mail
 } from 'lucide-react';
 import { useBrandColor } from '@/hooks/useBrandColor';
+import { Pagination } from '@/components/ui/Pagination';
 
 interface Patient {
     id: string;
@@ -35,6 +36,9 @@ export default function PatientsPage() {
     const { token, tenant } = useAuthStore();
     const { brandColor, brandAlpha } = useBrandColor();
     const [patients, setPatients] = useState<Patient[]>([]);
+    const [total, setTotal] = useState(0);
+    const [skip, setSkip] = useState(0);
+    const [take, setTake] = useState(20);
     const [loading, setLoading] = useState(true);
     const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -44,14 +48,21 @@ export default function PatientsPage() {
     const fetchPatients = async () => {
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:3000/patients', {
+            const params = new URLSearchParams({
+                skip: skip.toString(),
+                take: take.toString(),
+            });
+            if (searchQuery) params.append('search', searchQuery);
+
+            const response = await fetch(`http://localhost:3000/patients?${params.toString()}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
             if (!response.ok) throw new Error('Failed to fetch patients');
-            const data = await response.json();
-            setPatients(data);
+            const result = await response.json();
+            setPatients(result.data);
+            setTotal(result.total);
         } catch (error) {
             console.error('Error fetching patients:', error);
         } finally {
@@ -61,7 +72,17 @@ export default function PatientsPage() {
 
     useEffect(() => {
         if (token) fetchPatients();
-    }, [token]);
+    }, [token, skip, take]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (token) {
+                setSkip(0);
+                fetchPatients();
+            }
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
 
     const calculateAge = (dob: string) => {
         const birthDate = new Date(dob);
@@ -86,12 +107,7 @@ export default function PatientsPage() {
             if (ageFilter === 'SENIOR' && age <= 60) return false;
         }
 
-        if (!searchQuery) return true;
-        const query = searchQuery.toLowerCase();
-        const fullName = `${patient.firstName} ${patient.lastName}`.toLowerCase();
-        const email = patient.email.toLowerCase();
-        const phone = patient.phone.toLowerCase();
-        return fullName.includes(query) || email.includes(query) || phone.includes(query);
+        return true;
     });
 
 
@@ -251,6 +267,17 @@ export default function PatientsPage() {
                         </tbody>
                     </table>
                 </div>
+
+                <Pagination
+                    total={total}
+                    skip={skip}
+                    take={take}
+                    onPageChange={setSkip}
+                    onPageSizeChange={(newTake) => {
+                        setTake(newTake);
+                        setSkip(0);
+                    }}
+                />
             </div>
 
             {/* Register Patient Modal */}

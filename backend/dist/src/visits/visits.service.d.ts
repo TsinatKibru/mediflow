@@ -26,98 +26,120 @@ export declare class VisitsService {
         createdAt: Date;
         updatedAt: Date;
         tenantId: string;
+        departmentId: string;
         status: import(".prisma/client").$Enums.VisitStatus;
         priority: import(".prisma/client").$Enums.Priority;
         reason: string | null;
         patientId: string;
-        departmentId: string;
         doctorId: string | null;
         nurseId: string | null;
     }>;
-    findAll(tenantId: string): Promise<({
-        department: {
-            id: string;
-            name: string;
-            tenantId: string;
-        };
-        patient: {
+    findAll(tenantId: string, options: {
+        skip?: number;
+        take?: number;
+        search?: string;
+        departmentId?: string;
+        status?: string;
+        userRole?: string;
+        userDepartmentId?: string;
+    }): Promise<{
+        total: number;
+        data: ({
+            department: {
+                id: string;
+                name: string;
+                tenantId: string;
+            };
+            patient: {
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                tenantId: string;
+                firstName: string;
+                lastName: string;
+                dateOfBirth: Date;
+                gender: string;
+                phone: string | null;
+                email: string | null;
+            };
+            labOrders: {
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                result: string | null;
+                status: string;
+                visitId: string;
+                instructions: string | null;
+                testName: string;
+                prescribedById: string;
+            }[];
+            vitals: {
+                id: string;
+                createdAt: Date;
+                height: number | null;
+                weight: number | null;
+                bpSystolic: number | null;
+                bpDiastolic: number | null;
+                temperature: number | null;
+                pulse: number | null;
+                notes: string | null;
+                visitId: string;
+            } | null;
+            consultation: {
+                id: string;
+                createdAt: Date;
+                notes: string;
+                visitId: string;
+                prescription: string | null;
+            } | null;
+            payments: {
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                status: string;
+                reason: string | null;
+                visitId: string;
+                amountCharged: import("@prisma/client/runtime/library").Decimal;
+                amountPaid: import("@prisma/client/runtime/library").Decimal;
+                method: import(".prisma/client").$Enums.PaymentMethod;
+                serviceType: import(".prisma/client").$Enums.ServiceType;
+                isVoided: boolean;
+                voidReason: string | null;
+                voidedAt: Date | null;
+                voidedById: string | null;
+                insurancePolicyId: string | null;
+                verifiedById: string | null;
+            }[];
+            coverage: {
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                notes: string | null;
+                visitId: string;
+                insurancePolicyId: string | null;
+                verifiedById: string | null;
+                type: import(".prisma/client").$Enums.CoverageType;
+                referenceNumber: string | null;
+                issuedToName: string | null;
+                issueYear: number | null;
+                expiryYear: number | null;
+                claimStatus: import(".prisma/client").$Enums.ClaimStatus;
+                verifiedAt: Date;
+            } | null;
+        } & {
             id: string;
             createdAt: Date;
             updatedAt: Date;
             tenantId: string;
-            firstName: string;
-            lastName: string;
-            dateOfBirth: Date;
-            gender: string;
-            phone: string | null;
-            email: string | null;
-        };
-        vitals: {
-            id: string;
-            createdAt: Date;
-            height: number | null;
-            weight: number | null;
-            bpSystolic: number | null;
-            bpDiastolic: number | null;
-            temperature: number | null;
-            pulse: number | null;
-            notes: string | null;
-            visitId: string;
-        } | null;
-        consultation: {
-            id: string;
-            createdAt: Date;
-            notes: string;
-            visitId: string;
-            prescription: string | null;
-        } | null;
-        payments: {
-            id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            status: string;
+            departmentId: string;
+            status: import(".prisma/client").$Enums.VisitStatus;
+            priority: import(".prisma/client").$Enums.Priority;
             reason: string | null;
-            visitId: string;
-            amountCharged: import("@prisma/client/runtime/library").Decimal;
-            amountPaid: import("@prisma/client/runtime/library").Decimal;
-            method: import(".prisma/client").$Enums.PaymentMethod;
-            serviceType: import(".prisma/client").$Enums.ServiceType;
-            isVoided: boolean;
-            voidReason: string | null;
-            voidedAt: Date | null;
-            voidedById: string | null;
-            insurancePolicyId: string | null;
-            verifiedById: string | null;
-        }[];
-        coverage: {
-            id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            notes: string | null;
-            visitId: string;
-            insurancePolicyId: string | null;
-            verifiedById: string | null;
-            type: import(".prisma/client").$Enums.CoverageType;
-            referenceNumber: string | null;
-            issuedToName: string | null;
-            issueYear: number | null;
-            expiryYear: number | null;
-            claimStatus: import(".prisma/client").$Enums.ClaimStatus;
-            verifiedAt: Date;
-        } | null;
-    } & {
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        tenantId: string;
-        status: import(".prisma/client").$Enums.VisitStatus;
-        priority: import(".prisma/client").$Enums.Priority;
-        reason: string | null;
-        patientId: string;
-        departmentId: string;
-        doctorId: string | null;
-        nurseId: string | null;
-    })[]>;
+            patientId: string;
+            doctorId: string | null;
+            nurseId: string | null;
+        })[];
+    }>;
     findByPatient(tenantId: string, patientId: string): Promise<({
         department: {
             id: string;
@@ -160,11 +182,11 @@ export declare class VisitsService {
         createdAt: Date;
         updatedAt: Date;
         tenantId: string;
+        departmentId: string;
         status: import(".prisma/client").$Enums.VisitStatus;
         priority: import(".prisma/client").$Enums.Priority;
         reason: string | null;
         patientId: string;
-        departmentId: string;
         doctorId: string | null;
         nurseId: string | null;
     })[]>;
@@ -197,6 +219,7 @@ export declare class VisitsService {
             password: string;
             role: import(".prisma/client").$Enums.Role;
             isActive: boolean;
+            departmentId: string | null;
         } | null;
         nurse: {
             id: string;
@@ -209,6 +232,7 @@ export declare class VisitsService {
             password: string;
             role: import(".prisma/client").$Enums.Role;
             isActive: boolean;
+            departmentId: string | null;
         } | null;
         vitals: {
             id: string;
@@ -268,11 +292,11 @@ export declare class VisitsService {
         createdAt: Date;
         updatedAt: Date;
         tenantId: string;
+        departmentId: string;
         status: import(".prisma/client").$Enums.VisitStatus;
         priority: import(".prisma/client").$Enums.Priority;
         reason: string | null;
         patientId: string;
-        departmentId: string;
         doctorId: string | null;
         nurseId: string | null;
     }>;

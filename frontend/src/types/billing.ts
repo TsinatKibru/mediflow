@@ -73,4 +73,29 @@ export interface Visit {
     payments?: Payment[];
     coverage?: Coverage;
     patient?: Patient;
+    labOrders?: LabOrder[];
+    pharmacyOrders?: PharmacyOrder[];
+}
+
+export interface LabOrder {
+    id: string;
+    testName: string;
+    status: string;
+    result?: string;
+    instructions?: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface PharmacyOrder {
+    id: string;
+    medication: {
+        name: string;
+        strength: string;
+        dosageForm: string;
+    };
+    quantity: number;
+    status: string;
+    instructions?: string;
+    createdAt: string;
 }

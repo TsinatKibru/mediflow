@@ -19,6 +19,7 @@ import {
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
+import { Pagination } from '@/components/ui/Pagination';
 import { Visit, Payment, Patient, InsurancePolicy } from '@/types/billing';
 import { useAuthStore } from '@/store/authStore';
 import { PaymentModal } from '@/components/billing/PaymentModal';
@@ -27,6 +28,9 @@ import { NewBillModal } from '@/components/billing/NewBillModal';
 export default function BillingPage() {
     const { token, isHydrated } = useAuthStore();
     const [visits, setVisits] = useState<Visit[]>([]);
+    const [total, setTotal] = useState(0);
+    const [skip, setSkip] = useState(0);
+    const [take, setTake] = useState(20);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState<'ALL' | 'PAID' | 'PARTIAL' | 'UNPAID'>('ALL');
@@ -39,17 +43,35 @@ export default function BillingPage() {
         if (isHydrated && token) {
             fetchVisits(token);
         }
-    }, [isHydrated, token]);
+    }, [isHydrated, token, skip, take, statusFilter]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (isHydrated && token) {
+                setSkip(0);
+                fetchVisits(token);
+            }
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
 
     const fetchVisits = async (t: string) => {
+        setLoading(true);
         try {
-            const res = await fetch('http://localhost:3000/visits', {
+            const params = new URLSearchParams({
+                skip: skip.toString(),
+                take: take.toString(),
+            });
+            if (searchTerm) params.append('search', searchTerm);
+            if (statusFilter !== 'ALL') params.append('status', statusFilter);
+
+            const res = await fetch(`http://localhost:3000/visits?${params.toString()}`, {
                 headers: { 'Authorization': `Bearer ${t}` }
             });
             if (res.ok) {
-                const data = await res.json();
-                console.log('Fetched visits:', data); // Diagnostic log
-                setVisits(data);
+                const result = await res.json();
+                setVisits(result.data);
+                setTotal(result.total);
             }
         } catch (err) {
             console.error('Failed to fetch visits:', err);
@@ -86,13 +108,7 @@ export default function BillingPage() {
         return 'UNPAID';
     };
 
-    const filteredVisits = visits.filter(v => {
-        const status = getBillingStatus(v);
-        const matchesStatus = statusFilter === 'ALL' || status === statusFilter;
-        const searchStr = `${v.patient?.firstName} ${v.patient?.lastName} ${v.id}`.toLowerCase();
-        const matchesSearch = searchStr.includes(searchTerm.toLowerCase());
-        return matchesStatus && matchesSearch;
-    });
+    const filteredVisits = visits;
 
     const stats = {
         totalOutstanding: visits.reduce((acc, v) => {
@@ -175,8 +191,8 @@ export default function BillingPage() {
                                 key={s}
                                 onClick={() => setStatusFilter(s as any)}
                                 className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${statusFilter === s
-                                        ? 'text-white shadow-md'
-                                        : 'text-slate-500 hover:bg-slate-50'
+                                    ? 'text-white shadow-md'
+                                    : 'text-slate-500 hover:bg-slate-50'
                                     }`}
                                 style={statusFilter === s ? { backgroundColor: 'var(--brand-color, #4f46e5)' } : {}}
                             >
@@ -299,6 +315,17 @@ export default function BillingPage() {
                     </table>
                 </div>
             </Card>
+
+            <Pagination
+                total={total}
+                skip={skip}
+                take={take}
+                onPageChange={setSkip}
+                onPageSizeChange={(newTake) => {
+                    setTake(newTake);
+                    setSkip(0);
+                }}
+            />
 
             {/* Modals */}
             {selectedVisit && (

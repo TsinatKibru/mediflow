@@ -40,19 +40,45 @@ let VisitsService = class VisitsService {
             },
         });
     }
-    async findAll(tenantId) {
-        return this.prisma.visit.findMany({
-            where: { tenantId },
-            include: {
-                patient: true,
-                department: true,
-                vitals: true,
-                consultation: true,
-                payments: true,
-                coverage: true,
-            },
-            orderBy: { createdAt: 'desc' },
-        });
+    async findAll(tenantId, options) {
+        const { skip, take, search, departmentId, status, userRole, userDepartmentId } = options;
+        const where = { tenantId };
+        if (userRole === 'DOCTOR' && userDepartmentId && !departmentId) {
+            where.departmentId = userDepartmentId;
+        }
+        else if (departmentId) {
+            where.departmentId = departmentId;
+        }
+        if (status) {
+            where.status = status;
+        }
+        if (search) {
+            where.patient = {
+                OR: [
+                    { firstName: { contains: search, mode: 'insensitive' } },
+                    { lastName: { contains: search, mode: 'insensitive' } },
+                ],
+            };
+        }
+        const [total, data] = await Promise.all([
+            this.prisma.visit.count({ where }),
+            this.prisma.visit.findMany({
+                where,
+                skip,
+                take,
+                include: {
+                    patient: true,
+                    department: true,
+                    vitals: true,
+                    consultation: true,
+                    payments: true,
+                    coverage: true,
+                    labOrders: true,
+                },
+                orderBy: { createdAt: 'desc' },
+            }),
+        ]);
+        return { total, data };
     }
     async findByPatient(tenantId, patientId) {
         return this.prisma.visit.findMany({

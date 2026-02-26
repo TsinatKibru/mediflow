@@ -17,8 +17,14 @@ import {
     ArrowRightCircle,
     X,
     ClipboardList,
-    TrendingUp
+    TrendingUp,
+    Beaker,
+    Plus,
+    Trash2,
+    Pill
 } from 'lucide-react';
+import { pharmacyService, Medication, PharmacyOrder } from '@/services/pharmacyService';
+import { Combobox } from '@/components/ui/Combobox';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 
@@ -48,11 +54,27 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
         prescription: ''
     });
     const [viewingVisitId, setViewingVisitId] = useState(visitId);
+
+    // Lab state
+    const [labOrders, setLabOrders] = useState<any[]>([]);
+    const [newLabTest, setNewLabTest] = useState('');
+    const [labInstructions, setLabInstructions] = useState('');
+
+    // Pharmacy state
+    const [medications, setMedications] = useState<Medication[]>([]);
+    const [pharmacyOrders, setPharmacyOrders] = useState<PharmacyOrder[]>([]);
+    const [selectedMedicationId, setSelectedMedicationId] = useState('');
+    const [prescriptionQuantity, setPrescriptionQuantity] = useState(1);
+    const [prescriptionInstructions, setPrescriptionInstructions] = useState('');
+
     const isHistorical = viewingVisitId !== visitId;
 
     useEffect(() => {
         if (isOpen && viewingVisitId) {
             fetchVisitDetails();
+            fetchLabOrders();
+            fetchPharmacyOrders();
+            fetchMedications();
         }
     }, [isOpen, viewingVisitId]);
 
@@ -100,6 +122,106 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
             }
         } catch (err) {
             console.error(err);
+        }
+    };
+
+    const fetchLabOrders = async () => {
+        try {
+            const res = await fetch(`http://localhost:3000/lab-orders/visit/${viewingVisitId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.ok) {
+                setLabOrders(await res.json());
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const fetchPharmacyOrders = async () => {
+        if (!token) return;
+        try {
+            const res = await pharmacyService.getOrdersByVisit(token, viewingVisitId);
+            setPharmacyOrders(res);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const fetchMedications = async () => {
+        if (!token) return;
+        try {
+            const res = await pharmacyService.getMedications(token);
+            setMedications(res);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleAddLabOrder = async () => {
+        if (!newLabTest.trim()) return;
+        setSaving(true);
+        try {
+            const res = await fetch(`http://localhost:3000/lab-orders`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    visitId: viewingVisitId,
+                    testName: newLabTest,
+                    instructions: labInstructions
+                })
+            });
+            if (res.ok) {
+                toast.success('Lab order added');
+                setNewLabTest('');
+                setLabInstructions('');
+                fetchLabOrders();
+            }
+        } catch (err) {
+            toast.error('Failed to add lab order');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleAddPharmacyOrder = async () => {
+        if (!token || !selectedMedicationId || prescriptionQuantity <= 0) return;
+        setSaving(true);
+        try {
+            await pharmacyService.createOrder(token, {
+                visitId: viewingVisitId,
+                medicationId: selectedMedicationId,
+                quantity: prescriptionQuantity,
+                instructions: prescriptionInstructions
+            });
+            toast.success('Medication prescribed');
+            setSelectedMedicationId('');
+            setPrescriptionQuantity(1);
+            setPrescriptionInstructions('');
+            fetchPharmacyOrders();
+        } catch (err: any) {
+            toast.error(err.message || 'Failed to prescribe medication');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleDeleteLabOrder = async (id: string) => {
+        if (!confirm('Are you sure you want to cancel this lab order?')) return;
+        try {
+            const res = await fetch(`http://localhost:3000/lab-orders/${id}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.ok) {
+                toast.success('Lab order cancelled');
+                fetchLabOrders();
+            }
+        } catch (err) {
+            toast.error('Failed to cancel lab order');
         }
     };
 
@@ -354,6 +476,88 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
                                 </div>
                             </div>
 
+                            {/* Section: Laboratory */}
+                            <div className="space-y-4 pt-4 border-t border-slate-100">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2 text-slate-900 font-bold">
+                                        <Beaker className="h-5 w-5 text-indigo-600" />
+                                        <h3>Laboratory Prescriptions</h3>
+                                    </div>
+                                </div>
+
+                                {!isHistorical && visit?.status !== 'COMPLETED' && (
+                                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <Label className="text-[10px] uppercase font-bold text-slate-500">Test Name</Label>
+                                                <Input
+                                                    placeholder="e.g. CBC, Lipid Profile"
+                                                    value={newLabTest}
+                                                    onChange={e => setNewLabTest(e.target.value)}
+                                                    className="bg-white mt-1 h-9 text-sm"
+                                                />
+                                            </div>
+                                            <div>
+                                                <Label className="text-[10px] uppercase font-bold text-slate-500">Special Instructions</Label>
+                                                <Input
+                                                    placeholder="e.g. Fasting required"
+                                                    value={labInstructions}
+                                                    onChange={e => setLabInstructions(e.target.value)}
+                                                    className="bg-white mt-1 h-9 text-sm"
+                                                />
+                                            </div>
+                                        </div>
+                                        <Button
+                                            size="sm"
+                                            className="w-full bg-indigo-600 hover:bg-indigo-700 h-9"
+                                            onClick={handleAddLabOrder}
+                                            disabled={saving || !newLabTest}
+                                        >
+                                            <Plus className="h-4 w-4 mr-2" />
+                                            Order Lab Test
+                                        </Button>
+                                    </div>
+                                )}
+
+                                <div className="space-y-2">
+                                    {labOrders.length === 0 ? (
+                                        <p className="text-center py-4 text-sm text-slate-400 italic">No lab tests ordered for this visit.</p>
+                                    ) : (
+                                        labOrders.map((order) => (
+                                            <div key={order.id} className="flex items-center justify-between p-3 bg-white border border-slate-100 rounded-lg group hover:border-indigo-100 transition-all shadow-sm">
+                                                <div className="flex-1">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="font-semibold text-sm text-slate-900">{order.testName}</span>
+                                                        <Badge variant={order.status === 'COMPLETED' ? 'success' : order.status === 'CANCELLED' ? 'danger' : 'info'} className="text-[10px] py-0 px-1.5">
+                                                            {order.status}
+                                                        </Badge>
+                                                    </div>
+                                                    {order.instructions && (
+                                                        <p className="text-xs text-slate-500 mt-1">{order.instructions}</p>
+                                                    )}
+                                                    {order.result && (
+                                                        <div className="mt-2 p-2 bg-emerald-50 rounded border border-emerald-100">
+                                                            <p className="text-[10px] font-bold text-emerald-600 uppercase">Results</p>
+                                                            <p className="text-xs text-slate-700 mt-0.5 whitespace-pre-wrap">{order.result}</p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                {!isHistorical && order.status === 'ORDERED' && (
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all h-8 w-8 p-0"
+                                                        onClick={() => handleDeleteLabOrder(order.id)}
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+
                             {/* Section: Visit History */}
                             <div className="space-y-4 pt-4 border-t border-slate-100">
                                 <div className="flex items-center gap-2 text-slate-900 font-bold">
@@ -365,8 +569,8 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
                                         <div
                                             key={i}
                                             className={`flex items-center justify-between p-3 rounded-lg border transition-all cursor-pointer ${viewingVisitId === prev.id
-                                                    ? 'border-indigo-200 bg-indigo-50/50 ring-1 ring-indigo-100'
-                                                    : 'border-slate-100 hover:bg-slate-50'
+                                                ? 'border-indigo-200 bg-indigo-50/50 ring-1 ring-indigo-100'
+                                                : 'border-slate-100 hover:bg-slate-50'
                                                 }`}
                                             onClick={() => setViewingVisitId(prev.id)}
                                         >

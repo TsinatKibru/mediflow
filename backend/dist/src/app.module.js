@@ -21,6 +21,9 @@ const payments_module_1 = require("./payments/payments.module");
 const insurance_policies_module_1 = require("./insurance-policies/insurance-policies.module");
 const appointments_module_1 = require("./appointments/appointments.module");
 const schedule_module_1 = require("./schedule/schedule.module");
+const lab_orders_module_1 = require("./lab-orders/lab-orders.module");
+const medications_module_1 = require("./medications/medications.module");
+const pharmacy_orders_module_1 = require("./pharmacy-orders/pharmacy-orders.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -37,7 +40,10 @@ exports.AppModule = AppModule = __decorate([
             payments_module_1.PaymentsModule,
             insurance_policies_module_1.InsurancePoliciesModule,
             appointments_module_1.AppointmentsModule,
-            schedule_module_1.ScheduleModule
+            schedule_module_1.ScheduleModule,
+            lab_orders_module_1.LabOrdersModule,
+            medications_module_1.MedicationsModule,
+            pharmacy_orders_module_1.PharmacyOrdersModule
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

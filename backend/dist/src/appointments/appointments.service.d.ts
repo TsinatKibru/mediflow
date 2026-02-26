@@ -65,6 +65,7 @@ export declare class AppointmentsService {
             password: string;
             role: import(".prisma/client").$Enums.Role;
             isActive: boolean;
+            departmentId: string | null;
         } | null;
     } & {
         id: string;
@@ -99,11 +100,11 @@ export declare class AppointmentsService {
         createdAt: Date;
         updatedAt: Date;
         tenantId: string;
+        departmentId: string;
         status: import(".prisma/client").$Enums.VisitStatus;
         priority: import(".prisma/client").$Enums.Priority;
         reason: string | null;
         patientId: string;
-        departmentId: string;
         doctorId: string | null;
         nurseId: string | null;
     }>;

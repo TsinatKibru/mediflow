@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, UseGuards, Req, Query } from '@nestjs/common';
 import { VisitsService } from './visits.service';
 import { CreateVisitDto, UpdateVitalsDto, UpdateConsultationDto } from './dto/visit.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -15,8 +15,26 @@ export class VisitsController {
     }
 
     @Get()
-    findAll(@Req() req: any) {
-        return this.visitsService.findAll(req.user.tenantId);
+    findAll(
+        @Req() req: any,
+        @Query('skip') skip?: string,
+        @Query('take') take?: string,
+        @Query('search') search?: string,
+        @Query('departmentId') departmentId?: string,
+        @Query('status') status?: string,
+    ) {
+        return this.visitsService.findAll(
+            req.user.tenantId,
+            {
+                skip: skip ? parseInt(skip) : undefined,
+                take: take ? parseInt(take) : undefined,
+                search,
+                departmentId,
+                status,
+                userRole: req.user.role,
+                userDepartmentId: req.user.departmentId,
+            }
+        );
     }
 
     @Get('patient/:patientId')

@@ -13,6 +13,7 @@ export declare class AuthController {
             firstName: string;
             lastName: string;
             role: import(".prisma/client").$Enums.Role;
+            departmentId: string | null;
         };
         tenant: {
             id: string;
@@ -28,6 +29,7 @@ export declare class AuthController {
             firstName: string;
             lastName: string;
             role: import(".prisma/client").$Enums.Role;
+            departmentId: string | null;
         };
         tenant: {
             id: string;
@@ -43,5 +45,6 @@ export declare class AuthController {
         lastName: string;
         email: string;
         role: import(".prisma/client").$Enums.Role;
+        departmentId: string | null;
     }>;
 }

@@ -15,18 +15,21 @@ export declare class PatientsController {
         phone: string | null;
         email: string | null;
     }>;
-    findAll(req: any): Promise<{
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        tenantId: string;
-        firstName: string;
-        lastName: string;
-        dateOfBirth: Date;
-        gender: string;
-        phone: string | null;
-        email: string | null;
-    }[]>;
+    findAll(req: any, skip?: string, take?: string, search?: string): Promise<{
+        total: number;
+        data: {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            tenantId: string;
+            firstName: string;
+            lastName: string;
+            dateOfBirth: Date;
+            gender: string;
+            phone: string | null;
+            email: string | null;
+        }[];
+    }>;
     findOne(req: any, id: string): Promise<{
         id: string;
         createdAt: Date;
@@ -45,6 +48,42 @@ export declare class PatientsController {
             name: string;
             tenantId: string;
         };
+        labOrders: {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            result: string | null;
+            status: string;
+            visitId: string;
+            instructions: string | null;
+            testName: string;
+            prescribedById: string;
+        }[];
+        pharmacyOrders: ({
+            medication: {
+                id: string;
+                name: string;
+                createdAt: Date;
+                updatedAt: Date;
+                tenantId: string;
+                genericName: string | null;
+                dosageForm: string;
+                strength: string;
+                stockBalance: number;
+                unitPrice: import("@prisma/client/runtime/library").Decimal;
+            };
+        } & {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            status: string;
+            visitId: string;
+            instructions: string | null;
+            prescribedById: string;
+            medicationId: string;
+            quantity: number;
+            dispensedById: string | null;
+        })[];
         vitals: {
             id: string;
             createdAt: Date;
@@ -103,11 +142,11 @@ export declare class PatientsController {
         createdAt: Date;
         updatedAt: Date;
         tenantId: string;
+        departmentId: string;
         status: import(".prisma/client").$Enums.VisitStatus;
         priority: import(".prisma/client").$Enums.Priority;
         reason: string | null;
         patientId: string;
-        departmentId: string;
         doctorId: string | null;
         nurseId: string | null;
     })[]>;

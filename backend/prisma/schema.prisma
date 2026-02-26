@@ -14,6 +14,8 @@ enum Role {
   NURSE
   DOCTOR
   ACCOUNTANT
+  PHARMACIST
+  LAB_TECHNICIAN
 }
 
 enum VisitStatus {
@@ -79,6 +81,7 @@ model Tenant {
   insurancePolicies InsurancePolicy[]
   appointments      Appointment[]
   doctorSchedules   DoctorAvailability[]
+  medications       Medication[]
 }
 
 model User {
@@ -103,6 +106,14 @@ model User {
   verifiedCoverages CoverageRecord[] @relation("CashierCoverages")
   voidedPayments    Payments[]       @relation("VoidedByPayments")
 
+  // Link to specific department for queue filtering (e.g. Triage nurse, OR doctor)
+  department   Department? @relation(fields: [departmentId], references: [id])
+  departmentId String?
+
+  labOrders LabOrder[] @relation("PhysicianLabOrders")
+  pharmacyOrders PharmacyOrder[] @relation("PhysicianPharmacyOrders")
+  dispensedOrders PharmacyOrder[] @relation("PharmacistDispensed")
+
   @@unique([email, tenantId])
 }
 
@@ -112,6 +123,7 @@ model Department {
   tenant   Tenant  @relation(fields: [tenantId], references: [id])
   tenantId String
   visits   Visit[]
+  users    User[]
 }
 
 model Patient {
@@ -187,6 +199,8 @@ model Visit {
   payments    Payments[]
   coverage    CoverageRecord?
   appointment Appointment?
+  labOrders   LabOrder[]
+  pharmacyOrders PharmacyOrder[]
 }
 
 model Vitals {
@@ -212,6 +226,23 @@ model Consultation {
   createdAt    DateTime @default(now())
 
   attachments Attachment[]
+}
+
+model LabOrder {
+  id          String   @id @default(uuid())
+  testName    String
+  instructions String?  @db.Text
+  status      String   @default("ORDERED") // ORDERED, COLLECTED, COMPLETED, CANCELLED
+  result      String?  @db.Text
+  
+  visit       Visit    @relation(fields: [visitId], references: [id])
+  visitId     String
+  
+  prescribedBy   User   @relation("PhysicianLabOrders", fields: [prescribedById], references: [id])
+  prescribedById String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Attachment {
@@ -332,4 +363,46 @@ model DoctorAvailability {
   updatedAt DateTime @updatedAt
 
   @@unique([doctorId, dayOfWeek, tenantId])
+}
+
+model Medication {
+  id           String   @id @default(uuid())
+  name         String
+  genericName  String?
+  dosageForm   String   // Tablet, Syrup, Injection, etc.
+  strength     String   // 500mg, 5ml, etc.
+  stockBalance Float    @default(0)
+  unitPrice    Decimal  @db.Decimal(10, 2)
+  
+  tenant       Tenant   @relation(fields: [tenantId], references: [id])
+  tenantId     String
+
+  orders       PharmacyOrder[]
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([name, strength, tenantId])
+}
+
+model PharmacyOrder {
+  id             String   @id @default(uuid())
+  medicationId   String
+  medication     Medication @relation(fields: [medicationId], references: [id])
+  
+  quantity       Float
+  instructions   String?  @db.Text
+  status         String   @default("PENDING") // PENDING, DISPENSED, CANCELLED
+  
+  visit          Visit    @relation(fields: [visitId], references: [id])
+  visitId        String
+  
+  prescribedBy   User     @relation("PhysicianPharmacyOrders", fields: [prescribedById], references: [id])
+  prescribedById String
+  
+  dispensedBy    User?    @relation("PharmacistDispensed", fields: [dispensedById], references: [id])
+  dispensedById  String?
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }

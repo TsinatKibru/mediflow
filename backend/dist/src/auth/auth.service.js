@@ -55,6 +55,7 @@ let AuthService = class AuthService {
             email: result.user.email,
             tenantId: result.tenant.id,
             role: result.user.role,
+            departmentId: result.user.departmentId,
         };
         return {
             access_token: await this.jwtService.signAsync(payload),
@@ -64,6 +65,7 @@ let AuthService = class AuthService {
                 firstName: result.user.firstName,
                 lastName: result.user.lastName,
                 role: result.user.role,
+                departmentId: result.user.departmentId,
             },
             tenant: {
                 id: result.tenant.id,
@@ -94,6 +96,7 @@ let AuthService = class AuthService {
             email: user.email,
             tenantId: tenant.id,
             role: user.role,
+            departmentId: user.departmentId,
         };
         return {
             access_token: await this.jwtService.signAsync(payload),
@@ -103,6 +106,7 @@ let AuthService = class AuthService {
                 firstName: user.firstName,
                 lastName: user.lastName,
                 role: user.role,
+                departmentId: user.departmentId,
             },
             tenant: {
                 id: tenant.id,
@@ -120,6 +124,9 @@ let AuthService = class AuthService {
         if (dto.password) {
             data.password = await bcrypt.hash(dto.password, 10);
         }
+        if (dto.departmentId !== undefined) {
+            data.departmentId = dto.departmentId || null;
+        }
         const user = await this.prisma.user.update({
             where: { id: userId },
             data,
@@ -129,7 +136,8 @@ let AuthService = class AuthService {
                 firstName: true,
                 lastName: true,
                 role: true,
-                tenantId: true
+                tenantId: true,
+                departmentId: true,
             }
         });
         return user;

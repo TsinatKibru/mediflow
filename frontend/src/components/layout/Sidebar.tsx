@@ -12,17 +12,23 @@ import {
     Clock,
     Settings,
     LogOut,
-    CreditCard
+    CreditCard,
+    Pill,
+    Beaker,
+    Package
 } from 'lucide-react';
 
 const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Patients', href: '/dashboard/patients', icon: Users },
-    { name: 'Visits', href: '/dashboard/visits', icon: ClipboardList },
-    { name: 'Appointments', href: '/dashboard/appointments', icon: Calendar },
-    { name: 'Schedule', href: '/dashboard/schedule', icon: Clock },
-    { name: 'Billing', href: '/dashboard/billing', icon: CreditCard },
-    { name: 'Settings', href: '/dashboard/settings', icon: Settings },
+    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, roles: ['SUPER_ADMIN', 'HOSPITAL_ADMIN', 'DOCTOR', 'NURSE', 'RECEPTIONIST', 'ACCOUNTANT', 'PHARMACIST', 'LAB_TECHNICIAN'] },
+    { name: 'Patients', href: '/dashboard/patients', icon: Users, roles: ['SUPER_ADMIN', 'HOSPITAL_ADMIN', 'RECEPTIONIST', 'NURSE', 'DOCTOR'] },
+    { name: 'Visits', href: '/dashboard/visits', icon: ClipboardList, roles: ['SUPER_ADMIN', 'HOSPITAL_ADMIN', 'RECEPTIONIST', 'NURSE', 'DOCTOR'] },
+    { name: 'Appointments', href: '/dashboard/appointments', icon: Calendar, roles: ['SUPER_ADMIN', 'HOSPITAL_ADMIN', 'RECEPTIONIST', 'DOCTOR'] },
+    { name: 'Schedule', href: '/dashboard/schedule', icon: Clock, roles: ['SUPER_ADMIN', 'HOSPITAL_ADMIN', 'DOCTOR'] },
+    { name: 'Pharmacy', href: '/dashboard/pharmacy', icon: Pill, roles: ['SUPER_ADMIN', 'HOSPITAL_ADMIN', 'PHARMACIST'] },
+    { name: 'Laboratory', href: '/dashboard/laboratory', icon: Beaker, roles: ['SUPER_ADMIN', 'HOSPITAL_ADMIN', 'LAB_TECHNICIAN'] },
+    { name: 'Inventory', href: '/dashboard/medications', icon: Package, roles: ['SUPER_ADMIN', 'HOSPITAL_ADMIN', 'PHARMACIST'] },
+    { name: 'Billing', href: '/dashboard/billing', icon: CreditCard, roles: ['SUPER_ADMIN', 'HOSPITAL_ADMIN', 'ACCOUNTANT'] },
+    { name: 'Settings', href: '/dashboard/settings', icon: Settings, roles: ['SUPER_ADMIN', 'HOSPITAL_ADMIN'] },
 ];
 
 export function Sidebar() {
@@ -30,6 +36,12 @@ export function Sidebar() {
     const router = useRouter();
     const logout = useAuthStore((state) => state.logout);
     const tenant = useAuthStore((state) => state.tenant);
+    const user = useAuthStore((state) => state.user);
+
+    const filteredNavigation = navigation.filter((item) => {
+        if (!user?.role) return false;
+        return item.roles.includes(user.role);
+    });
 
     const handleLogout = () => {
         logout();
@@ -54,7 +66,7 @@ export function Sidebar() {
                 </div>
 
                 <nav className="space-y-1 px-2">
-                    {navigation.map((item) => {
+                    {filteredNavigation.map((item) => {
                         const isActive = pathname === item.href;
                         return (
                             <Link

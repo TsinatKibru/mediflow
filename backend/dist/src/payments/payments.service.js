@@ -180,6 +180,30 @@ let PaymentsService = class PaymentsService {
             }
         });
     }
+    async findAll(tenantId, skip, take) {
+        const where = { visit: { tenantId } };
+        const [total, data] = await Promise.all([
+            this.prisma.payments.count({ where }),
+            this.prisma.payments.findMany({
+                where,
+                skip,
+                take,
+                include: {
+                    visit: {
+                        include: {
+                            patient: true,
+                            department: true
+                        }
+                    },
+                    verifiedBy: {
+                        select: { firstName: true, lastName: true }
+                    }
+                },
+                orderBy: { createdAt: 'desc' }
+            })
+        ]);
+        return { total, data };
+    }
 };
 exports.PaymentsService = PaymentsService;
 exports.PaymentsService = PaymentsService = __decorate([

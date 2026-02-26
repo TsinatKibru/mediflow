@@ -25,11 +25,26 @@ let PatientsService = class PatientsService {
             },
         });
     }
-    async findAll(tenantId) {
-        return this.prisma.patient.findMany({
-            where: { tenantId },
-            orderBy: { createdAt: 'desc' },
-        });
+    async findAll(tenantId, skip, take, search) {
+        const where = { tenantId };
+        if (search) {
+            where.OR = [
+                { firstName: { contains: search, mode: 'insensitive' } },
+                { lastName: { contains: search, mode: 'insensitive' } },
+                { phone: { contains: search, mode: 'insensitive' } },
+                { email: { contains: search, mode: 'insensitive' } },
+            ];
+        }
+        const [total, data] = await Promise.all([
+            this.prisma.patient.count({ where }),
+            this.prisma.patient.findMany({
+                where,
+                skip,
+                take,
+                orderBy: { createdAt: 'desc' },
+            }),
+        ]);
+        return { total, data };
     }
     async findOne(tenantId, id) {
         const patient = await this.prisma.patient.findFirst({
@@ -53,6 +68,12 @@ let PatientsService = class PatientsService {
                 consultation: true,
                 payments: true,
                 coverage: true,
+                labOrders: true,
+                pharmacyOrders: {
+                    include: {
+                        medication: true
+                    }
+                }
             },
             orderBy: { createdAt: 'desc' },
         });

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 import { useBrandColor } from '@/hooks/useBrandColor';
-import { User, Lock, Save } from 'lucide-react';
+import { User, Lock, Save, Building2 } from 'lucide-react';
 
 export function ProfileSettings() {
     const { user, token, setUser } = useAuthStore();
@@ -14,12 +14,30 @@ export function ProfileSettings() {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
+    const [departments, setDepartments] = useState<any[]>([]);
 
     const [formData, setFormData] = useState({
         firstName: user?.firstName || '',
         lastName: user?.lastName || '',
+        departmentId: user?.departmentId || '',
         password: '',
         confirmPassword: ''
+    });
+
+    useState(() => {
+        const fetchDepartments = async () => {
+            try {
+                const res = await fetch('http://localhost:3000/departments', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    setDepartments(await res.json());
+                }
+            } catch (err) {
+                console.error('Error fetching departments:', err);
+            }
+        };
+        if (token) fetchDepartments();
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -42,6 +60,7 @@ export function ProfileSettings() {
             const body: any = {
                 firstName: formData.firstName,
                 lastName: formData.lastName,
+                departmentId: formData.departmentId || null,
             };
             if (formData.password) {
                 body.password = formData.password;
@@ -107,6 +126,35 @@ export function ProfileSettings() {
                             onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                             required
                         />
+                    </div>
+                </div>
+
+                <div className="space-y-4 pt-4 border-t border-slate-100">
+                    <div className="space-y-1">
+                        <Label className="flex items-center gap-2 text-slate-900 font-bold">
+                            <Building2 className="h-4 w-4 text-indigo-500" />
+                            Primary Workstation / Department
+                        </Label>
+                        <p className="text-xs text-slate-500 pb-1">Set your default department view for patient queues.</p>
+                    </div>
+                    <select
+                        className="w-full rounded-xl border-slate-200 text-sm p-3 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all border outline-none font-medium text-slate-700"
+                        value={formData.departmentId}
+                        onChange={(e) => setFormData({ ...formData, departmentId: e.target.value })}
+                    >
+                        <option value="">No Default Assignment (Global View)</option>
+                        {departments.map((dept) => (
+                            <option key={dept.id} value={dept.id}>
+                                {dept.name}
+                            </option>
+                        ))}
+                    </select>
+                    <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <p className="text-[11px] text-slate-600 leading-relaxed">
+                            <span className="font-bold text-indigo-600 uppercase mr-1">Note:</span>
+                            For <span className="font-semibold text-slate-800">Hospital Admins</span>, this is a preference. You can still switch between all departments.
+                            For <span className="font-semibold text-slate-800">Doctors</span> and <span className="font-semibold text-slate-800">Nurses</span>, this defines your primary filtered queue.
+                        </p>
                     </div>
                 </div>
 

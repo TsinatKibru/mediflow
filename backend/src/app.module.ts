@@ -12,6 +12,9 @@ import { PaymentsModule } from './payments/payments.module';
 import { InsurancePoliciesModule } from './insurance-policies/insurance-policies.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { ScheduleModule } from './schedule/schedule.module';
+import { LabOrdersModule } from './lab-orders/lab-orders.module';
+import { MedicationsModule } from './medications/medications.module';
+import { PharmacyOrdersModule } from './pharmacy-orders/pharmacy-orders.module';
 
 @Module({
   imports: [
@@ -25,7 +28,10 @@ import { ScheduleModule } from './schedule/schedule.module';
     PaymentsModule,
     InsurancePoliciesModule,
     AppointmentsModule,
-    ScheduleModule
+    ScheduleModule,
+    LabOrdersModule,
+    MedicationsModule,
+    PharmacyOrdersModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -13,4 +13,8 @@ export class UpdateProfileDto {
     @IsOptional()
     @MinLength(8)
     password?: string;
+
+    @IsString()
+    @IsOptional()
+    departmentId?: string;
 }

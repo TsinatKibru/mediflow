@@ -11,6 +11,9 @@ async function main() {
     // Clear existing data
     console.log('🗑️  Clearing existing data...');
     await prisma.appointment.deleteMany();
+    await prisma.pharmacyOrder.deleteMany();
+    await prisma.medication.deleteMany();
+    await prisma.labOrder.deleteMany();
     await prisma.consultation.deleteMany();
     await prisma.vitals.deleteMany();
     await prisma.payments.deleteMany();
@@ -46,30 +49,6 @@ async function main() {
         },
     });
 
-    // Create Doctors
-    console.log('🩺 Creating doctors...');
-    const doctor1 = await prisma.user.create({
-        data: {
-            email: 'house@cityhospital.com',
-            password: hashedPassword,
-            firstName: 'Gregory',
-            lastName: 'House',
-            role: 'DOCTOR',
-            tenantId: tenant.id,
-        },
-    });
-
-    const doctor2 = await prisma.user.create({
-        data: {
-            email: 'wilson@cityhospital.com',
-            password: hashedPassword,
-            firstName: 'James',
-            lastName: 'Wilson',
-            role: 'DOCTOR',
-            tenantId: tenant.id,
-        },
-    });
-
     // Create Departments
     console.log('🏢 Creating departments...');
     const departments = await Promise.all([
@@ -92,6 +71,32 @@ async function main() {
             data: { name: 'Emergency', tenantId: tenant.id },
         }),
     ]);
+
+    // Create Doctors with Departments
+    console.log('🩺 Creating doctors...');
+    const doctor1 = await prisma.user.create({
+        data: {
+            email: 'house@cityhospital.com',
+            password: hashedPassword,
+            firstName: 'Gregory',
+            lastName: 'House',
+            role: 'DOCTOR',
+            tenantId: tenant.id,
+            departmentId: departments[5].id, // Emergency
+        },
+    });
+
+    const doctor2 = await prisma.user.create({
+        data: {
+            email: 'wilson@cityhospital.com',
+            password: hashedPassword,
+            firstName: 'James',
+            lastName: 'Wilson',
+            role: 'DOCTOR',
+            tenantId: tenant.id,
+            departmentId: departments[0].id, // Cardiology
+        },
+    });
 
     // Create Patients
     console.log('👥 Creating patients...');
@@ -442,13 +447,106 @@ async function main() {
         },
     });
 
+    // Lab Orders for Visit 1 (Completed Cardiology)
+    console.log('🧪 Creating lab orders...');
+    await prisma.labOrder.createMany({
+        data: [
+            {
+                visitId: visit1.id,
+                testName: 'Lipid Profile',
+                instructions: 'Fasting required for 12 hours',
+                status: 'COMPLETED',
+                prescribedById: doctor2.id,
+                result: 'Total Cholesterol: 185 mg/dL, LDL: 110 mg/dL, HDL: 52 mg/dL',
+            },
+            {
+                visitId: visit1.id,
+                testName: 'Complete Blood Count (CBC)',
+                status: 'COMPLETED',
+                prescribedById: doctor2.id,
+                result: 'All values within normal ranges.',
+            }
+        ]
+    });
+
+    // Lab Order for Visit 2 (In Consultation)
+    await prisma.labOrder.create({
+        data: {
+            visitId: visit2.id,
+            testName: 'Influenza A+B Rapid Test',
+            instructions: 'Nasal swab',
+            status: 'ORDERED',
+            prescribedById: adminUser.id, // Using admin as fallback for this specific logic if needed
+        }
+    });
+
+    console.log('💊 Creating medications...');
+    const medications = await Promise.all([
+        prisma.medication.create({
+            data: {
+                name: 'Amoxicillin',
+                genericName: 'Amoxicillin',
+                dosageForm: 'Capsule',
+                strength: '500mg',
+                stockBalance: 1000,
+                unitPrice: 0.50,
+                tenantId: tenant.id,
+            },
+        }),
+        prisma.medication.create({
+            data: {
+                name: 'Lisinopril',
+                genericName: 'Lisinopril',
+                dosageForm: 'Tablet',
+                strength: '10mg',
+                stockBalance: 500,
+                unitPrice: 0.75,
+                tenantId: tenant.id,
+            },
+        }),
+        prisma.medication.create({
+            data: {
+                name: 'Metformin',
+                genericName: 'Metformin',
+                dosageForm: 'Tablet',
+                strength: '850mg',
+                stockBalance: 800,
+                unitPrice: 0.30,
+                tenantId: tenant.id,
+            },
+        }),
+        prisma.medication.create({
+            data: {
+                name: 'Paracetamol',
+                genericName: 'Acetaminophen',
+                dosageForm: 'Tablet',
+                strength: '500mg',
+                stockBalance: 2000,
+                unitPrice: 0.10,
+                tenantId: tenant.id,
+            },
+        }),
+        prisma.medication.create({
+            data: {
+                name: 'Salbutamol',
+                genericName: 'Albuterol',
+                dosageForm: 'Inhaler',
+                strength: '100mcg',
+                stockBalance: 50,
+                unitPrice: 12.00,
+                tenantId: tenant.id,
+            },
+        }),
+    ]);
+
     console.log('✅ Seed completed successfully!');
     console.log('\n📊 Summary:');
     console.log(`   Tenant: ${tenant.name}`);
-    console.log(`   Admin: ${adminUser.email} / admin123`);
+    console.log(`   Admin: admin@cityhospital.com / admin123`);
     console.log(`   Departments: ${departments.length}`);
     console.log(`   Patients: ${patients.length}`);
     console.log(`   Visits: 7 (with vitals and consultations)`);
+    console.log(`   Medications: ${medications.length}`);
     console.log('\n🔑 Login credentials:');
     console.log(`   Email: admin@cityhospital.com`);
     console.log(`   Password: admin123`);

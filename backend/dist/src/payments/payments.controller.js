@@ -26,6 +26,9 @@ let PaymentsController = class PaymentsController {
     constructor(paymentsService) {
         this.paymentsService = paymentsService;
     }
+    findAll(req, skip, take) {
+        return this.paymentsService.findAll(req.user.tenantId, skip ? parseInt(skip) : undefined, take ? parseInt(take) : undefined);
+    }
     create(createPaymentDto, req) {
         return this.paymentsService.create(createPaymentDto, req.user.id);
     }
@@ -49,6 +52,15 @@ let PaymentsController = class PaymentsController {
     }
 };
 exports.PaymentsController = PaymentsController;
+__decorate([
+    (0, common_1.Get)(),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Query)('skip')),
+    __param(2, (0, common_1.Query)('take')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, String]),
+    __metadata("design:returntype", void 0)
+], PaymentsController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),

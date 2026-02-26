@@ -41,6 +41,9 @@ import {
 import { PolicyModal } from '@/components/billing/PolicyModal';
 import { PaymentModal } from '@/components/billing/PaymentModal';
 import { ClinicalHistorySlideOver } from '@/components/clinical/ClinicalHistorySlideOver';
+import { VitalsTrendChart } from '@/components/clinical/VitalsTrendChart';
+import { LabDeltaTracker } from '@/components/clinical/LabDeltaTracker';
+import { Pill, Beaker } from 'lucide-react';
 
 
 export default function PatientDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -338,8 +341,11 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
                 </div>
 
                 {activeTab === 'medical' && (
-                    <>
-                        {/* Visit History */}
+                    <div className="space-y-6">
+                        {/* Vitals Trends Chart */}
+                        <VitalsTrendChart visits={visits} />
+
+                        {/* Visit History - Timeline */}
                         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                             <div className="px-6 py-4 border-b border-slate-200">
                                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -447,6 +453,32 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
                                                 </div>
                                             </div>
 
+                                            {/* Pharmacy & Lab Summary Bits */}
+                                            {(visit.pharmacyOrders?.length || visit.labOrders?.length) && (
+                                                <div className="flex flex-wrap gap-2 mb-4 ml-14">
+                                                    {visit.pharmacyOrders?.map(order => (
+                                                        <Badge key={order.id} variant="outline" className="bg-white border-slate-100 text-[10px] py-0 text-slate-500">
+                                                            <Pill className="h-2.5 w-2.5 mr-1 text-emerald-500" />
+                                                            {order.medication.name} ({order.quantity})
+                                                        </Badge>
+                                                    ))}
+                                                    {visit.labOrders?.map(order => (
+                                                        <div key={order.id} className="flex flex-col gap-1 w-full max-w-md">
+                                                            <Badge variant="outline" className="bg-white border-slate-100 text-[10px] py-0 text-slate-500 w-fit">
+                                                                <Beaker className="h-2.5 w-2.5 mr-1 text-indigo-500" />
+                                                                {order.testName}: {order.result || 'Pending'}
+                                                            </Badge>
+                                                            {order.status === 'COMPLETED' && (
+                                                                <LabDeltaTracker
+                                                                    currentOrder={order}
+                                                                    previousOrders={visits.flatMap(v => v.labOrders || []).filter(o => o.id !== order.id)}
+                                                                />
+                                                            )}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+
                                             <div className="flex items-center justify-between text-xs text-slate-400 mt-2 pt-2 border-t border-slate-50 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <div className="flex items-center gap-1">
                                                     <FileText className="h-3 w-3" />
@@ -470,7 +502,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
                                 </div>
                             )}
                         </div>
-                    </>
+                    </div>
                 )}
 
                 {activeTab === 'billing' && (
@@ -733,7 +765,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
                 patientName={patient ? `${patient.firstName} ${patient.lastName}` : ''}
                 onClose={() => setClinicalSlideOverVisitId(null)}
             />
-        </DashboardLayout>
+    </DashboardLayout>
     );
 }
 
