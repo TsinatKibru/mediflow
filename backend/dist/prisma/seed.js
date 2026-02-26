@@ -410,32 +410,68 @@ async function main() {
         },
     });
     console.log('🧪 Creating lab orders...');
-    await prisma.labOrder.createMany({
-        data: [
-            {
-                visitId: visit1.id,
-                testName: 'Lipid Profile',
-                instructions: 'Fasting required for 12 hours',
-                status: 'COMPLETED',
-                prescribedById: doctor2.id,
-                result: 'Total Cholesterol: 185 mg/dL, LDL: 110 mg/dL, HDL: 52 mg/dL',
-            },
-            {
-                visitId: visit1.id,
-                testName: 'Complete Blood Count (CBC)',
-                status: 'COMPLETED',
-                prescribedById: doctor2.id,
-                result: 'All values within normal ranges.',
-            }
-        ]
+    const lo1 = await prisma.labOrder.create({
+        data: {
+            visitId: visit1.id,
+            testName: 'Lipid Profile',
+            instructions: 'Fasting required for 12 hours',
+            status: 'COMPLETED',
+            prescribedById: doctor2.id,
+            result: 'Total Cholesterol: 185 mg/dL, LDL: 110 mg/dL, HDL: 52 mg/dL',
+        }
     });
-    await prisma.labOrder.create({
+    await prisma.payments.create({
+        data: {
+            visitId: visit1.id,
+            amountCharged: 350,
+            amountPaid: 350,
+            method: 'CASH',
+            serviceType: 'LABORATORY',
+            status: 'COMPLETED',
+            labOrderId: lo1.id,
+            reason: 'Laboratory Test: Lipid Profile',
+        }
+    });
+    const lo2 = await prisma.labOrder.create({
+        data: {
+            visitId: visit1.id,
+            testName: 'Complete Blood Count (CBC)',
+            status: 'COMPLETED',
+            prescribedById: doctor2.id,
+            result: 'All values within normal ranges.',
+        }
+    });
+    await prisma.payments.create({
+        data: {
+            visitId: visit1.id,
+            amountCharged: 150,
+            amountPaid: 150,
+            method: 'CASH',
+            serviceType: 'LABORATORY',
+            status: 'COMPLETED',
+            labOrderId: lo2.id,
+            reason: 'Laboratory Test: Complete Blood Count (CBC)',
+        }
+    });
+    const lo3 = await prisma.labOrder.create({
         data: {
             visitId: visit2.id,
             testName: 'Influenza A+B Rapid Test',
             instructions: 'Nasal swab',
             status: 'ORDERED',
             prescribedById: adminUser.id,
+        }
+    });
+    await prisma.payments.create({
+        data: {
+            visitId: visit2.id,
+            amountCharged: 300,
+            amountPaid: 0,
+            method: 'CASH',
+            serviceType: 'LABORATORY',
+            status: 'PENDING',
+            labOrderId: lo3.id,
+            reason: 'Laboratory Test: Influenza A+B Rapid Test',
         }
     });
     console.log('💊 Creating medications...');
@@ -496,6 +532,28 @@ async function main() {
             },
         }),
     ]);
+    const po1 = await prisma.pharmacyOrder.create({
+        data: {
+            visitId: visit2.id,
+            medicationId: medications[0].id,
+            quantity: 21,
+            instructions: 'Take 1 capsule 3 times daily for 7 days',
+            status: 'PENDING',
+            prescribedById: adminUser.id,
+        },
+    });
+    await prisma.payments.create({
+        data: {
+            visitId: visit2.id,
+            amountCharged: 10.50,
+            amountPaid: 0,
+            method: 'CASH',
+            serviceType: 'PHARMACY',
+            status: 'PENDING',
+            pharmacyOrderId: po1.id,
+            reason: 'Prescription: Amoxicillin (21 units)',
+        }
+    });
     console.log('💰 Seeding service price catalog...');
     const catalogItems = await prisma.serviceCatalog.createMany({
         data: [
