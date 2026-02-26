@@ -24,8 +24,8 @@ export declare class PharmacyOrdersController {
         visitId: string;
         instructions: string | null;
         prescribedById: string;
-        quantity: number;
         medicationId: string;
+        quantity: number;
         dispensedById: string | null;
     }>;
     findAll(req: any, status?: string): Promise<({
@@ -128,8 +128,8 @@ export declare class PharmacyOrdersController {
         visitId: string;
         instructions: string | null;
         prescribedById: string;
-        quantity: number;
         medicationId: string;
+        quantity: number;
         dispensedById: string | null;
     })[]>;
     findByVisit(req: any, visitId: string): Promise<({
@@ -173,8 +173,8 @@ export declare class PharmacyOrdersController {
         visitId: string;
         instructions: string | null;
         prescribedById: string;
-        quantity: number;
         medicationId: string;
+        quantity: number;
         dispensedById: string | null;
     })[]>;
     updateStatus(req: any, id: string, dto: UpdatePharmacyOrderStatusDto): Promise<{
@@ -185,8 +185,8 @@ export declare class PharmacyOrdersController {
         visitId: string;
         instructions: string | null;
         prescribedById: string;
-        quantity: number;
         medicationId: string;
+        quantity: number;
         dispensedById: string | null;
     }>;
 }

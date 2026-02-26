@@ -15,7 +15,8 @@ import {
     UserPlus,
     Receipt,
     ShieldCheck,
-    Layers
+    Layers,
+    ChevronRight
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import {
@@ -49,6 +50,9 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
     const [selectedPolicyId, setSelectedPolicyId] = useState<string>(visit.coverage?.insurancePolicyId || '');
     const [catalogItems, setCatalogItems] = useState<{ id: string; category: string; name: string; price: number; code?: string; description?: string }[]>([]);
     const [selectedCatalogItem, setSelectedCatalogItem] = useState<string>(''); // catalog item name
+    // Map of paymentId → edited amount for inline price editing on pending charges
+    const [pendingAmounts, setPendingAmounts] = useState<Record<string, string>>({});
+    const [showVisitSummary, setShowVisitSummary] = useState(false);
 
     const activePayments = visit.payments?.filter(p => !p.isVoided) || [];
     const totalBilled = activePayments.reduce((acc, p) => acc + Number(p.amountCharged), 0);
@@ -122,6 +126,36 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
                 amountCharged: String(item.price),
                 reason: item.name,
             }));
+        }
+    };
+
+    const handleUpdatePendingAmount = async (paymentId: string) => {
+        const amount = parseFloat(pendingAmounts[paymentId]);
+        if (isNaN(amount)) {
+            toast.error('Invalid amount');
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const res = await fetch(`http://localhost:3000/payments/${paymentId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ amountCharged: amount })
+            });
+
+            if (res.ok) {
+                toast.success('Amount updated');
+                onSuccess(); // Refresh visit data
+            }
+        } catch (error) {
+            console.error('Error updating amount:', error);
+            toast.error('Update failed');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -489,17 +523,42 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
                         </div>
                         <div className="space-y-2">
                             {visit.payments?.filter(p => p.status === 'PENDING' && !p.isVoided).map(p => (
-                                <div key={p.id} className="flex justify-between items-center bg-white p-3 rounded-lg border border-amber-100 shadow-sm">
-                                    <div>
-                                        <p className="text-xs font-bold text-slate-900">{p.reason || p.serviceType}</p>
-                                        <p className="text-[10px] text-slate-500">{new Date(p.createdAt).toLocaleDateString()} • {p.serviceType}</p>
+                                <div key={p.id} className="bg-white p-3 rounded-lg border border-amber-100 shadow-sm space-y-3">
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <p className="text-xs font-bold text-slate-900">{p.reason || p.serviceType}</p>
+                                            <p className="text-[10px] text-slate-500">{new Date(p.createdAt).toLocaleDateString()} • {p.serviceType}</p>
+                                        </div>
+                                        <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-100 text-[10px]">PENDING</Badge>
                                     </div>
-                                    <div className="flex items-center gap-4">
-                                        <p className="text-sm font-bold text-slate-900">{Number(p.amountCharged).toFixed(2)} ETB</p>
+
+                                    <div className="flex items-end gap-3 pt-2 border-t border-slate-50">
+                                        <div className="flex-1">
+                                            <label className="block text-[9px] font-bold text-slate-400 uppercase mb-1">Amount (ETB)</label>
+                                            <div className="flex gap-2">
+                                                <input
+                                                    type="number"
+                                                    className="w-full text-sm font-bold border-slate-100 rounded bg-slate-50/50 p-1 px-2 focus:bg-white focus:border-indigo-300 transition-all"
+                                                    value={pendingAmounts[p.id] ?? Number(p.amountCharged)}
+                                                    onChange={e => setPendingAmounts({ ...pendingAmounts, [p.id]: e.target.value })}
+                                                />
+                                                {pendingAmounts[p.id] !== undefined && pendingAmounts[p.id] !== String(p.amountCharged) && (
+                                                    <Button
+                                                        size="sm"
+                                                        variant="ghost"
+                                                        className="h-8 text-[10px] text-indigo-600 hover:bg-indigo-50"
+                                                        onClick={() => handleUpdatePendingAmount(p.id)}
+                                                        disabled={loading}
+                                                    >
+                                                        Save
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        </div>
                                         <Button
                                             size="sm"
-                                            className="bg-emerald-600 hover:bg-emerald-700 h-8 text-xs"
-                                            onClick={() => handleConfirmPayment(p.id, Number(p.amountCharged))}
+                                            className="bg-emerald-600 hover:bg-emerald-700 h-9 px-4 text-xs font-bold shadow-sm"
+                                            onClick={() => handleConfirmPayment(p.id, Number(pendingAmounts[p.id] ?? p.amountCharged))}
                                             disabled={loading}
                                         >
                                             <DollarSign className="h-3.5 w-3.5 mr-1" />
@@ -511,6 +570,70 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
                         </div>
                     </div>
                 )}
+
+                {/* Visit Summary Panel */}
+                <div className="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                    <button
+                        onClick={() => setShowVisitSummary(!showVisitSummary)}
+                        className="w-full flex items-center justify-between p-4 bg-white hover:bg-slate-50 transition-colors"
+                    >
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+                                <Activity className="h-4 w-4" />
+                            </div>
+                            <div className="text-left">
+                                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-tight">Visit Summary</h3>
+                                <p className="text-[10px] text-slate-500 font-medium">Lab Tests & Medications ordered today</p>
+                            </div>
+                        </div>
+                        <ChevronRight className={cn("h-4 w-4 text-slate-400 transition-transform", showVisitSummary && "rotate-90")} />
+                    </button>
+
+                    {showVisitSummary && (
+                        <div className="p-4 bg-slate-50 border-t border-slate-100 space-y-4 animate-in slide-in-from-top-2 duration-200">
+                            {/* Lab Orders */}
+                            <div>
+                                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                                    <Activity className="h-3 w-3" /> Laboratory Orders
+                                </h4>
+                                <div className="space-y-1.5">
+                                    {visit.labOrders && visit.labOrders.length > 0 ? (
+                                        visit.labOrders.map(lo => (
+                                            <div key={lo.id} className="bg-white p-2.5 rounded-lg border border-slate-200 text-xs flex justify-between items-center">
+                                                <span className="font-bold text-slate-800">{lo.testName}</span>
+                                                <Badge variant="outline" className="text-[9px] uppercase font-black py-0 px-1.5 border-slate-200 bg-slate-50">{lo.status}</Badge>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-[10px] text-slate-400 italic py-2">No laboratory tests ordered for this visit.</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Pharmacy Orders */}
+                            <div className="pt-2 border-t border-slate-200/60">
+                                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                                    <Receipt className="h-3 w-3" /> Pharmacy Orders
+                                </h4>
+                                <div className="space-y-1.5">
+                                    {visit.pharmacyOrders && visit.pharmacyOrders.length > 0 ? (
+                                        visit.pharmacyOrders.map(po => (
+                                            <div key={po.id} className="bg-white p-2.5 rounded-lg border border-slate-200 text-xs flex justify-between items-center">
+                                                <div>
+                                                    <span className="font-bold text-slate-800">{po.medication.name}</span>
+                                                    <span className="text-[10px] text-slate-500 ml-2">Qty: {po.quantity}</span>
+                                                </div>
+                                                <Badge variant="outline" className="text-[9px] uppercase font-black py-0 px-1.5 border-slate-200 bg-slate-50">{po.status}</Badge>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-[10px] text-slate-400 italic py-2">No medications dispensed for this visit.</p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
 
                 {visit.coverage && (
                     <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex items-center justify-between">

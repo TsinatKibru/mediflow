@@ -80,8 +80,8 @@ export declare class PatientsController {
             visitId: string;
             instructions: string | null;
             prescribedById: string;
-            quantity: number;
             medicationId: string;
+            quantity: number;
             dispensedById: string | null;
         })[];
         vitals: {

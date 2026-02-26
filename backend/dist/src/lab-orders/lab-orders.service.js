@@ -62,16 +62,25 @@ let LabOrdersService = class LabOrdersService {
                     prescribedById: doctorId,
                 },
             });
+            const catalogEntry = await tx.serviceCatalog.findFirst({
+                where: {
+                    tenantId,
+                    name: { equals: dto.testName, mode: 'insensitive' },
+                    category: 'LABORATORY',
+                    isActive: true,
+                },
+            });
+            const amountCharged = catalogEntry ? Number(catalogEntry.price) : 0;
             await tx.payments.create({
                 data: {
                     visitId: order.visitId,
-                    amountCharged: 0,
+                    amountCharged,
                     amountPaid: 0,
                     method: 'CASH',
                     serviceType: 'LABORATORY',
                     status: 'PENDING',
                     labOrderId: order.id,
-                    reason: `Laboratory Test: ${order.testName}`,
+                    reason: `Laboratory Test: ${order.testName}${!catalogEntry ? ' (price not in catalog)' : ''}`,
                 },
             });
             return order;

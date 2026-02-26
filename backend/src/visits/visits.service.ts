@@ -106,6 +106,11 @@ export class VisitsService {
                     payments: true,
                     coverage: true,
                     labOrders: true,
+                    pharmacyOrders: {
+                        include: {
+                            medication: true
+                        }
+                    }
                 },
                 orderBy: { createdAt: 'desc' },
             }),

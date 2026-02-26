@@ -21,6 +21,7 @@ async function main() {
     await prisma.visit.deleteMany();
     await prisma.patient.deleteMany();
     await prisma.department.deleteMany();
+    await prisma.serviceCatalog.deleteMany();
     await prisma.user.deleteMany();
     await prisma.tenant.deleteMany();
     console.log('🏥 Creating tenant...');
@@ -495,6 +496,28 @@ async function main() {
             },
         }),
     ]);
+    console.log('💰 Seeding service price catalog...');
+    const catalogItems = await prisma.serviceCatalog.createMany({
+        data: [
+            { category: 'REGISTRATION', name: 'OPD Registration', code: 'REG-001', price: 50, description: 'Outpatient registration fee', tenantId: tenant.id, isActive: true },
+            { category: 'REGISTRATION', name: 'Emergency Registration', code: 'REG-002', price: 100, description: 'Emergency department registration', tenantId: tenant.id, isActive: true },
+            { category: 'CONSULTATION', name: 'General Consultation', code: 'CON-001', price: 200, description: 'General practitioner visit', tenantId: tenant.id, isActive: true },
+            { category: 'CONSULTATION', name: 'Specialist Consultation', code: 'CON-002', price: 400, description: 'Department specialist visit', tenantId: tenant.id, isActive: true },
+            { category: 'CONSULTATION', name: 'Follow-up Consultation', code: 'CON-003', price: 100, description: 'Follow-up for existing patients', tenantId: tenant.id, isActive: true },
+            { category: 'LABORATORY', name: 'Complete Blood Count (CBC)', code: 'LAB-001', price: 120, description: 'Full blood count with differential', tenantId: tenant.id, isActive: true },
+            { category: 'LABORATORY', name: 'Malaria RDT', code: 'LAB-002', price: 80, description: 'Rapid diagnostic test for malaria', tenantId: tenant.id, isActive: true },
+            { category: 'LABORATORY', name: 'Urinalysis', code: 'LAB-003', price: 60, description: 'Complete urine analysis', tenantId: tenant.id, isActive: true },
+            { category: 'LABORATORY', name: 'Lipid Profile', code: 'LAB-004', price: 250, description: 'Total cholesterol, LDL, HDL, Triglycerides', tenantId: tenant.id, isActive: true },
+            { category: 'LABORATORY', name: 'Liver Function Tests (LFT)', code: 'LAB-005', price: 280, description: 'AST, ALT, ALP, Bilirubin', tenantId: tenant.id, isActive: true },
+            { category: 'LABORATORY', name: 'Thyroid Function Tests (TSH/T4)', code: 'LAB-006', price: 350, description: 'TSH and Free T4 levels', tenantId: tenant.id, isActive: true },
+            { category: 'LABORATORY', name: 'Fasting Blood Sugar (FBS)', code: 'LAB-007', price: 70, description: 'Fasting glucose level', tenantId: tenant.id, isActive: true },
+            { category: 'LABORATORY', name: 'HIV Screening (ELISA)', code: 'LAB-008', price: 100, description: 'HIV 1/2 antibody screening', tenantId: tenant.id, isActive: true },
+            { category: 'LABORATORY', name: 'Influenza A+B Rapid Test', code: 'LAB-009', price: 150, description: 'Rapid influenza diagnostic test', tenantId: tenant.id, isActive: true },
+            { category: 'PROCEDURE', name: 'Wound Dressing', code: 'PRO-001', price: 150, description: 'Basic wound cleaning and dressing', tenantId: tenant.id, isActive: true },
+            { category: 'PROCEDURE', name: 'Injection / IV Administration', code: 'PRO-002', price: 80, description: 'Intravenous or intramuscular injection', tenantId: tenant.id, isActive: true },
+            { category: 'PROCEDURE', name: 'ECG (Electrocardiogram)', code: 'PRO-003', price: 200, description: '12-lead ECG reading', tenantId: tenant.id, isActive: true },
+        ]
+    });
     console.log('✅ Seed completed successfully!');
     console.log('\n📊 Summary:');
     console.log(`   Tenant: ${tenant.name}`);
@@ -503,6 +526,7 @@ async function main() {
     console.log(`   Patients: ${patients.length}`);
     console.log(`   Visits: 7 (with vitals and consultations)`);
     console.log(`   Medications: ${medications.length}`);
+    console.log(`   Service Catalog: ${catalogItems.count} items`);
     console.log('\n🔑 Login credentials:');
     console.log(`   Email: admin@cityhospital.com`);
     console.log(`   Password: admin123`);

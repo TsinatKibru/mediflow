@@ -65,6 +65,31 @@ export declare class VisitsController {
                 testName: string;
                 prescribedById: string;
             }[];
+            pharmacyOrders: ({
+                medication: {
+                    id: string;
+                    name: string;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    tenantId: string;
+                    genericName: string | null;
+                    dosageForm: string;
+                    strength: string;
+                    stockBalance: number;
+                    unitPrice: import("@prisma/client/runtime/library").Decimal;
+                };
+            } & {
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                status: string;
+                visitId: string;
+                instructions: string | null;
+                prescribedById: string;
+                medicationId: string;
+                quantity: number;
+                dispensedById: string | null;
+            })[];
             vitals: {
                 id: string;
                 createdAt: Date;

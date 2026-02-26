@@ -26,18 +26,36 @@ let VisitsService = class VisitsService {
         if (!patient) {
             throw new common_1.NotFoundException('Patient not found in this tenant');
         }
-        return this.prisma.visit.create({
-            data: {
-                status: client_1.VisitStatus.REGISTERED,
-                reason,
-                patientId,
-                departmentId,
-                tenantId,
-            },
-            include: {
-                patient: true,
-                department: true,
-            },
+        return this.prisma.$transaction(async (tx) => {
+            const visit = await tx.visit.create({
+                data: {
+                    status: client_1.VisitStatus.REGISTERED,
+                    reason,
+                    patientId,
+                    departmentId,
+                    tenantId,
+                },
+                include: {
+                    patient: true,
+                    department: true,
+                },
+            });
+            const regCatalog = await tx.serviceCatalog.findFirst({
+                where: { tenantId, category: 'REGISTRATION', isActive: true },
+                orderBy: { name: 'asc' },
+            });
+            await tx.payments.create({
+                data: {
+                    visitId: visit.id,
+                    amountCharged: regCatalog ? Number(regCatalog.price) : 0,
+                    amountPaid: 0,
+                    method: 'CASH',
+                    serviceType: 'REGISTRATION',
+                    status: 'PENDING',
+                    reason: regCatalog ? regCatalog.name : 'Registration Fee',
+                },
+            });
+            return visit;
         });
     }
     async findAll(tenantId, options) {
@@ -74,6 +92,11 @@ let VisitsService = class VisitsService {
                     payments: true,
                     coverage: true,
                     labOrders: true,
+                    pharmacyOrders: {
+                        include: {
+                            medication: true
+                        }
+                    }
                 },
                 orderBy: { createdAt: 'desc' },
             }),
