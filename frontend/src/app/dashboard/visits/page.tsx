@@ -417,18 +417,14 @@ function CheckInModal({ isOpen, onClose, onSuccess, token }: { isOpen: boolean; 
 
     const searchPatients = async () => {
         try {
-            const response = await fetch('http://localhost:3000/patients', {
+            const response = await fetch(`http://localhost:3000/patients?search=${encodeURIComponent(searchQuery)}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
-                const data = await response.json();
-                const filtered = data.filter((p: any) => {
-                    const fullName = `${p.firstName} ${p.lastName}`.toLowerCase();
-                    return fullName.includes(searchQuery.toLowerCase()) ||
-                        p.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        p.phone.includes(searchQuery);
-                });
-                setPatients(filtered);
+                const result = await response.json();
+                // Handle new { total, data } response format
+                const patientsList = result.data || result;
+                setPatients(patientsList);
                 setShowPatientDropdown(true);
             }
         } catch (error) {
