@@ -41,6 +41,7 @@ let LabOrdersService = class LabOrdersService {
                         },
                     },
                 },
+                payments: true,
             },
             orderBy: { createdAt: 'desc' },
         });
@@ -52,13 +53,28 @@ let LabOrdersService = class LabOrdersService {
         if (!visit) {
             throw new common_1.NotFoundException('Visit not found');
         }
-        return this.prisma.labOrder.create({
-            data: {
-                testName: dto.testName,
-                instructions: dto.instructions,
-                visitId: dto.visitId,
-                prescribedById: doctorId,
-            },
+        return this.prisma.$transaction(async (tx) => {
+            const order = await tx.labOrder.create({
+                data: {
+                    testName: dto.testName,
+                    instructions: dto.instructions,
+                    visitId: dto.visitId,
+                    prescribedById: doctorId,
+                },
+            });
+            await tx.payments.create({
+                data: {
+                    visitId: order.visitId,
+                    amountCharged: 0,
+                    amountPaid: 0,
+                    method: 'CASH',
+                    serviceType: 'LABORATORY',
+                    status: 'PENDING',
+                    labOrderId: order.id,
+                    reason: `Laboratory Test: ${order.testName}`,
+                },
+            });
+            return order;
         });
     }
     async findByVisit(tenantId, visitId) {
@@ -74,6 +90,7 @@ let LabOrdersService = class LabOrdersService {
                         lastName: true,
                     },
                 },
+                payments: true,
             },
             orderBy: { createdAt: 'desc' },
         });

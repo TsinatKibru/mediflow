@@ -95,6 +95,8 @@ export declare class VisitsController {
                 amountPaid: import("@prisma/client/runtime/library").Decimal;
                 method: import(".prisma/client").$Enums.PaymentMethod;
                 serviceType: import(".prisma/client").$Enums.ServiceType;
+                labOrderId: string | null;
+                pharmacyOrderId: string | null;
                 isVoided: boolean;
                 voidReason: string | null;
                 voidedAt: Date | null;
@@ -256,6 +258,8 @@ export declare class VisitsController {
             amountPaid: import("@prisma/client/runtime/library").Decimal;
             method: import(".prisma/client").$Enums.PaymentMethod;
             serviceType: import(".prisma/client").$Enums.ServiceType;
+            labOrderId: string | null;
+            pharmacyOrderId: string | null;
             isVoided: boolean;
             voidReason: string | null;
             voidedAt: Date | null;

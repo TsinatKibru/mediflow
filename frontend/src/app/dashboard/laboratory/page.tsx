@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Label } from '@/components/ui/Label';
-import { Beaker, User, ClipboardList, CheckCircle2, History, Search, RefreshCw, FlaskConical, Send } from 'lucide-react';
+import { Beaker, User, History, Search, RefreshCw, FlaskConical, Send, DollarSign, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import { Input } from '@/components/ui/Input';
@@ -76,6 +76,16 @@ export default function LaboratoryPage() {
         order.visit?.patient?.lastName?.toLowerCase().includes(searchQuery.toLowerCase())
     ) || [];
 
+    const getPaymentStatus = (order: LabOrder) => {
+        if (!order.payments || order.payments.length === 0) return 'UNPAID';
+        const totalCharged = order.payments.reduce((acc, p) => acc + Number(p.amountCharged), 0);
+        const totalPaid = order.payments.reduce((acc, p) => acc + Number(p.amountPaid), 0);
+
+        if (totalPaid >= totalCharged && totalCharged > 0) return 'PAID';
+        if (totalPaid > 0) return 'PARTIAL';
+        return 'UNPAID';
+    };
+
     return (
         <DashboardLayout>
             <div className="space-y-6">
@@ -131,23 +141,36 @@ export default function LaboratoryPage() {
                             <Card key={order.id} className="overflow-hidden border-slate-100 hover:shadow-md transition-all flex flex-col">
                                 <CardHeader className="bg-slate-50/50 pb-3 border-b border-slate-100">
                                     <div className="flex justify-between items-start">
-                                        <Badge variant={
-                                            order.status === 'ORDERED' ? 'info' :
-                                                order.status === 'COLLECTED' ? 'warning' :
-                                                    order.status === 'PROCESSING' ? 'warning' :
-                                                        order.status === 'COMPLETED' ? 'success' : 'danger'
-                                        }>
-                                            {order.status}
-                                        </Badge>
-                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                                            <History className="h-3 w-3" />
-                                            {format(new Date(order.createdAt), 'MMM dd, HH:mm')}
-                                        </span>
+                                        <div className="flex-1">
+                                            <div className="flex justify-between items-center mb-3">
+                                                <Badge variant={
+                                                    order.status === 'ORDERED' ? 'info' :
+                                                        order.status === 'COLLECTED' ? 'warning' :
+                                                            order.status === 'PROCESSING' ? 'warning' :
+                                                                order.status === 'COMPLETED' ? 'success' : 'danger'
+                                                }>
+                                                    {order.status}
+                                                </Badge>
+                                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                                                    <History className="h-3 w-3" />
+                                                    {format(new Date(order.createdAt), 'MMM dd, HH:mm')}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between items-center">
+                                                <CardTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                                                    <User className="h-5 w-5 text-indigo-500" />
+                                                    {order.visit?.patient?.firstName} {order.visit?.patient?.lastName}
+                                                </CardTitle>
+                                                <Badge
+                                                    variant={getPaymentStatus(order) === 'PAID' ? 'success' : getPaymentStatus(order) === 'PARTIAL' ? 'warning' : 'danger'}
+                                                    className="h-5 text-[9px] px-1.5"
+                                                >
+                                                    <DollarSign className="h-2.5 w-2.5 mr-0.5" />
+                                                    {getPaymentStatus(order)}
+                                                </Badge>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <CardTitle className="text-lg font-bold text-slate-900 mt-3 flex items-center gap-2">
-                                        <User className="h-5 w-5 text-indigo-500" />
-                                        {order.visit?.patient?.firstName} {order.visit?.patient?.lastName}
-                                    </CardTitle>
                                 </CardHeader>
                                 <CardContent className="flex-1 pt-4 space-y-4">
                                     <div className="bg-white border border-slate-100 p-3 rounded-xl flex items-center gap-3">
@@ -168,9 +191,21 @@ export default function LaboratoryPage() {
                                     )}
 
                                     {order.status === 'ORDERED' && (
-                                        <Button className="w-full bg-indigo-600 hover:bg-indigo-700" size="sm" onClick={() => handleUpdateStatus(order.id, 'COLLECTED')}>
-                                            Mark Sample Collected
-                                        </Button>
+                                        <div className="space-y-2">
+                                            {getPaymentStatus(order) !== 'PAID' && (
+                                                <div className="flex items-center gap-2 p-2 bg-amber-50 border border-amber-100 rounded-lg text-[10px] text-amber-700 font-medium">
+                                                    <AlertCircle className="h-3.5 w-3.5" />
+                                                    Patient has not completed payment for this test.
+                                                </div>
+                                            )}
+                                            <Button
+                                                className="w-full bg-indigo-600 hover:bg-indigo-700"
+                                                size="sm"
+                                                onClick={() => handleUpdateStatus(order.id, 'COLLECTED')}
+                                            >
+                                                Mark Sample Collected
+                                            </Button>
+                                        </div>
                                     )}
 
                                     {order.status === 'COLLECTED' && (

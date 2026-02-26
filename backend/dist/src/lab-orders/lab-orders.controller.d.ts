@@ -4,6 +4,26 @@ export declare class LabOrdersController {
     private readonly labOrdersService;
     constructor(labOrdersService: LabOrdersService);
     findAll(req: any, status?: string): Promise<({
+        payments: {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            status: string;
+            reason: string | null;
+            visitId: string;
+            amountCharged: import("@prisma/client/runtime/library").Decimal;
+            amountPaid: import("@prisma/client/runtime/library").Decimal;
+            method: import(".prisma/client").$Enums.PaymentMethod;
+            serviceType: import(".prisma/client").$Enums.ServiceType;
+            labOrderId: string | null;
+            pharmacyOrderId: string | null;
+            isVoided: boolean;
+            voidReason: string | null;
+            voidedAt: Date | null;
+            voidedById: string | null;
+            insurancePolicyId: string | null;
+            verifiedById: string | null;
+        }[];
         visit: {
             patient: {
                 id: string;
@@ -12,14 +32,14 @@ export declare class LabOrdersController {
             };
         } & {
             id: string;
-            status: import(".prisma/client").$Enums.VisitStatus;
             createdAt: Date;
             updatedAt: Date;
+            tenantId: string;
+            departmentId: string;
+            status: import(".prisma/client").$Enums.VisitStatus;
             priority: import(".prisma/client").$Enums.Priority;
             reason: string | null;
             patientId: string;
-            tenantId: string;
-            departmentId: string;
             doctorId: string | null;
             nurseId: string | null;
         };
@@ -28,63 +48,83 @@ export declare class LabOrdersController {
             lastName: string;
         };
     } & {
-        result: string | null;
         id: string;
-        testName: string;
-        instructions: string | null;
-        status: string;
-        visitId: string;
-        prescribedById: string;
         createdAt: Date;
         updatedAt: Date;
+        result: string | null;
+        status: string;
+        visitId: string;
+        instructions: string | null;
+        testName: string;
+        prescribedById: string;
     })[]>;
     create(req: any, createLabOrderDto: CreateLabOrderDto): Promise<{
-        result: string | null;
         id: string;
-        testName: string;
-        instructions: string | null;
-        status: string;
-        visitId: string;
-        prescribedById: string;
         createdAt: Date;
         updatedAt: Date;
+        result: string | null;
+        status: string;
+        visitId: string;
+        instructions: string | null;
+        testName: string;
+        prescribedById: string;
     }>;
     findByVisit(req: any, visitId: string): Promise<({
+        payments: {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            status: string;
+            reason: string | null;
+            visitId: string;
+            amountCharged: import("@prisma/client/runtime/library").Decimal;
+            amountPaid: import("@prisma/client/runtime/library").Decimal;
+            method: import(".prisma/client").$Enums.PaymentMethod;
+            serviceType: import(".prisma/client").$Enums.ServiceType;
+            labOrderId: string | null;
+            pharmacyOrderId: string | null;
+            isVoided: boolean;
+            voidReason: string | null;
+            voidedAt: Date | null;
+            voidedById: string | null;
+            insurancePolicyId: string | null;
+            verifiedById: string | null;
+        }[];
         prescribedBy: {
             firstName: string;
             lastName: string;
         };
     } & {
-        result: string | null;
         id: string;
-        testName: string;
-        instructions: string | null;
-        status: string;
-        visitId: string;
-        prescribedById: string;
         createdAt: Date;
         updatedAt: Date;
+        result: string | null;
+        status: string;
+        visitId: string;
+        instructions: string | null;
+        testName: string;
+        prescribedById: string;
     })[]>;
     update(req: any, id: string, updateLabOrderDto: UpdateLabOrderDto): Promise<{
-        result: string | null;
         id: string;
-        testName: string;
-        instructions: string | null;
-        status: string;
-        visitId: string;
-        prescribedById: string;
         createdAt: Date;
         updatedAt: Date;
+        result: string | null;
+        status: string;
+        visitId: string;
+        instructions: string | null;
+        testName: string;
+        prescribedById: string;
     }>;
     remove(req: any, id: string): Promise<{
-        result: string | null;
         id: string;
-        testName: string;
-        instructions: string | null;
-        status: string;
-        visitId: string;
-        prescribedById: string;
         createdAt: Date;
         updatedAt: Date;
+        result: string | null;
+        status: string;
+        visitId: string;
+        instructions: string | null;
+        testName: string;
+        prescribedById: string;
     }>;
 }

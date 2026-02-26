@@ -17,6 +17,7 @@ import {
     ShieldCheck,
     Layers
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import {
     Patient,
     InsurancePolicy,
@@ -163,6 +164,33 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
             }
         } catch (error) {
             console.error('Error voiding transaction:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleConfirmPayment = async (paymentId: string, amount: number) => {
+        setLoading(true);
+        try {
+            const res = await fetch(`http://localhost:3000/payments/${paymentId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    status: 'COMPLETED',
+                    amountPaid: amount,
+                    method: 'CASH' // Default to CASH for quick confirm
+                })
+            });
+            if (res.ok) {
+                onSuccess();
+                toast.success('Payment confirmed');
+            }
+        } catch (error) {
+            console.error('Error confirming payment:', error);
+            toast.error('Failed to confirm payment');
         } finally {
             setLoading(false);
         }
@@ -378,6 +406,40 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
                     </div>
                 </div>
 
+                {visit.payments?.some(p => p.status === 'PENDING' && !p.isVoided) && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                        <div className="flex items-center justify-between mb-3">
+                            <h3 className="text-sm font-bold text-amber-900 uppercase tracking-wider flex items-center gap-2">
+                                <AlertCircle className="h-4 w-4" />
+                                Pending Clinical Charges
+                            </h3>
+                            <Badge variant="warning" className="animate-pulse">Action Required</Badge>
+                        </div>
+                        <div className="space-y-2">
+                            {visit.payments?.filter(p => p.status === 'PENDING' && !p.isVoided).map(p => (
+                                <div key={p.id} className="flex justify-between items-center bg-white p-3 rounded-lg border border-amber-100 shadow-sm">
+                                    <div>
+                                        <p className="text-xs font-bold text-slate-900">{p.reason || p.serviceType}</p>
+                                        <p className="text-[10px] text-slate-500">{new Date(p.createdAt).toLocaleDateString()} • {p.serviceType}</p>
+                                    </div>
+                                    <div className="flex items-center gap-4">
+                                        <p className="text-sm font-bold text-slate-900">{Number(p.amountCharged).toFixed(2)} ETB</p>
+                                        <Button
+                                            size="sm"
+                                            className="bg-emerald-600 hover:bg-emerald-700 h-8 text-xs"
+                                            onClick={() => handleConfirmPayment(p.id, Number(p.amountCharged))}
+                                            disabled={loading}
+                                        >
+                                            <DollarSign className="h-3.5 w-3.5 mr-1" />
+                                            Confirm & Pay
+                                        </Button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 {visit.coverage && (
                     <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -450,9 +512,11 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
                                                 <td className="px-4 py-3">
                                                     <Badge variant="outline" size="sm" className={cn(
                                                         "bg-slate-100 text-slate-600 border-none font-bold text-[10px]",
-                                                        p.isVoided && "opacity-40 grayscale"
+                                                        p.isVoided && "opacity-40 grayscale",
+                                                        p.status === 'PENDING' && "bg-amber-100 text-amber-700"
                                                     )}>
                                                         {p.serviceType.split('_').join(' ')}
+                                                        {p.status === 'PENDING' && ' (PENDING)'}
                                                     </Badge>
                                                 </td>
                                                 <td className={cn("px-4 py-3 text-right font-medium", p.isVoided && "line-through text-slate-300 decoration-rose-400 decoration-2")}>{Number(p.amountCharged).toFixed(2)}</td>

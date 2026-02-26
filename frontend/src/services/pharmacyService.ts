@@ -22,6 +22,12 @@ export interface PharmacyOrder {
     prescribedBy: any;
     dispensedBy?: any;
     visit?: any;
+    payments?: {
+        id: string;
+        amountCharged: number;
+        amountPaid: number;
+        status: 'PENDING' | 'COMPLETED' | 'FAILED';
+    }[];
 }
 
 export const pharmacyService = {

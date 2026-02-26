@@ -4,6 +4,26 @@ export declare class LabOrdersService {
     private prisma;
     constructor(prisma: PrismaService);
     findAll(tenantId: string, status?: string): Promise<({
+        payments: {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            status: string;
+            reason: string | null;
+            visitId: string;
+            amountCharged: import("@prisma/client/runtime/library").Decimal;
+            amountPaid: import("@prisma/client/runtime/library").Decimal;
+            method: import(".prisma/client").$Enums.PaymentMethod;
+            serviceType: import(".prisma/client").$Enums.ServiceType;
+            labOrderId: string | null;
+            pharmacyOrderId: string | null;
+            isVoided: boolean;
+            voidReason: string | null;
+            voidedAt: Date | null;
+            voidedById: string | null;
+            insurancePolicyId: string | null;
+            verifiedById: string | null;
+        }[];
         visit: {
             patient: {
                 id: string;
@@ -50,6 +70,26 @@ export declare class LabOrdersService {
         prescribedById: string;
     }>;
     findByVisit(tenantId: string, visitId: string): Promise<({
+        payments: {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            status: string;
+            reason: string | null;
+            visitId: string;
+            amountCharged: import("@prisma/client/runtime/library").Decimal;
+            amountPaid: import("@prisma/client/runtime/library").Decimal;
+            method: import(".prisma/client").$Enums.PaymentMethod;
+            serviceType: import(".prisma/client").$Enums.ServiceType;
+            labOrderId: string | null;
+            pharmacyOrderId: string | null;
+            isVoided: boolean;
+            voidReason: string | null;
+            voidedAt: Date | null;
+            voidedById: string | null;
+            insurancePolicyId: string | null;
+            verifiedById: string | null;
+        }[];
         prescribedBy: {
             firstName: string;
             lastName: string;

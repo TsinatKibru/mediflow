@@ -30,6 +30,7 @@ export class LabOrdersService {
                         },
                     },
                 },
+                payments: true,
             },
             orderBy: { createdAt: 'desc' },
         });
@@ -45,13 +46,33 @@ export class LabOrdersService {
             throw new NotFoundException('Visit not found');
         }
 
-        return this.prisma.labOrder.create({
-            data: {
-                testName: dto.testName,
-                instructions: dto.instructions,
-                visitId: dto.visitId,
-                prescribedById: doctorId,
-            },
+        return this.prisma.$transaction(async (tx) => {
+            const order = await tx.labOrder.create({
+                data: {
+                    testName: dto.testName,
+                    instructions: dto.instructions,
+                    visitId: dto.visitId,
+                    prescribedById: doctorId,
+                },
+            });
+
+            // Create a PENDING payment record
+            // Since we don't have a lab test pricing catalog yet, we create it with 0 or a placeholder.
+            // In a production system, this would look up the price for the testName.
+            await tx.payments.create({
+                data: {
+                    visitId: order.visitId,
+                    amountCharged: 0, // To be updated by cashier or defined in catalog
+                    amountPaid: 0,
+                    method: 'CASH',
+                    serviceType: 'LABORATORY',
+                    status: 'PENDING',
+                    labOrderId: order.id,
+                    reason: `Laboratory Test: ${order.testName}`,
+                },
+            });
+
+            return order;
         });
     }
 
@@ -68,6 +89,7 @@ export class LabOrdersService {
                         lastName: true,
                     },
                 },
+                payments: true,
             },
             orderBy: { createdAt: 'desc' },
         });

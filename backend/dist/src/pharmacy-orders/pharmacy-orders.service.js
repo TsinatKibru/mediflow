@@ -24,15 +24,31 @@ let PharmacyOrdersService = class PharmacyOrdersService {
         if (!medication) {
             throw new common_1.NotFoundException('Medication not found');
         }
-        return this.prisma.pharmacyOrder.create({
-            data: {
-                ...dto,
-                prescribedById,
-                status: 'PENDING',
-            },
-            include: {
-                medication: true,
-            },
+        return this.prisma.$transaction(async (tx) => {
+            const order = await tx.pharmacyOrder.create({
+                data: {
+                    ...dto,
+                    prescribedById,
+                    status: 'PENDING',
+                },
+                include: {
+                    medication: true,
+                },
+            });
+            const amountCharged = Number(order.medication.unitPrice) * order.quantity;
+            await tx.payments.create({
+                data: {
+                    visitId: order.visitId,
+                    amountCharged,
+                    amountPaid: 0,
+                    method: 'CASH',
+                    serviceType: 'PHARMACY',
+                    status: 'PENDING',
+                    pharmacyOrderId: order.id,
+                    reason: `Prescription: ${order.medication.name} (${order.quantity} units)`,
+                },
+            });
+            return order;
         });
     }
     async findAll(tenantId, status) {
@@ -51,6 +67,7 @@ let PharmacyOrdersService = class PharmacyOrdersService {
                 },
                 prescribedBy: true,
                 dispensedBy: true,
+                payments: true,
             },
             orderBy: { createdAt: 'desc' },
         });
@@ -63,6 +80,7 @@ let PharmacyOrdersService = class PharmacyOrdersService {
             },
             include: {
                 medication: true,
+                payments: true,
             },
         });
     }

@@ -21,6 +21,12 @@ export interface LabOrder {
     };
     createdAt: string;
     updatedAt: string;
+    payments?: {
+        id: string;
+        amountCharged: number;
+        amountPaid: number;
+        status: 'PENDING' | 'COMPLETED' | 'FAILED';
+    }[];
 }
 
 export const laboratoryService = {

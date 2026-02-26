@@ -16,15 +16,34 @@ export class PharmacyOrdersService {
             throw new NotFoundException('Medication not found');
         }
 
-        return this.prisma.pharmacyOrder.create({
-            data: {
-                ...dto,
-                prescribedById,
-                status: 'PENDING',
-            },
-            include: {
-                medication: true,
-            },
+        return this.prisma.$transaction(async (tx) => {
+            const order = await tx.pharmacyOrder.create({
+                data: {
+                    ...dto,
+                    prescribedById,
+                    status: 'PENDING',
+                },
+                include: {
+                    medication: true,
+                },
+            });
+
+            // Create a PENDING payment record
+            const amountCharged = Number(order.medication.unitPrice) * order.quantity;
+            await tx.payments.create({
+                data: {
+                    visitId: order.visitId,
+                    amountCharged,
+                    amountPaid: 0,
+                    method: 'CASH', // Default, can be changed during payment
+                    serviceType: 'PHARMACY',
+                    status: 'PENDING',
+                    pharmacyOrderId: order.id,
+                    reason: `Prescription: ${order.medication.name} (${order.quantity} units)`,
+                },
+            });
+
+            return order;
         });
     }
 
@@ -44,6 +63,7 @@ export class PharmacyOrdersService {
                 },
                 prescribedBy: true,
                 dispensedBy: true,
+                payments: true,
             },
             orderBy: { createdAt: 'desc' },
         });
@@ -57,6 +77,7 @@ export class PharmacyOrdersService {
             },
             include: {
                 medication: true,
+                payments: true,
             },
         });
     }
