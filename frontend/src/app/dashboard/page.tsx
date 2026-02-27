@@ -35,7 +35,7 @@ interface TodayAppointment {
     startTime: string;
     status: string;
     patient: { firstName: string; lastName: string };
-    doctor: { firstName: string; lastName: string };
+    doctor?: { firstName: string; lastName: string };
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
@@ -291,7 +291,9 @@ export default function DashboardPage() {
                                                 </div>
                                                 <div>
                                                     <p className="text-sm font-semibold text-slate-800">{appt.patient.firstName} {appt.patient.lastName}</p>
-                                                    <p className="text-xs text-slate-400">Dr. {appt.doctor.firstName} {appt.doctor.lastName}</p>
+                                                    <p className="text-xs text-slate-400">
+                                                        {appt.doctor ? `Dr. ${appt.doctor.firstName} ${appt.doctor.lastName}` : 'No doctor assigned'}
+                                                    </p>
                                                 </div>
                                             </div>
                                             <div className="text-right">

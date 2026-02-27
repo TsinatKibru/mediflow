@@ -16,6 +16,7 @@ import { LabOrdersModule } from './lab-orders/lab-orders.module';
 import { MedicationsModule } from './medications/medications.module';
 import { PharmacyOrdersModule } from './pharmacy-orders/pharmacy-orders.module';
 import { ServiceCatalogModule } from './service-catalog/service-catalog.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -33,7 +34,8 @@ import { ServiceCatalogModule } from './service-catalog/service-catalog.module';
     LabOrdersModule,
     MedicationsModule,
     PharmacyOrdersModule,
-    ServiceCatalogModule
+    ServiceCatalogModule,
+    UsersModule
   ],
   controllers: [AppController],
   providers: [AppService],

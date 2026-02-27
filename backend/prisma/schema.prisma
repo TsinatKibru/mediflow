@@ -1,10 +1,315 @@
 generator client {
-  provider        = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id                String               @id @default(uuid())
+  name              String
+  subdomain         String               @unique
+  logoUrl           String?
+  primaryColor      String?              @default("#3b82f6")
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  currency          String               @default("ETB")
+  currencySymbol    String               @default("ETB")
+  appointments      Appointment[]
+  departments       Department[]
+  doctorSchedules   DoctorAvailability[]
+  insurancePolicies InsurancePolicy[]
+  medications       Medication[]
+  patients          Patient[]
+  serviceCatalog    ServiceCatalog[]
+  users             User[]
+  visits            Visit[]
+}
+
+model User {
+  id                 String               @id @default(uuid())
+  email              String
+  password           String
+  firstName          String
+  lastName           String
+  role               Role
+  isActive           Boolean              @default(true)
+  tenantId           String
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  departmentId       String?
+  doctorAppointments Appointment[]        @relation("DoctorAppointments")
+  verifiedCoverages  CoverageRecord[]     @relation("CashierCoverages")
+  doctorSchedules    DoctorAvailability[] @relation("DoctorSchedules")
+  labOrders          LabOrder[]           @relation("PhysicianLabOrders")
+  verifiedPayments   Payments[]           @relation("CashierPayments")
+  voidedPayments     Payments[]           @relation("VoidedByPayments")
+  dispensedOrders    PharmacyOrder[]      @relation("PharmacistDispensed")
+  pharmacyOrders     PharmacyOrder[]      @relation("PhysicianPharmacyOrders")
+  department         Department?          @relation(fields: [departmentId], references: [id])
+  tenant             Tenant               @relation(fields: [tenantId], references: [id])
+  assignedVisits     Visit[]              @relation("DoctorVisits")
+  nursedVisits       Visit[]              @relation("NurseVisits")
+
+  @@unique([email, tenantId])
+}
+
+model Department {
+  id       String  @id @default(uuid())
+  name     String
+  tenantId String
+  tenant   Tenant  @relation(fields: [tenantId], references: [id])
+  users    User[]
+  visits   Visit[]
+}
+
+model Patient {
+  id                String            @id @default(uuid())
+  firstName         String
+  lastName          String
+  dateOfBirth       DateTime
+  gender            String
+  phone             String?
+  email             String?
+  tenantId          String
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  appointments      Appointment[]
+  insurancePolicies InsurancePolicy[]
+  tenant            Tenant            @relation(fields: [tenantId], references: [id])
+  visits            Visit[]
+}
+
+model InsurancePolicy {
+  id              String           @id @default(uuid())
+  type            CoverageType
+  policyNumber    String
+  issuedToName    String?
+  issueYear       Int?
+  expiryYear      Int?
+  providerName    String?
+  notes           String?
+  isActive        Boolean          @default(true)
+  patientId       String
+  tenantId        String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  coverageRecords CoverageRecord[]
+  patient         Patient          @relation(fields: [patientId], references: [id])
+  tenant          Tenant           @relation(fields: [tenantId], references: [id])
+  payments        Payments[]
+
+  @@unique([policyNumber, tenantId])
+}
+
+model Visit {
+  id             String          @id @default(uuid())
+  status         VisitStatus     @default(REGISTERED)
+  priority       Priority        @default(NORMAL)
+  reason         String?
+  patientId      String
+  tenantId       String
+  departmentId   String
+  doctorId       String?
+  nurseId        String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  appointment    Appointment?
+  consultation   Consultation?
+  coverage       CoverageRecord?
+  labOrders      LabOrder[]
+  payments       Payments[]
+  pharmacyOrders PharmacyOrder[]
+  department     Department      @relation(fields: [departmentId], references: [id])
+  doctor         User?           @relation("DoctorVisits", fields: [doctorId], references: [id])
+  nurse          User?           @relation("NurseVisits", fields: [nurseId], references: [id])
+  patient        Patient         @relation(fields: [patientId], references: [id])
+  tenant         Tenant          @relation(fields: [tenantId], references: [id])
+  vitals         Vitals?
+}
+
+model Vitals {
+  id          String   @id @default(uuid())
+  height      Float?
+  weight      Float?
+  bpSystolic  Int?
+  bpDiastolic Int?
+  temperature Float?
+  pulse       Int?
+  notes       String?
+  visitId     String   @unique
+  createdAt   DateTime @default(now())
+  visit       Visit    @relation(fields: [visitId], references: [id])
+}
+
+model Consultation {
+  id           String       @id @default(uuid())
+  notes        String
+  prescription String?
+  visitId      String       @unique
+  createdAt    DateTime     @default(now())
+  attachments  Attachment[]
+  visit        Visit        @relation(fields: [visitId], references: [id])
+}
+
+model LabOrder {
+  id             String     @id @default(uuid())
+  testName       String
+  instructions   String?
+  status         String     @default("ORDERED")
+  result         String?
+  visitId        String
+  prescribedById String
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  prescribedBy   User       @relation("PhysicianLabOrders", fields: [prescribedById], references: [id])
+  visit          Visit      @relation(fields: [visitId], references: [id])
+  payments       Payments[]
+}
+
+model Attachment {
+  id             String       @id @default(uuid())
+  fileUrl        String
+  fileName       String
+  fileType       String
+  consultationId String
+  createdAt      DateTime     @default(now())
+  consultation   Consultation @relation(fields: [consultationId], references: [id])
+}
+
+model CoverageRecord {
+  id                String           @id @default(uuid())
+  type              CoverageType     @default(SELF)
+  referenceNumber   String?
+  issuedToName      String?
+  issueYear         Int?
+  expiryYear        Int?
+  notes             String?
+  visitId           String           @unique
+  insurancePolicyId String?
+  verifiedById      String?
+  verifiedAt        DateTime         @default(now())
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  claimStatus       ClaimStatus      @default(SUBMITTED)
+  insurancePolicy   InsurancePolicy? @relation(fields: [insurancePolicyId], references: [id])
+  verifiedBy        User?            @relation("CashierCoverages", fields: [verifiedById], references: [id])
+  visit             Visit            @relation(fields: [visitId], references: [id])
+}
+
+model Payments {
+  id                String           @id @default(uuid())
+  amountCharged     Decimal          @db.Decimal(10, 2)
+  amountPaid        Decimal          @db.Decimal(10, 2)
+  method            PaymentMethod    @default(CASH)
+  serviceType       ServiceType      @default(CONSULTATION)
+  status            String           @default("COMPLETED")
+  reason            String?
+  visitId           String
+  insurancePolicyId String?
+  verifiedById      String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  isVoided          Boolean          @default(false)
+  voidReason        String?
+  voidedAt          DateTime?
+  voidedById        String?
+  labOrderId        String?
+  pharmacyOrderId   String?
+  insurancePolicy   InsurancePolicy? @relation(fields: [insurancePolicyId], references: [id])
+  labOrder          LabOrder?        @relation(fields: [labOrderId], references: [id])
+  pharmacyOrder     PharmacyOrder?   @relation(fields: [pharmacyOrderId], references: [id])
+  verifiedBy        User?            @relation("CashierPayments", fields: [verifiedById], references: [id])
+  visit             Visit            @relation(fields: [visitId], references: [id])
+  voidedBy          User?            @relation("VoidedByPayments", fields: [voidedById], references: [id])
+}
+
+model Appointment {
+  id        String            @id @default(uuid())
+  status    AppointmentStatus @default(SCHEDULED)
+  startTime DateTime
+  endTime   DateTime
+  reason    String?
+  notes     String?
+  patientId String
+  doctorId  String?
+  tenantId  String
+  visitId   String?           @unique
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  doctor    User?             @relation("DoctorAppointments", fields: [doctorId], references: [id])
+  patient   Patient           @relation(fields: [patientId], references: [id])
+  tenant    Tenant            @relation(fields: [tenantId], references: [id])
+  visit     Visit?            @relation(fields: [visitId], references: [id])
+}
+
+model DoctorAvailability {
+  id        String   @id @default(uuid())
+  dayOfWeek Int
+  startTime String
+  endTime   String
+  isActive  Boolean  @default(true)
+  doctorId  String
+  tenantId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  doctor    User     @relation("DoctorSchedules", fields: [doctorId], references: [id])
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@unique([doctorId, dayOfWeek, tenantId])
+}
+
+model Medication {
+  id           String          @id @default(uuid())
+  name         String
+  genericName  String?
+  dosageForm   String
+  strength     String
+  stockBalance Float           @default(0)
+  unitPrice    Decimal         @db.Decimal(10, 2)
+  tenantId     String
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  tenant       Tenant          @relation(fields: [tenantId], references: [id])
+  orders       PharmacyOrder[]
+
+  @@unique([name, strength, tenantId])
+}
+
+model PharmacyOrder {
+  id             String     @id @default(uuid())
+  medicationId   String
+  quantity       Float
+  instructions   String?
+  status         String     @default("PENDING")
+  visitId        String
+  prescribedById String
+  dispensedById  String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  payments       Payments[]
+  dispensedBy    User?      @relation("PharmacistDispensed", fields: [dispensedById], references: [id])
+  medication     Medication @relation(fields: [medicationId], references: [id])
+  prescribedBy   User       @relation("PhysicianPharmacyOrders", fields: [prescribedById], references: [id])
+  visit          Visit      @relation(fields: [visitId], references: [id])
+}
+
+model ServiceCatalog {
+  id          String      @id @default(uuid())
+  category    ServiceType @default(OTHER)
+  name        String
+  code        String?
+  description String?
+  price       Decimal     @db.Decimal(10, 2)
+  isActive    Boolean     @default(true)
+  tenantId    String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  tenant      Tenant      @relation(fields: [tenantId], references: [id])
+
+  @@unique([name, category, tenantId])
 }
 
 enum Role {
@@ -65,375 +370,10 @@ enum ClaimStatus {
   REIMBURSED
 }
 
-model Tenant {
-  id           String   @id @default(uuid())
-  name         String
-  subdomain    String   @unique
-  logoUrl      String?
-  primaryColor String?  @default("#3b82f6")
-  currency     String   @default("ETB")
-  currencySymbol String @default("ETB")
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  users             User[]
-  patients          Patient[]
-  departments       Department[]
-  visits            Visit[]
-  insurancePolicies InsurancePolicy[]
-  appointments      Appointment[]
-  doctorSchedules   DoctorAvailability[]
-  medications       Medication[]
-  serviceCatalog    ServiceCatalog[]
-}
-
-model User {
-  id        String   @id @default(uuid())
-  email     String
-  password  String
-  firstName String
-  lastName  String
-  role      Role
-  isActive  Boolean  @default(true)
-  tenant    Tenant   @relation(fields: [tenantId], references: [id])
-  tenantId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  assignedVisits     Visit[]       @relation("DoctorVisits")
-  nursedVisits       Visit[]       @relation("NurseVisits")
-  doctorAppointments Appointment[] @relation("DoctorAppointments")
-  doctorSchedules    DoctorAvailability[] @relation("DoctorSchedules")
-
-  verifiedPayments  Payments[]       @relation("CashierPayments")
-  verifiedCoverages CoverageRecord[] @relation("CashierCoverages")
-  voidedPayments    Payments[]       @relation("VoidedByPayments")
-
-  // Link to specific department for queue filtering (e.g. Triage nurse, OR doctor)
-  department   Department? @relation(fields: [departmentId], references: [id])
-  departmentId String?
-
-  labOrders LabOrder[] @relation("PhysicianLabOrders")
-  pharmacyOrders PharmacyOrder[] @relation("PhysicianPharmacyOrders")
-  dispensedOrders PharmacyOrder[] @relation("PharmacistDispensed")
-
-  @@unique([email, tenantId])
-}
-
-model Department {
-  id       String  @id @default(uuid())
-  name     String
-  tenant   Tenant  @relation(fields: [tenantId], references: [id])
-  tenantId String
-  visits   Visit[]
-  users    User[]
-}
-
-model Patient {
-  id          String   @id @default(uuid())
-  firstName   String
-  lastName    String
-  dateOfBirth DateTime
-  gender      String
-  phone       String?
-  email       String?
-  tenant      Tenant   @relation(fields: [tenantId], references: [id])
-  tenantId    String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  visits            Visit[]
-  insurancePolicies InsurancePolicy[]
-  appointments      Appointment[]
-}
-
-model InsurancePolicy {
-  id           String       @id @default(uuid())
-  type         CoverageType
-  policyNumber String // Book No or Policy ID
-  issuedToName String?
-  issueYear    Int?
-  expiryYear   Int?
-  providerName String? // Name of insurance or NGO
-  notes        String?      @db.Text
-  isActive     Boolean      @default(true)
-
-  patient   Patient @relation(fields: [patientId], references: [id])
-  patientId String
-  tenant    Tenant  @relation(fields: [tenantId], references: [id])
-  tenantId  String
-
-  coverageRecords CoverageRecord[]
-  payments        Payments[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([policyNumber, tenantId])
-}
-
-model Visit {
-  id       String      @id @default(uuid())
-  status   VisitStatus @default(REGISTERED)
-  priority Priority    @default(NORMAL)
-  reason   String?
-
-  // Relations
-  patient      Patient    @relation(fields: [patientId], references: [id])
-  patientId    String
-  tenant       Tenant     @relation(fields: [tenantId], references: [id])
-  tenantId     String
-  department   Department @relation(fields: [departmentId], references: [id])
-  departmentId String
-
-  // Staff
-  doctor   User?   @relation("DoctorVisits", fields: [doctorId], references: [id])
-  doctorId String?
-  nurse    User?   @relation("NurseVisits", fields: [nurseId], references: [id])
-  nurseId  String?
-
-  // Clinical data (lightweight)
-  vitals       Vitals?
-  consultation Consultation?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  payments    Payments[]
-  coverage    CoverageRecord?
-  appointment Appointment?
-  labOrders   LabOrder[]
-  pharmacyOrders PharmacyOrder[]
-}
-
-model Vitals {
-  id          String   @id @default(uuid())
-  height      Float?
-  weight      Float?
-  bpSystolic  Int?
-  bpDiastolic Int?
-  temperature Float?
-  pulse       Int?
-  notes       String?
-  visit       Visit    @relation(fields: [visitId], references: [id])
-  visitId     String   @unique
-  createdAt   DateTime @default(now())
-}
-
-model Consultation {
-  id           String   @id @default(uuid())
-  notes        String   @db.Text
-  prescription String?  @db.Text
-  visit        Visit    @relation(fields: [visitId], references: [id])
-  visitId      String   @unique
-  createdAt    DateTime @default(now())
-
-  attachments Attachment[]
-}
-
-model LabOrder {
-  id          String   @id @default(uuid())
-  testName    String
-  instructions String?  @db.Text
-  status      String   @default("ORDERED") // ORDERED, COLLECTED, COMPLETED, CANCELLED
-  result      String?  @db.Text
-  
-  visit       Visit    @relation(fields: [visitId], references: [id])
-  visitId     String
-  
-  prescribedBy   User   @relation("PhysicianLabOrders", fields: [prescribedById], references: [id])
-  prescribedById String
-
-  payments Payments[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Attachment {
-  id             String       @id @default(uuid())
-  fileUrl        String
-  fileName       String
-  fileType       String
-  consultation   Consultation @relation(fields: [consultationId], references: [id])
-  consultationId String
-  createdAt      DateTime     @default(now())
-}
-
-model CoverageRecord {
-  id              String       @id @default(uuid())
-  type            CoverageType @default(SELF)
-  referenceNumber String? // Legacy or snapshot Book number
-  issuedToName    String?
-  issueYear       Int?
-  expiryYear      Int?
-
-  notes String? @db.Text
-
-  claimStatus ClaimStatus @default(SUBMITTED)
-
-  // Relationship
-  visit   Visit  @relation(fields: [visitId], references: [id])
-  visitId String @unique
-
-  // Link to persistent policy
-  insurancePolicy   InsurancePolicy? @relation(fields: [insurancePolicyId], references: [id])
-  insurancePolicyId String?
-
-  // Verification
-  verifiedBy   User?    @relation("CashierCoverages", fields: [verifiedById], references: [id])
-  verifiedById String?
-  verifiedAt   DateTime @default(now())
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Payments {
-  id            String        @id @default(uuid())
-  amountCharged Decimal       @db.Decimal(10, 2)
-  amountPaid    Decimal       @db.Decimal(10, 2)
-  method        PaymentMethod @default(CASH)
-  serviceType   ServiceType   @default(CONSULTATION)
-  status        String        @default("COMPLETED") // PENDING, COMPLETED, FAILED
-  reason        String? // e.g. "Covered by Gov Book"
-
-  // New optional links for clinical order integration
-  labOrderId      String?
-  labOrder       LabOrder? @relation(fields: [labOrderId], references: [id])
-  pharmacyOrderId String?
-  pharmacyOrder  PharmacyOrder? @relation(fields: [pharmacyOrderId], references: [id])
-
-  // Audit/Voiding
-  isVoided     Boolean   @default(false)
-  voidReason   String?
-  voidedAt     DateTime?
-  voidedById   String?
-  voidedBy     User?     @relation("VoidedByPayments", fields: [voidedById], references: [id])
-
-  // Relationship
-  visit   Visit  @relation(fields: [visitId], references: [id])
-  visitId String
-
-  // Link to policy for reporting
-  insurancePolicy   InsurancePolicy? @relation(fields: [insurancePolicyId], references: [id])
-  insurancePolicyId String?
-
-  // Verification (Cashier)
-  verifiedBy   User?   @relation("CashierPayments", fields: [verifiedById], references: [id])
-  verifiedById String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
 enum AppointmentStatus {
   SCHEDULED
   CONFIRMED
   CANCELLED
   COMPLETED
   NO_SHOW
-}
-
-model Appointment {
-  id        String            @id @default(uuid())
-  status    AppointmentStatus @default(SCHEDULED)
-  startTime DateTime
-  endTime   DateTime
-  reason    String?           @db.Text
-  notes     String?           @db.Text
-
-  patient   Patient @relation(fields: [patientId], references: [id])
-  patientId String
-  doctor    User?   @relation("DoctorAppointments", fields: [doctorId], references: [id])
-  doctorId  String?
-  tenant    Tenant  @relation(fields: [tenantId], references: [id])
-  tenantId  String
-
-  // Optional: Link to a resulting visit
-  visit   Visit?  @relation(fields: [visitId], references: [id])
-  visitId String? @unique
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model DoctorAvailability {
-  id        String   @id @default(uuid())
-  dayOfWeek Int      // 0-6 (Sunday to Saturday)
-  startTime String   // HH:mm format
-  endTime   String   // HH:mm format
-  isActive  Boolean  @default(true)
-
-  doctor    User     @relation("DoctorSchedules", fields: [doctorId], references: [id])
-  doctorId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id])
-  tenantId  String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([doctorId, dayOfWeek, tenantId])
-}
-
-model Medication {
-  id           String   @id @default(uuid())
-  name         String
-  genericName  String?
-  dosageForm   String   // Tablet, Syrup, Injection, etc.
-  strength     String   // 500mg, 5ml, etc.
-  stockBalance Float    @default(0)
-  unitPrice    Decimal  @db.Decimal(10, 2)
-  
-  tenant       Tenant   @relation(fields: [tenantId], references: [id])
-  tenantId     String
-
-  orders       PharmacyOrder[]
-
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  @@unique([name, strength, tenantId])
-}
-
-model PharmacyOrder {
-  id             String   @id @default(uuid())
-  medicationId   String
-  medication     Medication @relation(fields: [medicationId], references: [id])
-  
-  quantity       Float
-  instructions   String?  @db.Text
-  status         String   @default("PENDING") // PENDING, DISPENSED, CANCELLED
-  
-  visit          Visit    @relation(fields: [visitId], references: [id])
-  visitId        String
-  
-  prescribedBy   User     @relation("PhysicianPharmacyOrders", fields: [prescribedById], references: [id])
-  prescribedById String
-  
-  dispensedBy    User?    @relation("PharmacistDispensed", fields: [dispensedById], references: [id])
-  dispensedById  String?
-
-  payments      Payments[]
-
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-}
-
-model ServiceCatalog {
-  id          String      @id @default(uuid())
-  category    ServiceType @default(OTHER)
-  name        String      // e.g. "Full Blood Count", "Specialist Consultation"
-  code        String?     // Optional: Billing code or SKU
-  description String?     @db.Text
-  price       Decimal     @db.Decimal(10, 2)
-  isActive    Boolean     @default(true)
-  
-  tenant      Tenant      @relation(fields: [tenantId], references: [id])
-  tenantId    String
-
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-
-  @@unique([name, category, tenantId])
 }

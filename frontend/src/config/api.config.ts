@@ -48,5 +48,9 @@ export const API_ENDPOINTS = {
         ORDERS: `${API_BASE_URL}/pharmacy-orders`,
         ORDER_STATUS: (id: string) => `${API_BASE_URL}/pharmacy-orders/${id}/status`,
         BY_VISIT: (visitId: string) => `${API_BASE_URL}/pharmacy-orders/visit/${visitId}`,
+    },
+    USERS: {
+        BASE: `${API_BASE_URL}/users`,
+        BY_ID: (id: string) => `${API_BASE_URL}/users/${id}`,
     }
 };

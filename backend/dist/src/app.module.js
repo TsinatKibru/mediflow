@@ -25,6 +25,7 @@ const lab_orders_module_1 = require("./lab-orders/lab-orders.module");
 const medications_module_1 = require("./medications/medications.module");
 const pharmacy_orders_module_1 = require("./pharmacy-orders/pharmacy-orders.module");
 const service_catalog_module_1 = require("./service-catalog/service-catalog.module");
+const users_module_1 = require("./users/users.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -45,7 +46,8 @@ exports.AppModule = AppModule = __decorate([
             lab_orders_module_1.LabOrdersModule,
             medications_module_1.MedicationsModule,
             pharmacy_orders_module_1.PharmacyOrdersModule,
-            service_catalog_module_1.ServiceCatalogModule
+            service_catalog_module_1.ServiceCatalogModule,
+            users_module_1.UsersModule
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

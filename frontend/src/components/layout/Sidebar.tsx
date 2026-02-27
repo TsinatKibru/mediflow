@@ -28,6 +28,7 @@ const navigation = [
     { name: 'Laboratory', href: '/dashboard/laboratory', icon: Beaker, roles: ['SUPER_ADMIN', 'HOSPITAL_ADMIN', 'LAB_TECHNICIAN'] },
     { name: 'Inventory', href: '/dashboard/medications', icon: Package, roles: ['SUPER_ADMIN', 'HOSPITAL_ADMIN', 'PHARMACIST'] },
     { name: 'Billing', href: '/dashboard/billing', icon: CreditCard, roles: ['SUPER_ADMIN', 'HOSPITAL_ADMIN', 'ACCOUNTANT'] },
+    { name: 'Staff', href: '/dashboard/staff', icon: Users, roles: ['SUPER_ADMIN', 'HOSPITAL_ADMIN'] },
     { name: 'Settings', href: '/dashboard/settings', icon: Settings, roles: ['SUPER_ADMIN', 'HOSPITAL_ADMIN'] },
 ];
 
