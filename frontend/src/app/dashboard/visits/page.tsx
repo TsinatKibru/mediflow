@@ -43,7 +43,7 @@ interface Visit {
 }
 
 export default function VisitsPage() {
-    const { token, tenant } = useAuthStore();
+    const { token, tenant, user } = useAuthStore();
     const [visits, setVisits] = useState<Visit[]>([]);
     const [total, setTotal] = useState(0);
     const [skip, setSkip] = useState(0);
@@ -87,9 +87,17 @@ export default function VisitsPage() {
     };
 
     useEffect(() => {
+        if (token && allDepartments.length > 0) {
+            // Default filter for DOCTOR/NURSE to their own department
+            if ((user?.role === 'DOCTOR' || user?.role === 'NURSE') && user?.departmentId && departmentFilter === 'all') {
+                setDepartmentFilter(user.departmentId);
+            }
+        }
+    }, [token, allDepartments, user]);
+
+    useEffect(() => {
         if (token) {
             fetchVisits();
-            fetchAllDepartments();
         }
     }, [token, skip, take, statusFilter, departmentFilter]);
 

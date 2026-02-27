@@ -11,7 +11,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { AppointmentModal } from './AppointmentModal';
-import { Plus } from 'lucide-react';
+import { Plus, Calendar as CalendarIcon, Check } from 'lucide-react';
 import { API_ENDPOINTS } from '@/config/api.config';
 import { Button } from '@/components/ui/Button';
 import toast from 'react-hot-toast';
@@ -31,7 +31,7 @@ const localizer = dateFnsLocalizer({
 
 export default function AppointmentsPage() {
     const { token } = useAuthStore();
-    const [events, setEvents] = useState([]);
+    const [events, setEvents] = useState<any[]>([]);
     const [doctors, setDoctors] = useState<any[]>([]);
     const [selectedDoctorId, setSelectedDoctorId] = useState('all');
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -201,29 +201,79 @@ export default function AppointmentsPage() {
                     </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex-1 min-h-[600px]">
-                    <Calendar
-                        localizer={localizer}
-                        events={filteredEvents}
-                        startAccessor="start"
-                        endAccessor="end"
-                        style={{ height: '100%' }}
-                        onSelectSlot={handleSelectSlot}
-                        onSelectEvent={handleSelectEvent}
-                        selectable
-                        views={['month', 'week', 'day']}
-                        view={currentView}
-                        date={currentDate}
-                        onView={(view) => setCurrentView(view)}
-                        onNavigate={(date) => setCurrentDate(date)}
-                        resources={calendarResources}
-                        resourceIdAccessor="id"
-                        resourceTitleAccessor="title"
-                        slotPropGetter={slotPropGetter}
-                        defaultView="week"
-                        min={new Date(0, 0, 0, 7, 0, 0)}
-                        max={new Date(0, 0, 0, 20, 0, 0)}
-                    />
+                <div className="flex flex-col lg:flex-row gap-6 flex-1 min-h-0">
+                    {/* Calendar Section */}
+                    <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex-[3] flex flex-col">
+                        <Calendar
+                            localizer={localizer}
+                            events={filteredEvents}
+                            startAccessor="start"
+                            endAccessor="end"
+                            style={{ height: '600px' }}
+                            onSelectSlot={handleSelectSlot}
+                            onSelectEvent={handleSelectEvent}
+                            selectable
+                            views={['month', 'week', 'day']}
+                            view={currentView}
+                            date={currentDate}
+                            onView={(view) => setCurrentView(view)}
+                            onNavigate={(date) => setCurrentDate(date)}
+                            resources={calendarResources}
+                            resourceIdAccessor="id"
+                            resourceTitleAccessor="title"
+                            slotPropGetter={slotPropGetter}
+                            defaultView="week"
+                            min={new Date(0, 0, 0, 7, 0, 0)}
+                            max={new Date(0, 0, 0, 20, 0, 0)}
+                        />
+                    </div>
+
+                    {/* Today's Agenda Sidebar */}
+                    <div className="flex-1 flex flex-col gap-4">
+                        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex-1 flex flex-col">
+                            <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-4">
+                                <CalendarIcon className="h-4 w-4 text-indigo-500" />
+                                Today's Agenda
+                            </h2>
+                            <div className="space-y-3 overflow-y-auto pr-1 flex-1">
+                                {events.filter(e => format(e.start, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd'))
+                                    .length === 0 ? (
+                                    <div className="py-12 text-center">
+                                        <p className="text-xs text-slate-400 italic">No appointments for today</p>
+                                    </div>
+                                ) : (
+                                    events
+                                        .filter(e => format(e.start, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd'))
+                                        .sort((a, b) => a.start.getTime() - b.start.getTime())
+                                        .map((event: any, i) => (
+                                            <div key={i} className="group p-3 rounded-lg border border-slate-100 hover:border-indigo-100 hover:bg-indigo-50/30 transition-all">
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded uppercase">
+                                                        {format(event.start, 'HH:mm')}
+                                                    </span>
+                                                    {event.resource.status === 'COMPLETED' ? (
+                                                        <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-1">
+                                                            <Check className="h-3 w-3" /> Checked-in
+                                                        </span>
+                                                    ) : (
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className="h-6 px-2 text-[10px] hover:bg-emerald-50 hover:text-emerald-700"
+                                                            onClick={() => handleSelectEvent(event)}
+                                                        >
+                                                            Check-in Patient
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                                <p className="text-sm font-bold text-slate-900 mb-1">{event.resource.patient.firstName} {event.resource.patient.lastName}</p>
+                                                <p className="text-[10px] text-slate-500 line-clamp-1">{event.resource.reason}</p>
+                                            </div>
+                                        ))
+                                )}
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <AppointmentModal
