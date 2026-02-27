@@ -10,6 +10,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Label } from '@/components/ui/Label';
 import { Beaker, User, History, Search, RefreshCw, FlaskConical, Send, DollarSign, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { API_ENDPOINTS } from '@/config/api.config';
+import { CardSkeleton } from '@/components/ui/Skeleton';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import { Input } from '@/components/ui/Input';
@@ -24,22 +25,9 @@ export default function LaboratoryPage() {
     const [editingResults, setEditingResults] = useState<{ [key: string]: string }>({});
 
     const fetchOrders = async () => {
-        if (!token) return;
         setLoading(true);
         try {
-            let url = API_ENDPOINTS.LAB.BASE;
-            if (statusFilter !== 'all') {
-                url += `?status=${statusFilter}`;
-            }
-            const res = await fetch(url, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-            });
-            if (!res.ok) {
-                throw new Error(`HTTP error! status: ${res.status}`);
-            }
-            const data = await res.json();
+            const data = await laboratoryService.getOrders(statusFilter);
             setOrders(data);
         } catch (error) {
             console.error('Error fetching lab orders:', error);
@@ -54,9 +42,8 @@ export default function LaboratoryPage() {
     }, [token, statusFilter]);
 
     const handleUpdateStatus = async (orderId: string, status: string) => {
-        if (!token) return;
         try {
-            await laboratoryService.updateOrder(token, orderId, { status });
+            await laboratoryService.updateOrder(orderId, { status });
             toast.success(`Status updated to ${status}`);
             fetchOrders();
         } catch (error: any) {
@@ -65,9 +52,9 @@ export default function LaboratoryPage() {
     };
 
     const handleSubmitResult = async (orderId: string) => {
-        if (!token || !editingResults[orderId]?.trim()) return;
+        if (!editingResults[orderId]?.trim()) return;
         try {
-            await laboratoryService.updateOrder(token, orderId, {
+            await laboratoryService.updateOrder(orderId, {
                 status: 'COMPLETED',
                 result: editingResults[orderId]
             });
@@ -136,9 +123,12 @@ export default function LaboratoryPage() {
 
                 {loading ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {[1, 2, 3].map(i => (
-                            <div key={i} className="h-72 bg-slate-100 rounded-2xl animate-pulse" />
-                        ))}
+                        <CardSkeleton />
+                        <CardSkeleton />
+                        <CardSkeleton />
+                        <CardSkeleton />
+                        <CardSkeleton />
+                        <CardSkeleton />
                     </div>
                 ) : filteredOrders.length === 0 ? (
                     <div className="bg-white rounded-2xl border border-slate-100 p-12 text-center">

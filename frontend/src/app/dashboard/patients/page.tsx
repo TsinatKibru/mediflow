@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useAuthStore } from '@/store/authStore';
-import { API_ENDPOINTS } from '@/config/api.config';
+import { patientService } from '@/services/patientService';
+import { Skeleton } from '@/components/ui/Skeleton';
 import toast from 'react-hot-toast';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -50,23 +51,12 @@ export default function PatientsPage() {
     const fetchPatients = async () => {
         setLoading(true);
         try {
-            const params = new URLSearchParams({
-                skip: skip.toString(),
-                take: take.toString(),
-            });
-            if (searchQuery) params.append('search', searchQuery);
-
-            const response = await fetch(`${API_ENDPOINTS.PATIENTS.BASE}?${params.toString()}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            if (!response.ok) throw new Error('Failed to fetch patients');
-            const result = await response.json();
+            const result = await patientService.getPatients(searchQuery, skip / take + 1, take);
             setPatients(result.data);
             setTotal(result.total);
         } catch (error) {
             console.error('Error fetching patients:', error);
+            toast.error('Failed to load patients');
         } finally {
             setLoading(false);
         }
@@ -201,14 +191,15 @@ export default function PatientsPage() {
                         </thead>
                         <tbody className="divide-y divide-slate-100">
                             {loading ? (
-                                <tr>
-                                    <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
-                                        <div className="flex flex-col items-center">
-                                            <RefreshCw className={cn("h-8 w-8 animate-spin mb-2", loading && "animate-spin")} style={{ color: brandColor }} />
-                                            <p>Loading patients...</p>
-                                        </div>
-                                    </td>
-                                </tr>
+                                [1, 2, 3, 4, 5].map(i => (
+                                    <tr key={i}>
+                                        <td className="px-6 py-4"><Skeleton className="h-10 w-40" /></td>
+                                        <td className="px-6 py-4"><Skeleton className="h-6 w-24" /></td>
+                                        <td className="px-6 py-4"><Skeleton className="h-10 w-32" /></td>
+                                        <td className="px-6 py-4"><Skeleton className="h-4 w-20" /></td>
+                                        <td className="px-6 py-4"><Skeleton className="h-8 w-24" /></td>
+                                    </tr>
+                                ))
                             ) : filteredPatients.length === 0 ? (
                                 <tr>
                                     <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
@@ -310,18 +301,7 @@ function RegisterPatientModal({ isOpen, onClose, onSuccess }: { isOpen: boolean,
         setLoading(true);
         setError('');
         try {
-            const response = await fetch(API_ENDPOINTS.PATIENTS.BASE, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(formData)
-            });
-            if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.message || 'Failed to register patient');
-            }
+            await patientService.createPatient(formData as any);
             onSuccess();
             onClose();
             // Reset form

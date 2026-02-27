@@ -1,5 +1,7 @@
-import { API_BASE_URL } from '@/config/api.config';
-const BASE_URL = API_BASE_URL;
+import { apiClient } from '@/lib/apiClient';
+import { API_ENDPOINTS } from '@/config/api.config';
+
+const BASE_URL = API_ENDPOINTS.LAB.BASE;
 
 export interface LabOrder {
     id: string;
@@ -31,22 +33,11 @@ export interface LabOrder {
 }
 
 export const laboratoryService = {
-    getOrders: async (token: string, status?: string) => {
-        const res = await fetch(`${BASE_URL}/lab-orders${status ? `?status=${status}` : ''}`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        return res.json();
+    getOrders: async (status?: string) => {
+        return apiClient.get(`${BASE_URL}${status ? `?status=${status}` : ''}`);
     },
 
-    updateOrder: async (token: string, id: string, data: { status?: string, result?: string }) => {
-        const res = await fetch(`${BASE_URL}/lab-orders/${id}`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify(data)
-        });
-        return res.json();
+    updateOrder: async (id: string, data: { status?: string, result?: string }) => {
+        return apiClient.patch(`${BASE_URL}/${id}`, data);
     }
 };

@@ -5,6 +5,7 @@ import { useAuthStore } from '@/store/authStore';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { DollarSign, Save, Globe } from 'lucide-react';
+import { apiClient } from '@/lib/apiClient';
 import { API_ENDPOINTS } from '@/config/api.config';
 import toast from 'react-hot-toast';
 
@@ -21,24 +22,11 @@ export function FinancialSettings() {
         setLoading(true);
 
         try {
-            const res = await fetch(API_ENDPOINTS.TENANTS.CURRENT, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(formData)
-            });
-
-            if (res.ok) {
-                const updatedTenant = await res.json();
-                setTenant(updatedTenant);
-                toast.success('Financial settings updated');
-            } else {
-                toast.error('Failed to update settings');
-            }
-        } catch (error) {
-            toast.error('Connection error');
+            const updatedTenant = await apiClient.patch(API_ENDPOINTS.TENANTS.CURRENT, formData);
+            setTenant(updatedTenant);
+            toast.success('Financial settings updated');
+        } catch (error: any) {
+            toast.error(error.message || 'Failed to update settings');
         } finally {
             setLoading(false);
         }

@@ -9,12 +9,13 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Pill, Check, Search, Filter, History, Package, Clock, RefreshCw, AlertCircle, User, CheckCircle2, XCircle, DollarSign } from 'lucide-react';
 import { CurrencyDisplay } from '@/components/common/CurrencyDisplay';
+import { Skeleton, CardSkeleton } from '@/components/ui/Skeleton';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import { Input } from '@/components/ui/Input';
 
 export default function PharmacyPage() {
-    const { token } = useAuthStore();
+    const { token, tenant } = useAuthStore();
     const [orders, setOrders] = useState<PharmacyOrder[]>([]);
     const [loading, setLoading] = useState(true);
     const [statusFilter, setStatusFilter] = useState('PENDING');
@@ -115,9 +116,12 @@ export default function PharmacyPage() {
                 {/* Orders Grid */}
                 {loading ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {[1, 2, 3].map(i => (
-                            <div key={i} className="h-64 bg-slate-100 rounded-2xl animate-pulse" />
-                        ))}
+                        <CardSkeleton />
+                        <CardSkeleton />
+                        <CardSkeleton />
+                        <CardSkeleton />
+                        <CardSkeleton />
+                        <CardSkeleton />
                     </div>
                 ) : filteredOrders.length === 0 ? (
                     <div className="bg-white rounded-2xl border border-slate-100 p-12 text-center">

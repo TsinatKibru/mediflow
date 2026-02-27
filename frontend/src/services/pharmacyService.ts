@@ -1,5 +1,7 @@
-import { API_BASE_URL } from '@/config/api.config';
-const BASE_URL = API_BASE_URL;
+import { apiClient } from '@/lib/apiClient';
+import { API_ENDPOINTS } from '@/config/api.config';
+
+const BASE_URL = API_ENDPOINTS.BILLING.SERVICE_CATALOG.replace('/service-catalog', ''); // Get base from endpoints
 
 export interface Medication {
     id: string;
@@ -34,83 +36,35 @@ export interface PharmacyOrder {
 export const pharmacyService = {
     // Medications
     getMedications: async (token: string, search?: string) => {
-        const res = await fetch(`${BASE_URL}/medications${search ? `?search=${search}` : ''}`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        return res.json();
+        return apiClient.get(`${BASE_URL}/medications${search ? `?search=${search}` : ''}`);
     },
 
     getMedication: async (token: string, id: string) => {
-        const res = await fetch(`${BASE_URL}/medications/${id}`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        return res.json();
+        return apiClient.get(`${BASE_URL}/medications/${id}`);
     },
 
     createMedication: async (token: string, data: Partial<Medication>) => {
-        const res = await fetch(`${BASE_URL}/medications`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify(data)
-        });
-        return res.json();
+        return apiClient.post(`${BASE_URL}/medications`, data);
     },
 
     updateMedication: async (token: string, id: string, data: Partial<Medication>) => {
-        const res = await fetch(`${BASE_URL}/medications/${id}`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify(data)
-        });
-        return res.json();
+        return apiClient.patch(`${BASE_URL}/medications/${id}`, data);
     },
 
     // Pharmacy Orders
     getOrders: async (token: string, status?: string) => {
-        const res = await fetch(`${BASE_URL}/pharmacy-orders${status ? `?status=${status}` : ''}`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        return res.json();
+        return apiClient.get(`${BASE_URL}/pharmacy-orders${status ? `?status=${status}` : ''}`);
     },
 
     getOrdersByVisit: async (token: string, visitId: string) => {
-        const res = await fetch(`${BASE_URL}/pharmacy-orders/visit/${visitId}`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        return res.json();
+        return apiClient.get(`${BASE_URL}/pharmacy-orders/visit/${visitId}`);
     },
 
     createOrder: async (token: string, data: { medicationId: string, visitId: string, quantity: number, instructions?: string }) => {
-        const res = await fetch(`${BASE_URL}/pharmacy-orders`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify(data)
-        });
-        if (!res.ok) {
-            const error = await res.json();
-            throw new Error(error.message || 'Failed to create order');
-        }
-        return res.json();
+        return apiClient.post(`${BASE_URL}/pharmacy-orders`, data);
     },
 
     updateOrderStatus: async (token: string, id: string, status: string) => {
-        const res = await fetch(`${BASE_URL}/pharmacy-orders/${id}/status`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify({ status })
-        });
-        return res.json();
+        return apiClient.patch(`${BASE_URL}/pharmacy-orders/${id}/status`, { status });
     },
 };

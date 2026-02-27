@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 import { useBrandColor } from '@/hooks/useBrandColor';
 import { Building2, Save, Link as LinkIcon, Palette } from 'lucide-react';
+import { apiClient } from '@/lib/apiClient';
 import { API_ENDPOINTS } from '@/config/api.config';
 
 export function ClinicSettings() {
@@ -37,21 +38,7 @@ export function ClinicSettings() {
         setLoading(true);
 
         try {
-            const res = await fetch(API_ENDPOINTS.TENANTS.CURRENT, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(formData)
-            });
-
-            if (!res.ok) {
-                const data = await res.json();
-                throw new Error(data.message || 'Failed to update clinic settings');
-            }
-
-            const updatedTenant = await res.json();
+            const updatedTenant = await apiClient.patch(API_ENDPOINTS.TENANTS.CURRENT, formData);
             setTenant(updatedTenant);
             setMessage('Clinic settings updated successfully!');
         } catch (err: any) {

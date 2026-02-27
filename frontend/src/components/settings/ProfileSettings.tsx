@@ -1,13 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 import { useBrandColor } from '@/hooks/useBrandColor';
 import { User, Mail, Shield, Building2, Save, BadgeCheck, Phone, Check, AlertCircle, Lock } from 'lucide-react';
-import { API_ENDPOINTS, API_BASE_URL } from '@/config/api.config';
+import { apiClient } from '@/lib/apiClient';
+import { departmentService } from '@/services/departmentService';
+import { API_BASE_URL } from '@/config/api.config';
 
 export function ProfileSettings() {
     const { user, token, setUser } = useAuthStore();
@@ -25,21 +27,17 @@ export function ProfileSettings() {
         confirmPassword: ''
     });
 
-    useState(() => {
+    useEffect(() => {
         const fetchDepartments = async () => {
             try {
-                const res = await fetch(API_ENDPOINTS.DEPARTMENTS.BASE, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (res.ok) {
-                    setDepartments(await res.json());
-                }
+                const data = await departmentService.getDepartments();
+                setDepartments(data);
             } catch (err) {
                 console.error('Error fetching departments:', err);
             }
         };
-        if (token) fetchDepartments();
-    });
+        fetchDepartments();
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -67,21 +65,7 @@ export function ProfileSettings() {
                 body.password = formData.password;
             }
 
-            const res = await fetch(`${API_BASE_URL}/auth/profile`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(body)
-            });
-
-            if (!res.ok) {
-                const data = await res.json();
-                throw new Error(data.message || 'Failed to update profile');
-            }
-
-            const updatedUser = await res.json();
+            const updatedUser = await apiClient.patch(`${API_BASE_URL}/auth/profile`, body);
             setUser(updatedUser);
             setMessage('Profile updated successfully!');
             setFormData({ ...formData, password: '', confirmPassword: '' });

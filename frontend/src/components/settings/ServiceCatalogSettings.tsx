@@ -24,6 +24,8 @@ import { Card } from '@/components/ui/Card';
 import { useAuthStore } from '@/store/authStore';
 import { Modal } from '@/components/ui/Modal';
 import { CurrencyDisplay } from '@/components/common/CurrencyDisplay';
+import { billingService } from '@/services/billingService';
+import { CardSkeleton } from '@/components/ui/Skeleton';
 import toast from 'react-hot-toast';
 
 interface ServiceItem {
@@ -54,14 +56,8 @@ export function ServiceCatalogSettings() {
     const fetchServices = async () => {
         setLoading(true);
         try {
-            const url = `${API_ENDPOINTS.BILLING.SERVICE_CATALOG}${categoryFilter !== 'ALL' ? `?category=${categoryFilter}` : ''}`;
-            const res = await fetch(url, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (res.ok) {
-                const data = await res.json();
-                setServices(data);
-            }
+            const data = await billingService.getServices(categoryFilter);
+            setServices(data);
         } catch (error) {
             console.error('Failed to fetch services:', error);
             toast.error('Failed to load price list');
@@ -78,11 +74,6 @@ export function ServiceCatalogSettings() {
         }
 
         try {
-            const url = editingItem.id
-                ? API_ENDPOINTS.BILLING.SERVICE_CATALOG + '/' + editingItem.id
-                : API_ENDPOINTS.BILLING.SERVICE_CATALOG;
-            const method = editingItem.id ? 'PATCH' : 'POST';
-
             // Strictly sanitize the body to match backend DTO and avoid "forbidNonWhitelisted" errors
             const sanitizedItem = {
                 category: editingItem.category,
@@ -93,27 +84,19 @@ export function ServiceCatalogSettings() {
                 isActive: editingItem.isActive
             };
 
-            const res = await fetch(url, {
-                method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(sanitizedItem)
-            });
-
-            if (res.ok) {
-                toast.success(editingItem.id ? 'Service updated' : 'Service added');
-                fetchServices();
-                setIsEditing(false);
-                setEditingItem(null);
+            if (editingItem.id) {
+                await billingService.updateService(editingItem.id, sanitizedItem);
             } else {
-                const data = await res.json();
-                toast.error(data.message || 'Failed to save service');
+                await billingService.createService(sanitizedItem);
             }
-        } catch (error) {
+
+            toast.success(editingItem.id ? 'Service updated' : 'Service added');
+            fetchServices();
+            setIsEditing(false);
+            setEditingItem(null);
+        } catch (error: any) {
             console.error('Error saving service:', error);
-            toast.error('Connection error');
+            toast.error(error.message || 'Failed to save service');
         }
     };
 
@@ -121,15 +104,9 @@ export function ServiceCatalogSettings() {
         if (!confirm('Are you sure you want to delete this service?')) return;
 
         try {
-            const res = await fetch(`${API_ENDPOINTS.BILLING.SERVICE_CATALOG}/${id}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-
-            if (res.ok) {
-                toast.success('Service deleted');
-                fetchServices();
-            }
+            await billingService.deleteService(id);
+            toast.success('Service deleted');
+            fetchServices();
         } catch (error) {
             toast.error('Failed to delete service');
         }
@@ -259,7 +236,14 @@ export function ServiceCatalogSettings() {
             {/* List */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {loading ? (
-                    <div className="col-span-full py-20 text-center animate-pulse text-slate-400 font-bold uppercase tracking-widest">Loading Price List...</div>
+                    <>
+                        <CardSkeleton />
+                        <CardSkeleton />
+                        <CardSkeleton />
+                        <CardSkeleton />
+                        <CardSkeleton />
+                        <CardSkeleton />
+                    </>
                 ) : filteredServices.length > 0 ? (
                     filteredServices.map((service) => (
                         <Card key={service.id} className="p-5 hover:shadow-md transition-all border-none shadow-sm group relative overflow-hidden">
