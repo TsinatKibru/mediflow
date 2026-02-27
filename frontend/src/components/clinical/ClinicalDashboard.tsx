@@ -159,7 +159,7 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
     const fetchPharmacyOrders = async () => {
         if (!token) return;
         try {
-            const res = await pharmacyService.getOrdersByVisit(token, viewingVisitId);
+            const res = await pharmacyService.getOrdersByVisit(viewingVisitId);
             setPharmacyOrders(res);
         } catch (err) {
             console.error(err);
@@ -169,7 +169,7 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
     const fetchMedications = async () => {
         if (!token) return;
         try {
-            const res = await pharmacyService.getMedications(token);
+            const res = await pharmacyService.getMedications();
             setMedications(res);
         } catch (err) {
             console.error(err);
@@ -209,7 +209,7 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
         if (!token || !selectedMedicationId || prescriptionQuantity <= 0) return;
         setSaving(true);
         try {
-            await pharmacyService.createOrder(token, {
+            await pharmacyService.createOrder({
                 visitId: viewingVisitId,
                 medicationId: selectedMedicationId,
                 quantity: prescriptionQuantity,
