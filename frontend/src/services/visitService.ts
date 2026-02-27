@@ -28,11 +28,26 @@ export interface Visit {
 }
 
 export const visitService = {
-    getVisits: async (status?: string, departmentId?: string) => {
-        let url = API_ENDPOINTS.VISITS.BASE + '?';
-        if (status) url += `status=${status}&`;
-        if (departmentId) url += `departmentId=${departmentId}&`;
-        return apiClient.get(url);
+    getVisits: async (options: {
+        status?: string;
+        departmentId?: string;
+        paymentStatus?: string;
+        search?: string;
+        skip?: number;
+        take?: number;
+    } = {}) => {
+        const { status, departmentId, paymentStatus, search, skip = 0, take = 10 } = options;
+        const params = new URLSearchParams({
+            skip: skip.toString(),
+            take: take.toString(),
+        });
+
+        if (status) params.append('status', status);
+        if (departmentId) params.append('departmentId', departmentId);
+        if (paymentStatus) params.append('paymentStatus', paymentStatus);
+        if (search) params.append('search', search);
+
+        return apiClient.get(`${API_ENDPOINTS.VISITS.BASE}?${params.toString()}`);
     },
 
     getVisit: async (id: string) => {

@@ -61,14 +61,15 @@ export default function VisitsPage() {
     const fetchVisits = async () => {
         setLoading(true);
         try {
-            const result = await visitService.getVisits(
-                statusFilter === 'all' ? undefined : statusFilter,
-                departmentFilter === 'all' ? undefined : departmentFilter
-            );
-            // Assuming visitService.getVisits might need adjustment for pagination if implemented there
-            // But for now matching current logic
-            setVisits(result.data || result);
-            setTotal(result.total || (result.data ? result.data.length : result.length));
+            const result = await visitService.getVisits({
+                skip,
+                take,
+                search: searchQuery || undefined,
+                status: statusFilter === 'all' ? undefined : statusFilter,
+                departmentId: departmentFilter === 'all' ? undefined : departmentFilter
+            });
+            setVisits(result.data);
+            setTotal(result.total);
         } catch (error) {
             console.error('Error fetching visits:', error);
             toast.error('Failed to load visits');

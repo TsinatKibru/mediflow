@@ -26,6 +26,7 @@ import { PaymentModal } from '@/components/billing/PaymentModal';
 import { NewBillModal } from '@/components/billing/NewBillModal';
 import { CurrencyDisplay } from '@/components/common/CurrencyDisplay';
 import { API_ENDPOINTS } from '@/config/api.config';
+import { visitService } from '@/services/visitService';
 
 export default function BillingPage() {
     const { token, isHydrated } = useAuthStore();
@@ -60,21 +61,14 @@ export default function BillingPage() {
     const fetchVisits = async (t: string) => {
         setLoading(true);
         try {
-            const params = new URLSearchParams({
-                skip: skip.toString(),
-                take: take.toString(),
+            const result = await visitService.getVisits({
+                skip,
+                take,
+                search: searchTerm || undefined,
+                paymentStatus: statusFilter === 'ALL' ? undefined : statusFilter
             });
-            if (searchTerm) params.append('search', searchTerm);
-            if (statusFilter !== 'ALL') params.append('paymentStatus', statusFilter);
-
-            const res = await fetch(`${API_ENDPOINTS.VISITS.BASE}?${params.toString()}`, {
-                headers: { 'Authorization': `Bearer ${t}` }
-            });
-            if (res.ok) {
-                const result = await res.json();
-                setVisits(result.data);
-                setTotal(result.total);
-            }
+            setVisits(result.data);
+            setTotal(result.total);
         } catch (err) {
             console.error('Failed to fetch visits:', err);
         } finally {
