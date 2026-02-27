@@ -3,6 +3,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { CurrencyDisplay } from '@/components/common/CurrencyDisplay';
+import { API_ENDPOINTS } from '@/config/api.config';
 import { cn } from '@/lib/utils';
 import {
     AlertCircle,
@@ -79,7 +80,7 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
 
     useEffect(() => {
         if (isOpen) {
-            fetch('http://localhost:3000/service-catalog', {
+            fetch(API_ENDPOINTS.BILLING.SERVICE_CATALOG, {
                 headers: { Authorization: `Bearer ${token}` }
             })
                 .then(r => r.ok ? r.json() : [])
@@ -139,7 +140,7 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
 
         setLoading(true);
         try {
-            const res = await fetch(`http://localhost:3000/payments/${paymentId}`, {
+            const res = await fetch(`${API_ENDPOINTS.BILLING.PAYMENTS}/${paymentId}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -167,8 +168,8 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
 
         try {
             const url = editingPaymentId
-                ? `http://localhost:3000/payments/${editingPaymentId}`
-                : 'http://localhost:3000/payments';
+                ? `${API_ENDPOINTS.BILLING.PAYMENTS}/${editingPaymentId}`
+                : API_ENDPOINTS.BILLING.PAYMENTS;
             const method = editingPaymentId ? 'PATCH' : 'POST';
 
             const charged = parseFloat(formData.amountCharged);
@@ -258,7 +259,7 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
 
         setLoading(true);
         try {
-            const res = await fetch(`http://localhost:3000/payments/${paymentId}/void`, {
+            const res = await fetch(`${API_ENDPOINTS.BILLING.PAYMENTS}/${paymentId}/void`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -279,7 +280,7 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
     const handleConfirmPayment = async (paymentId: string, amount: number) => {
         setLoading(true);
         try {
-            const res = await fetch(`http://localhost:3000/payments/${paymentId}`, {
+            const res = await fetch(`${API_ENDPOINTS.BILLING.PAYMENTS}/${paymentId}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -306,7 +307,7 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
     const handleUpdateClaimStatus = async (status: string) => {
         setLoading(true);
         try {
-            const res = await fetch(`http://localhost:3000/payments/coverage/${visit.id}/status`, {
+            const res = await fetch(`${API_ENDPOINTS.BILLING.PAYMENTS}/coverage/${visit.id}/status`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -335,7 +336,7 @@ export function PaymentModal({ isOpen, onClose, onSuccess, token, patient, visit
 
         setLoading(true);
         try {
-            const res = await fetch('http://localhost:3000/payments/bulk', {
+            const res = await fetch(`${API_ENDPOINTS.BILLING.PAYMENTS}/bulk`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

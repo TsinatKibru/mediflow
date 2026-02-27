@@ -1,3 +1,5 @@
+import { X, Calendar, Clock, User, Phone, Check, AlertCircle, Trash2, DoorOpen } from 'lucide-react';
+import { API_ENDPOINTS } from '@/config/api.config';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/Dialog';
 import { Button } from '@/components/ui/Button';
 import { Label } from '@/components/ui/Label';
@@ -93,7 +95,7 @@ export function AppointmentModal({ isOpen, onClose, onSuccess, selectedDate, exi
 
     const fetchDoctorAvailability = async (doctorId: string) => {
         try {
-            const res = await fetch(`http://localhost:3000/schedule/${doctorId}`, {
+            const res = await fetch(API_ENDPOINTS.SCHEDULE.BY_DOCTOR(doctorId), {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) setDoctorAvailability(await res.json());
@@ -104,7 +106,7 @@ export function AppointmentModal({ isOpen, onClose, onSuccess, selectedDate, exi
 
     const fetchDepartments = async () => {
         try {
-            const res = await fetch('http://localhost:3000/departments', {
+            const res = await fetch(API_ENDPOINTS.DEPARTMENTS.BASE, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -138,7 +140,7 @@ export function AppointmentModal({ isOpen, onClose, onSuccess, selectedDate, exi
 
     const fetchDoctors = async () => {
         try {
-            const res = await fetch('http://localhost:3000/appointments/doctors', {
+            const res = await fetch(API_ENDPOINTS.APPOINTMENTS.DOCTORS, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) setDoctors(await res.json());
@@ -149,7 +151,7 @@ export function AppointmentModal({ isOpen, onClose, onSuccess, selectedDate, exi
 
     const fetchPatients = async () => {
         try {
-            const res = await fetch('http://localhost:3000/patients', {
+            const res = await fetch(API_ENDPOINTS.PATIENTS.BASE, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -169,7 +171,7 @@ export function AppointmentModal({ isOpen, onClose, onSuccess, selectedDate, exi
 
         setCheckingIn(true);
         try {
-            const res = await fetch(`http://localhost:3000/appointments/${existingAppointment.resource.id}/check-in`, {
+            const res = await fetch(API_ENDPOINTS.APPOINTMENTS.CHECK_IN(existingAppointment.resource.id), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -226,8 +228,8 @@ export function AppointmentModal({ isOpen, onClose, onSuccess, selectedDate, exi
 
         try {
             const url = existingAppointment
-                ? `http://localhost:3000/appointments/${existingAppointment.resource.id}`
-                : 'http://localhost:3000/appointments';
+                ? API_ENDPOINTS.APPOINTMENTS.BY_ID(existingAppointment.resource.id)
+                : API_ENDPOINTS.APPOINTMENTS.BASE;
 
             const method = existingAppointment ? 'PATCH' : 'POST';
 
@@ -258,7 +260,7 @@ export function AppointmentModal({ isOpen, onClose, onSuccess, selectedDate, exi
 
         try {
             setLoading(true);
-            const res = await fetch(`http://localhost:3000/appointments/${existingAppointment.resource.id}`, {
+            const res = await fetch(API_ENDPOINTS.APPOINTMENTS.BY_ID(existingAppointment.resource.id), {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` }
             });

@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
+import { ShieldCheck, Building2, User, Mail, Lock, CheckCircle2, ArrowRight } from 'lucide-react';
+import { API_ENDPOINTS } from '@/config/api.config';
 
 export default function RegisterPage() {
     const router = useRouter();
@@ -46,7 +48,7 @@ export default function RegisterPage() {
         setError('');
 
         try {
-            const response = await fetch('http://localhost:3000/auth/register-tenant', {
+            const response = await fetch(API_ENDPOINTS.AUTH.REGISTER_TENANT, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

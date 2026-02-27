@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Modal } from '@/components/ui/Modal';
+import { useBrandColor } from '@/hooks/useBrandColor';
+import { API_ENDPOINTS } from '@/config/api.config';
 import { Button } from '@/components/ui/Button';
 import { AlertCircle } from 'lucide-react';
 import { Patient, InsurancePolicy } from '@/types/billing';
@@ -58,8 +60,8 @@ export function PolicyModal({ isOpen, onClose, onSuccess, token, patient, editin
 
         try {
             const url = editingPolicy
-                ? `http://localhost:3000/insurance-policies/${editingPolicy.id}`
-                : 'http://localhost:3000/insurance-policies';
+                ? `${API_ENDPOINTS.BILLING.INSURANCE_POLICIES}/${editingPolicy.id}`
+                : API_ENDPOINTS.BILLING.INSURANCE_POLICIES;
             const method = editingPolicy ? 'PATCH' : 'POST';
 
             const response = await fetch(url, {

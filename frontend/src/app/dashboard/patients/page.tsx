@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useAuthStore } from '@/store/authStore';
+import { API_ENDPOINTS } from '@/config/api.config';
+import toast from 'react-hot-toast';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
@@ -25,7 +27,7 @@ interface Patient {
     firstName: string;
     lastName: string;
     dateOfBirth: string;
-    gender: 'MALE' | 'FEMALE' | 'OTHER';
+    gender: 'MALE' | 'FEMALE';
     phone: string;
     email: string;
     createdAt: string;
@@ -54,7 +56,7 @@ export default function PatientsPage() {
             });
             if (searchQuery) params.append('search', searchQuery);
 
-            const response = await fetch(`http://localhost:3000/patients?${params.toString()}`, {
+            const response = await fetch(`${API_ENDPOINTS.PATIENTS.BASE}?${params.toString()}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -308,7 +310,7 @@ function RegisterPatientModal({ isOpen, onClose, onSuccess }: { isOpen: boolean,
         setLoading(true);
         setError('');
         try {
-            const response = await fetch('http://localhost:3000/patients', {
+            const response = await fetch(API_ENDPOINTS.PATIENTS.BASE, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -388,7 +390,6 @@ function RegisterPatientModal({ isOpen, onClose, onSuccess }: { isOpen: boolean,
                         >
                             <option value="MALE">Male</option>
                             <option value="FEMALE">Female</option>
-                            <option value="OTHER">Other</option>
                         </select>
                     </div>
                 </div>

@@ -7,7 +7,8 @@ import { pharmacyService, PharmacyOrder } from '@/services/pharmacyService';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
-import { Pill, User, CheckCircle2, XCircle, Search, RefreshCw, Clock, DollarSign, AlertCircle } from 'lucide-react';
+import { Pill, Check, Search, Filter, History, Package, Clock, RefreshCw, AlertCircle, User, CheckCircle2, XCircle, DollarSign } from 'lucide-react';
+import { CurrencyDisplay } from '@/components/common/CurrencyDisplay';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import { Input } from '@/components/ui/Input';
@@ -140,6 +141,7 @@ export default function PharmacyPage() {
                                                 }>
                                                     {order.status}
                                                 </Badge>
+                                                <div className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1 px-3 py-1 bg-slate-50 rounded-lg">Unit Price ({useAuthStore.getState().tenant?.currency || 'ETB'})</div>
                                                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
                                                     <Clock className="h-3 w-3" />
                                                     {format(new Date(order.createdAt), 'MMM dd, HH:mm')}

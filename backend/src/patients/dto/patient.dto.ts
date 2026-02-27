@@ -3,7 +3,6 @@ import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validat
 export enum Gender {
     MALE = 'MALE',
     FEMALE = 'FEMALE',
-    OTHER = 'OTHER',
 }
 
 export class CreatePatientDto {

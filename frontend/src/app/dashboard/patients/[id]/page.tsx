@@ -6,6 +6,8 @@ import { cn } from '@/lib/utils';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useAuthStore } from '@/store/authStore';
 import { Badge } from '@/components/ui/Badge';
+import { API_ENDPOINTS } from '@/config/api.config';
+import format from 'date-fns/format';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import {
@@ -75,7 +77,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
 
     const fetchPatientPolicies = async () => {
         try {
-            const res = await fetch(`http://localhost:3000/insurance-policies?patientId=${id}`, {
+            const res = await fetch(`${API_ENDPOINTS.BILLING.INSURANCE_POLICIES}?patientId=${id}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (!res.ok) throw new Error('Failed to fetch policies');
@@ -90,7 +92,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
         setLoading(true);
         try {
             // Fetch patient details
-            const patientRes = await fetch(`http://localhost:3000/patients/${id}`, {
+            const patientRes = await fetch(API_ENDPOINTS.PATIENTS.BY_ID(id), {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (!patientRes.ok) throw new Error('Failed to fetch patient');
@@ -98,7 +100,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
             setPatient(patientData);
 
             // Fetch patient visits
-            const visitsRes = await fetch(`http://localhost:3000/patients/${id}/visits`, {
+            const visitsRes = await fetch(API_ENDPOINTS.PATIENTS.VISITS(id), {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (!visitsRes.ok) throw new Error('Failed to fetch visits');
@@ -113,7 +115,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
 
     const handleTogglePolicyStatus = async (policy: InsurancePolicy) => {
         try {
-            const res = await fetch(`http://localhost:3000/insurance-policies/${policy.id}`, {
+            const res = await fetch(`${API_ENDPOINTS.BILLING.INSURANCE_POLICIES}/${policy.id}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -765,7 +767,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
                 patientName={patient ? `${patient.firstName} ${patient.lastName}` : ''}
                 onClose={() => setClinicalSlideOverVisitId(null)}
             />
-    </DashboardLayout>
+        </DashboardLayout>
     );
 }
 
@@ -794,7 +796,7 @@ function NewVisitModal({ isOpen, onClose, onSuccess, token, patient }: {
 
     const fetchDepartments = async () => {
         try {
-            const response = await fetch('http://localhost:3000/departments', {
+            const response = await fetch(API_ENDPOINTS.DEPARTMENTS.BASE, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
@@ -818,7 +820,7 @@ function NewVisitModal({ isOpen, onClose, onSuccess, token, patient }: {
         }
 
         try {
-            const response = await fetch('http://localhost:3000/visits', {
+            const response = await fetch(API_ENDPOINTS.VISITS.BASE, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

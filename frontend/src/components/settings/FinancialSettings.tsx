@@ -5,6 +5,7 @@ import { useAuthStore } from '@/store/authStore';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { DollarSign, Save, Globe } from 'lucide-react';
+import { API_ENDPOINTS } from '@/config/api.config';
 import toast from 'react-hot-toast';
 
 export function FinancialSettings() {
@@ -20,7 +21,7 @@ export function FinancialSettings() {
         setLoading(true);
 
         try {
-            const res = await fetch(`http://localhost:3000/tenants/current`, {
+            const res = await fetch(API_ENDPOINTS.TENANTS.CURRENT, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',

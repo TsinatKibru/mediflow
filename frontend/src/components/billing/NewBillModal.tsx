@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/Button';
 import { Label } from '@/components/ui/Label';
 import { Combobox } from '@/components/ui/Combobox';
 import { useAuthStore } from '@/store/authStore';
-import { Activity, User } from 'lucide-react';
+import { Activity, User, Search, Plus, MapPin, Calendar, Clock, Calculator, CreditCard, ChevronRight, X } from 'lucide-react';
+import { API_ENDPOINTS } from '@/config/api.config';
 
 interface Patient {
     id: string;
@@ -46,7 +47,7 @@ export function NewBillModal({ isOpen, onClose, onSuccess }: NewBillModalProps) 
 
     const fetchPatients = async () => {
         try {
-            const res = await fetch('http://localhost:3000/patients', {
+            const res = await fetch(API_ENDPOINTS.PATIENTS.BASE, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -60,7 +61,7 @@ export function NewBillModal({ isOpen, onClose, onSuccess }: NewBillModalProps) 
 
     const fetchDepartments = async () => {
         try {
-            const res = await fetch('http://localhost:3000/departments', {
+            const res = await fetch(API_ENDPOINTS.DEPARTMENTS.BASE, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -81,7 +82,7 @@ export function NewBillModal({ isOpen, onClose, onSuccess }: NewBillModalProps) 
 
         setLoading(true);
         try {
-            const res = await fetch('http://localhost:3000/visits', {
+            const res = await fetch(API_ENDPOINTS.VISITS.BASE, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

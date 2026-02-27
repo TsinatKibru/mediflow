@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Package, Plus, Search, RefreshCw, Pill, AlertTriangle, Edit2, Save, X } from 'lucide-react';
+import { CurrencyDisplay } from '@/components/common/CurrencyDisplay';
 import toast from 'react-hot-toast';
 
 export default function MedicationsPage() {
@@ -129,7 +130,9 @@ export default function MedicationsPage() {
                                             <Badge variant={med.stockBalance <= 10 ? 'danger' : med.stockBalance <= 50 ? 'warning' : 'success'}>
                                                 {med.stockBalance} in stock
                                             </Badge>
-                                            <p className="text-xs font-bold text-slate-900 mt-1.5">${Number(med.unitPrice || 0).toFixed(2)} / unit</p>
+                                            <p className="text-xs font-bold text-slate-900 mt-1.5">
+                                                <CurrencyDisplay amount={med.unitPrice || 0} /> / unit
+                                            </p>
                                         </div>
                                     </div>
 
@@ -223,7 +226,7 @@ export default function MedicationsPage() {
                                 />
                             </div>
                             <div>
-                                <Label>Unit Price ($)</Label>
+                                <Label>Unit Price ({useAuthStore.getState().tenant?.currency || 'ETB'})</Label>
                                 <Input
                                     required
                                     type="number"

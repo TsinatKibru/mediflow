@@ -6,13 +6,18 @@ import {
     Plus,
     Edit2,
     Trash2,
-    DollarSign,
     Tag,
-    Activity,
-    Save,
+    Layers,
+    Sliders,
+    Info,
+    RefreshCw,
     X,
+    Save,
+    Activity,
+    DollarSign,
     Filter
 } from 'lucide-react';
+import { API_ENDPOINTS } from '@/config/api.config';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
@@ -48,7 +53,7 @@ export function ServiceCatalogSettings() {
     const fetchServices = async () => {
         setLoading(true);
         try {
-            const url = `http://localhost:3000/service-catalog${categoryFilter !== 'ALL' ? `?category=${categoryFilter}` : ''}`;
+            const url = `${API_ENDPOINTS.BILLING.SERVICE_CATALOG}${categoryFilter !== 'ALL' ? `?category=${categoryFilter}` : ''}`;
             const res = await fetch(url, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -73,8 +78,8 @@ export function ServiceCatalogSettings() {
 
         try {
             const url = editingItem.id
-                ? `http://localhost:3000/service-catalog/${editingItem.id}`
-                : 'http://localhost:3000/service-catalog';
+                ? API_ENDPOINTS.BILLING.SERVICE_CATALOG + '/' + editingItem.id
+                : API_ENDPOINTS.BILLING.SERVICE_CATALOG;
             const method = editingItem.id ? 'PATCH' : 'POST';
 
             const res = await fetch(url, {
@@ -105,7 +110,7 @@ export function ServiceCatalogSettings() {
         if (!confirm('Are you sure you want to delete this service?')) return;
 
         try {
-            const res = await fetch(`http://localhost:3000/service-catalog/${id}`, {
+            const res = await fetch(`${API_ENDPOINTS.BILLING.SERVICE_CATALOG}/${id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });

@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useAuthStore } from '@/store/authStore';
 import { Badge } from '@/components/ui/Badge';
+import { API_ENDPOINTS } from '@/config/api.config';
+import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import {
@@ -65,7 +67,7 @@ export default function VisitsPage() {
             if (statusFilter !== 'all') params.append('status', statusFilter);
             if (departmentFilter !== 'all') params.append('departmentId', departmentFilter);
 
-            const response = await fetch(`http://localhost:3000/visits?${params.toString()}`, {
+            const response = await fetch(`${API_ENDPOINTS.VISITS.BASE}?${params.toString()}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -83,7 +85,7 @@ export default function VisitsPage() {
 
     const fetchAllDepartments = async () => {
         try {
-            const response = await fetch('http://localhost:3000/departments', {
+            const response = await fetch(API_ENDPOINTS.DEPARTMENTS.BASE, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
@@ -403,7 +405,7 @@ function CheckInModal({ isOpen, onClose, onSuccess, token }: { isOpen: boolean; 
 
     const fetchDepartments = async () => {
         try {
-            const response = await fetch('http://localhost:3000/departments', {
+            const response = await fetch(API_ENDPOINTS.VISITS.BASE, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
@@ -417,7 +419,7 @@ function CheckInModal({ isOpen, onClose, onSuccess, token }: { isOpen: boolean; 
 
     const searchPatients = async () => {
         try {
-            const response = await fetch(`http://localhost:3000/patients?search=${encodeURIComponent(searchQuery)}`, {
+            const response = await fetch(`${API_ENDPOINTS.PATIENTS.BASE}?search=${encodeURIComponent(searchQuery)}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
@@ -454,7 +456,7 @@ function CheckInModal({ isOpen, onClose, onSuccess, token }: { isOpen: boolean; 
         }
 
         try {
-            const response = await fetch('http://localhost:3000/visits', {
+            const response = await fetch(API_ENDPOINTS.VISITS.BASE, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

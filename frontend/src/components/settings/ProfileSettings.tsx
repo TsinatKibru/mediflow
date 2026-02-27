@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 import { useBrandColor } from '@/hooks/useBrandColor';
-import { User, Lock, Save, Building2 } from 'lucide-react';
+import { User, Mail, Shield, Building2, Save, BadgeCheck, Phone, Check, AlertCircle, Lock } from 'lucide-react';
+import { API_ENDPOINTS, API_BASE_URL } from '@/config/api.config';
 
 export function ProfileSettings() {
     const { user, token, setUser } = useAuthStore();
@@ -27,7 +28,7 @@ export function ProfileSettings() {
     useState(() => {
         const fetchDepartments = async () => {
             try {
-                const res = await fetch('http://localhost:3000/departments', {
+                const res = await fetch(API_ENDPOINTS.DEPARTMENTS.BASE, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (res.ok) {
@@ -66,7 +67,7 @@ export function ProfileSettings() {
                 body.password = formData.password;
             }
 
-            const res = await fetch('http://localhost:3000/auth/profile', {
+            const res = await fetch(`${API_BASE_URL}/auth/profile`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',

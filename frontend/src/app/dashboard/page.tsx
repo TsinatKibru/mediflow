@@ -11,6 +11,7 @@ import {
     CheckCircle2, AlertCircle, TrendingUp, ArrowRight,
     Stethoscope, ClipboardList, RefreshCw
 } from 'lucide-react';
+import { API_ENDPOINTS } from '@/config/api.config';
 
 interface DashboardStats {
     totalPatients: number;
@@ -67,17 +68,17 @@ export default function DashboardPage() {
         if (!token) return;
         setLoading(true);
         try {
-            const [patientsRes, visitsRes, appointmentsRes, paymentsRes] = await Promise.all([
-                fetch('http://localhost:3000/patients', { headers: { Authorization: `Bearer ${token}` } }),
-                fetch('http://localhost:3000/visits', { headers: { Authorization: `Bearer ${token}` } }),
-                fetch('http://localhost:3000/appointments', { headers: { Authorization: `Bearer ${token}` } }),
-                fetch('http://localhost:3000/payments', { headers: { Authorization: `Bearer ${token}` } }),
+            const [patientsRes, visitsRes, appRes, payRes] = await Promise.all([
+                fetch(API_ENDPOINTS.PATIENTS.BASE, { headers: { Authorization: `Bearer ${token}` } }),
+                fetch(API_ENDPOINTS.VISITS.BASE, { headers: { Authorization: `Bearer ${token}` } }),
+                fetch(API_ENDPOINTS.APPOINTMENTS.BASE, { headers: { Authorization: `Bearer ${token}` } }),
+                fetch(API_ENDPOINTS.BILLING.PAYMENTS, { headers: { Authorization: `Bearer ${token}` } }),
             ]);
 
             const patientsResult = patientsRes.ok ? await patientsRes.json() : { data: [], total: 0 };
             const visitsResult = visitsRes.ok ? await visitsRes.json() : { data: [], total: 0 };
-            const appointments = appointmentsRes.ok ? await appointmentsRes.json() : [];
-            const paymentsResult = paymentsRes.ok ? await paymentsRes.json() : { data: [], total: 0 };
+            const appointments = appRes.ok ? await appRes.json() : [];
+            const paymentsResult = payRes.ok ? await payRes.json() : { data: [], total: 0 };
 
             const patients = patientsResult.data || [];
             const visits = visitsResult.data || [];

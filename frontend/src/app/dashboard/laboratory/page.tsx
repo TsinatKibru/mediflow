@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Label } from '@/components/ui/Label';
 import { Beaker, User, History, Search, RefreshCw, FlaskConical, Send, DollarSign, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { API_ENDPOINTS } from '@/config/api.config';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import { Input } from '@/components/ui/Input';
@@ -26,7 +27,19 @@ export default function LaboratoryPage() {
         if (!token) return;
         setLoading(true);
         try {
-            const data = await laboratoryService.getOrders(token, statusFilter === 'all' ? undefined : statusFilter);
+            let url = API_ENDPOINTS.LAB.BASE;
+            if (statusFilter !== 'all') {
+                url += `?status=${statusFilter}`;
+            }
+            const res = await fetch(url, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            const data = await res.json();
             setOrders(data);
         } catch (error) {
             console.error('Error fetching lab orders:', error);

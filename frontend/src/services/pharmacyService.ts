@@ -1,4 +1,5 @@
-const BASE_URL = 'http://localhost:3000';
+import { API_BASE_URL } from '@/config/api.config';
+const BASE_URL = API_BASE_URL;
 
 export interface Medication {
     id: string;

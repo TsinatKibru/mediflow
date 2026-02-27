@@ -8,7 +8,8 @@ import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 import { Combobox } from '@/components/ui/Combobox';
 import toast from 'react-hot-toast';
-import { Save, Clock } from 'lucide-react';
+import { Calendar, Clock, User, Plus, Search, ChevronLeft, ChevronRight, CheckCircle2, XCircle, AlertCircle, Save } from 'lucide-react';
+import { API_ENDPOINTS } from '@/config/api.config';
 
 const DAYS = [
     'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
@@ -49,7 +50,7 @@ export default function SchedulePage() {
 
     const fetchDoctors = async () => {
         try {
-            const res = await fetch('http://localhost:3000/appointments/doctors', {
+            const res = await fetch(API_ENDPOINTS.APPOINTMENTS.DOCTORS, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -72,7 +73,7 @@ export default function SchedulePage() {
     const fetchAvailability = async (doctorId: string) => {
         setLoading(true);
         try {
-            const res = await fetch(`http://localhost:3000/schedule/${doctorId}`, {
+            const res = await fetch(API_ENDPOINTS.SCHEDULE.BY_DOCTOR(doctorId), {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -107,7 +108,7 @@ export default function SchedulePage() {
         if (!selectedDoctorId) return;
         setSaving(true);
         try {
-            const res = await fetch(`http://localhost:3000/schedule/${selectedDoctorId}`, {
+            const res = await fetch(API_ENDPOINTS.SCHEDULE.BY_DOCTOR(selectedDoctorId), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

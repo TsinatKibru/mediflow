@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 import { useBrandColor } from '@/hooks/useBrandColor';
 import { Building2, Save, Link as LinkIcon, Palette } from 'lucide-react';
+import { API_ENDPOINTS } from '@/config/api.config';
 
 export function ClinicSettings() {
     const { tenant, token, setTenant } = useAuthStore();
@@ -36,7 +37,7 @@ export function ClinicSettings() {
         setLoading(true);
 
         try {
-            const res = await fetch('http://localhost:3000/tenants/current', {
+            const res = await fetch(API_ENDPOINTS.TENANTS.CURRENT, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
+import { API_ENDPOINTS } from '@/config/api.config';
 import { useBrandColor } from '@/hooks/useBrandColor';
 import {
     X, Stethoscope, Activity, FileText, Pill, Thermometer,
@@ -81,7 +82,7 @@ export function ClinicalHistorySlideOver({ visitId, patientName, onClose }: Clin
         setVisit(null);
         setError('');
         setLoading(true);
-        fetch(`http://localhost:3000/visits/${visitId}`, {
+        fetch(API_ENDPOINTS.VISITS.BY_ID(visitId), {
             headers: { Authorization: `Bearer ${token}` }
         })
             .then(r => r.ok ? r.json() : Promise.reject('Failed to load visit'))

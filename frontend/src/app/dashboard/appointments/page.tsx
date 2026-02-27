@@ -12,6 +12,7 @@ import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { AppointmentModal } from './AppointmentModal';
 import { Plus } from 'lucide-react';
+import { API_ENDPOINTS } from '@/config/api.config';
 import { Button } from '@/components/ui/Button';
 import toast from 'react-hot-toast';
 import { Combobox } from '@/components/ui/Combobox';
@@ -42,7 +43,7 @@ export default function AppointmentsPage() {
 
     const fetchAppointments = async () => {
         try {
-            const res = await fetch('http://localhost:3000/appointments', {
+            const res = await fetch(API_ENDPOINTS.APPOINTMENTS.BASE, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -66,7 +67,7 @@ export default function AppointmentsPage() {
 
     const fetchDoctors = async () => {
         try {
-            const res = await fetch('http://localhost:3000/appointments/doctors', {
+            const res = await fetch(API_ENDPOINTS.APPOINTMENTS.DOCTORS, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -88,7 +89,7 @@ export default function AppointmentsPage() {
             // For now, let's fetch for each doctor in the list.
             const allAvails: any[] = [];
             for (const doc of doctors) {
-                const res = await fetch(`http://localhost:3000/schedule/${doc.id}`, {
+                const res = await fetch(API_ENDPOINTS.SCHEDULE.BY_DOCTOR(doc.id), {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 if (res.ok) {

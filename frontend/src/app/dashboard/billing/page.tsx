@@ -25,6 +25,7 @@ import { useAuthStore } from '@/store/authStore';
 import { PaymentModal } from '@/components/billing/PaymentModal';
 import { NewBillModal } from '@/components/billing/NewBillModal';
 import { CurrencyDisplay } from '@/components/common/CurrencyDisplay';
+import { API_ENDPOINTS } from '@/config/api.config';
 
 export default function BillingPage() {
     const { token, isHydrated } = useAuthStore();
@@ -66,7 +67,7 @@ export default function BillingPage() {
             if (searchTerm) params.append('search', searchTerm);
             if (statusFilter !== 'ALL') params.append('status', statusFilter);
 
-            const res = await fetch(`http://localhost:3000/visits?${params.toString()}`, {
+            const res = await fetch(`${API_ENDPOINTS.VISITS.BASE}?${params.toString()}`, {
                 headers: { 'Authorization': `Bearer ${t}` }
             });
             if (res.ok) {
@@ -84,7 +85,7 @@ export default function BillingPage() {
     const fetchPatientPolicies = async (patientId: string) => {
         if (!token) return;
         try {
-            const res = await fetch(`http://localhost:3000/insurance-policies/patient/${patientId}`, {
+            const res = await fetch(API_ENDPOINTS.BILLING.INSURANCE_BY_PATIENT(patientId), {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (res.ok) {
@@ -224,6 +225,7 @@ export default function BillingPage() {
                         <thead>
                             <tr className="bg-slate-50 border-b border-slate-100">
                                 <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Visit Info</th>
+                                <th className="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Outstanding ({useAuthStore.getState().tenant?.currency || 'ETB'})</th>
                                 <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Patient</th>
                                 <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Billed Amt</th>
                                 <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Balance</th>

@@ -21,8 +21,10 @@ import {
     Beaker,
     Plus,
     Trash2,
-    Pill
+    Pill,
+    Heart, Thermometer, Wind, Droplets, Scale, Microscope, AlertCircle, ExternalLink, RefreshCw
 } from 'lucide-react';
+import { API_ENDPOINTS } from '@/config/api.config';
 import { pharmacyService, Medication, PharmacyOrder } from '@/services/pharmacyService';
 import { Combobox } from '@/components/ui/Combobox';
 import toast from 'react-hot-toast';
@@ -82,7 +84,7 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
 
     const fetchCatalogTests = async () => {
         try {
-            const res = await fetch('http://localhost:3000/service-catalog?category=LABORATORY', {
+            const res = await fetch(`${API_ENDPOINTS.BILLING.SERVICE_CATALOG}?category=LABORATORY`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -97,7 +99,7 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
     const fetchVisitDetails = async () => {
         setLoading(true);
         try {
-            const res = await fetch(`http://localhost:3000/visits/${viewingVisitId}`, {
+            const res = await fetch(API_ENDPOINTS.VISITS.BY_ID(viewingVisitId), {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -130,7 +132,7 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
 
     const fetchHistory = async (patientId: string) => {
         try {
-            const res = await fetch(`http://localhost:3000/visits/patient/${patientId}`, {
+            const res = await fetch(API_ENDPOINTS.VISITS.PATIENT(patientId), {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -143,7 +145,7 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
 
     const fetchLabOrders = async () => {
         try {
-            const res = await fetch(`http://localhost:3000/lab-orders/visit/${viewingVisitId}`, {
+            const res = await fetch(API_ENDPOINTS.LAB.BY_VISIT(viewingVisitId), {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -178,7 +180,7 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
         if (!newLabTest.trim()) return;
         setSaving(true);
         try {
-            const res = await fetch(`http://localhost:3000/lab-orders`, {
+            const res = await fetch(API_ENDPOINTS.LAB.BASE, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -228,7 +230,7 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
     const handleDeleteLabOrder = async (id: string) => {
         if (!confirm('Are you sure you want to cancel this lab order?')) return;
         try {
-            const res = await fetch(`http://localhost:3000/lab-orders/${id}`, {
+            const res = await fetch(API_ENDPOINTS.LAB.BY_ID(id), {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -244,7 +246,7 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
     const handleSaveVitals = async (autoMove: boolean = false) => {
         setSaving(true);
         try {
-            const res = await fetch(`http://localhost:3000/visits/${visitId}/triage`, {
+            const res = await fetch(API_ENDPOINTS.VISITS.TRIAGE(visitId), {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -267,7 +269,7 @@ export function ClinicalDashboard({ isOpen, onClose, visitId, onSuccess }: Clini
     const handleSaveConsultation = async (finalize: boolean = false) => {
         setSaving(true);
         try {
-            const res = await fetch(`http://localhost:3000/visits/${visitId}/consultation`, {
+            const res = await fetch(API_ENDPOINTS.VISITS.CONSULTATION(visitId), {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
