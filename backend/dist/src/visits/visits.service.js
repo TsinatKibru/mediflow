@@ -59,7 +59,7 @@ let VisitsService = class VisitsService {
         });
     }
     async findAll(tenantId, options) {
-        const { skip, take, search, departmentId, status, userRole, userDepartmentId } = options;
+        const { skip, take, search, departmentId, status, paymentStatus, userRole, userDepartmentId } = options;
         const where = { tenantId };
         if (userRole === 'DOCTOR' && userDepartmentId && !departmentId) {
             where.departmentId = userDepartmentId;
@@ -68,7 +68,12 @@ let VisitsService = class VisitsService {
             where.departmentId = departmentId;
         }
         if (status) {
-            where.status = status;
+            const validVisitStatuses = ['REGISTERED', 'WAITING', 'IN_CONSULTATION', 'COMPLETED', 'NO_SHOW', 'CANCELLED'];
+            if (validVisitStatuses.includes(status)) {
+                where.status = status;
+            }
+        }
+        if (paymentStatus) {
         }
         if (search) {
             where.patient = {

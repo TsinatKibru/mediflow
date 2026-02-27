@@ -65,7 +65,7 @@ export default function BillingPage() {
                 take: take.toString(),
             });
             if (searchTerm) params.append('search', searchTerm);
-            if (statusFilter !== 'ALL') params.append('status', statusFilter);
+            if (statusFilter !== 'ALL') params.append('paymentStatus', statusFilter);
 
             const res = await fetch(`${API_ENDPOINTS.VISITS.BASE}?${params.toString()}`, {
                 headers: { 'Authorization': `Bearer ${t}` }

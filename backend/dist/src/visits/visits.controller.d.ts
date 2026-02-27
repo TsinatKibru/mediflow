@@ -34,7 +34,7 @@ export declare class VisitsController {
         doctorId: string | null;
         nurseId: string | null;
     }>;
-    findAll(req: any, skip?: string, take?: string, search?: string, departmentId?: string, status?: string): Promise<{
+    findAll(req: any, skip?: string, take?: string, search?: string, departmentId?: string, status?: string, paymentStatus?: string): Promise<{
         total: number;
         data: ({
             department: {

@@ -42,5 +42,11 @@ export const API_ENDPOINTS = {
     },
     TENANTS: {
         CURRENT: `${API_BASE_URL}/tenants/current`,
+    },
+    PHARMACY: {
+        MEDICATIONS: `${API_BASE_URL}/medications`,
+        ORDERS: `${API_BASE_URL}/pharmacy-orders`,
+        ORDER_STATUS: (id: string) => `${API_BASE_URL}/pharmacy-orders/${id}/status`,
+        BY_VISIT: (visitId: string) => `${API_BASE_URL}/pharmacy-orders/visit/${visitId}`,
     }
 };

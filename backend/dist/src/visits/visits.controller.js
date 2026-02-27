@@ -26,13 +26,14 @@ let VisitsController = class VisitsController {
     create(req, createVisitDto) {
         return this.visitsService.create(req.user.tenantId, createVisitDto);
     }
-    findAll(req, skip, take, search, departmentId, status) {
+    findAll(req, skip, take, search, departmentId, status, paymentStatus) {
         return this.visitsService.findAll(req.user.tenantId, {
             skip: skip ? parseInt(skip) : undefined,
             take: take ? parseInt(take) : undefined,
             search,
             departmentId,
             status,
+            paymentStatus,
             userRole: req.user.role,
             userDepartmentId: req.user.departmentId,
         });
@@ -67,8 +68,9 @@ __decorate([
     __param(3, (0, common_1.Query)('search')),
     __param(4, (0, common_1.Query)('departmentId')),
     __param(5, (0, common_1.Query)('status')),
+    __param(6, (0, common_1.Query)('paymentStatus')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String, String, String, String, String]),
+    __metadata("design:paramtypes", [Object, String, String, String, String, String, String]),
     __metadata("design:returntype", void 0)
 ], VisitsController.prototype, "findAll", null);
 __decorate([

@@ -25,7 +25,7 @@ export default function PharmacyPage() {
         if (!token) return;
         setLoading(true);
         try {
-            const data = await pharmacyService.getOrders(token, statusFilter === 'all' ? undefined : statusFilter);
+            const data = await pharmacyService.getOrders(statusFilter === 'all' ? undefined : statusFilter);
             setOrders(data);
         } catch (error) {
             console.error('Error fetching pharmacy orders:', error);
@@ -42,7 +42,7 @@ export default function PharmacyPage() {
     const handleDispense = async (orderId: string) => {
         if (!token) return;
         try {
-            await pharmacyService.updateOrderStatus(token, orderId, 'DISPENSED');
+            await pharmacyService.updateOrderStatus(orderId, 'DISPENSED');
             toast.success('Medication dispensed successfully');
             fetchOrders();
         } catch (error: any) {
@@ -53,7 +53,7 @@ export default function PharmacyPage() {
     const handleCancel = async (orderId: string) => {
         if (!token || !confirm('Are you sure you want to cancel this prescription?')) return;
         try {
-            await pharmacyService.updateOrderStatus(token, orderId, 'CANCELLED');
+            await pharmacyService.updateOrderStatus(orderId, 'CANCELLED');
             toast.success('Prescription cancelled');
             fetchOrders();
         } catch (error: any) {

@@ -35,36 +35,52 @@ export interface PharmacyOrder {
 
 export const pharmacyService = {
     // Medications
-    getMedications: async (token: string, search?: string) => {
-        return apiClient.get(`${BASE_URL}/medications${search ? `?search=${search}` : ''}`);
+    getMedications: async (search?: string) => {
+        return apiClient.get(`${API_ENDPOINTS.PHARMACY.MEDICATIONS}${search ? `?search=${search}` : ''}`);
     },
 
-    getMedication: async (token: string, id: string) => {
-        return apiClient.get(`${BASE_URL}/medications/${id}`);
+    getMedication: async (id: string) => {
+        return apiClient.get(`${API_ENDPOINTS.PHARMACY.MEDICATIONS}/${id}`);
     },
 
-    createMedication: async (token: string, data: Partial<Medication>) => {
-        return apiClient.post(`${BASE_URL}/medications`, data);
+    createMedication: async (data: Partial<Medication>) => {
+        const sanitizedData = {
+            name: data.name,
+            genericName: data.genericName,
+            dosageForm: data.dosageForm,
+            strength: data.strength,
+            stockBalance: Number(data.stockBalance),
+            unitPrice: Number(data.unitPrice)
+        };
+        return apiClient.post(API_ENDPOINTS.PHARMACY.MEDICATIONS, sanitizedData);
     },
 
-    updateMedication: async (token: string, id: string, data: Partial<Medication>) => {
-        return apiClient.patch(`${BASE_URL}/medications/${id}`, data);
+    updateMedication: async (id: string, data: Partial<Medication>) => {
+        const sanitizedData = {
+            name: data.name,
+            genericName: data.genericName,
+            dosageForm: data.dosageForm,
+            strength: data.strength,
+            stockBalance: data.stockBalance !== undefined ? Number(data.stockBalance) : undefined,
+            unitPrice: data.unitPrice !== undefined ? Number(data.unitPrice) : undefined
+        };
+        return apiClient.patch(`${API_ENDPOINTS.PHARMACY.MEDICATIONS}/${id}`, sanitizedData);
     },
 
     // Pharmacy Orders
-    getOrders: async (token: string, status?: string) => {
-        return apiClient.get(`${BASE_URL}/pharmacy-orders${status ? `?status=${status}` : ''}`);
+    getOrders: async (status?: string) => {
+        return apiClient.get(`${API_ENDPOINTS.PHARMACY.ORDERS}${status ? `?status=${status}` : ''}`);
     },
 
-    getOrdersByVisit: async (token: string, visitId: string) => {
-        return apiClient.get(`${BASE_URL}/pharmacy-orders/visit/${visitId}`);
+    getOrdersByVisit: async (visitId: string) => {
+        return apiClient.get(API_ENDPOINTS.PHARMACY.BY_VISIT(visitId));
     },
 
-    createOrder: async (token: string, data: { medicationId: string, visitId: string, quantity: number, instructions?: string }) => {
-        return apiClient.post(`${BASE_URL}/pharmacy-orders`, data);
+    createOrder: async (data: { medicationId: string, visitId: string, quantity: number, instructions?: string }) => {
+        return apiClient.post(API_ENDPOINTS.PHARMACY.ORDERS, data);
     },
 
-    updateOrderStatus: async (token: string, id: string, status: string) => {
-        return apiClient.patch(`${BASE_URL}/pharmacy-orders/${id}/status`, { status });
+    updateOrderStatus: async (id: string, status: string) => {
+        return apiClient.patch(API_ENDPOINTS.PHARMACY.ORDER_STATUS(id), { status });
     },
 };

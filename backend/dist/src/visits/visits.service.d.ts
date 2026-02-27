@@ -40,6 +40,7 @@ export declare class VisitsService {
         search?: string;
         departmentId?: string;
         status?: string;
+        paymentStatus?: string;
         userRole?: string;
         userDepartmentId?: string;
     }): Promise<{

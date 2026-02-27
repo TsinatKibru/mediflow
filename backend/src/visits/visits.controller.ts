@@ -22,6 +22,7 @@ export class VisitsController {
         @Query('search') search?: string,
         @Query('departmentId') departmentId?: string,
         @Query('status') status?: string,
+        @Query('paymentStatus') paymentStatus?: string,
     ) {
         return this.visitsService.findAll(
             req.user.tenantId,
@@ -31,6 +32,7 @@ export class VisitsController {
                 search,
                 departmentId,
                 status,
+                paymentStatus,
                 userRole: req.user.role,
                 userDepartmentId: req.user.departmentId,
             }

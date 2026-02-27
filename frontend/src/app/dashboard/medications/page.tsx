@@ -26,7 +26,7 @@ export default function MedicationsPage() {
         if (!token) return;
         setLoading(true);
         try {
-            const data = await pharmacyService.getMedications(token, searchQuery);
+            const data = await pharmacyService.getMedications(searchQuery);
             setMedications(data);
         } catch (error) {
             console.error('Error fetching medications:', error);
@@ -49,10 +49,10 @@ export default function MedicationsPage() {
 
         try {
             if (editingMedication.id) {
-                await pharmacyService.updateMedication(token, editingMedication.id, editingMedication);
+                await pharmacyService.updateMedication(editingMedication.id, editingMedication);
                 toast.success('Medication updated');
             } else {
-                await pharmacyService.createMedication(token, editingMedication);
+                await pharmacyService.createMedication(editingMedication);
                 toast.success('Medication added');
             }
             setIsModalOpen(false);
