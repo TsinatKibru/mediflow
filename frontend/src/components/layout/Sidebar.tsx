@@ -15,7 +15,8 @@ import {
     CreditCard,
     Pill,
     Beaker,
-    Package
+    Package,
+    Building2
 } from 'lucide-react';
 
 const navigation = [
@@ -29,6 +30,7 @@ const navigation = [
     { name: 'Inventory', href: '/dashboard/medications', icon: Package, roles: ['SUPER_ADMIN', 'HOSPITAL_ADMIN', 'PHARMACIST'] },
     { name: 'Billing', href: '/dashboard/billing', icon: CreditCard, roles: ['SUPER_ADMIN', 'HOSPITAL_ADMIN', 'ACCOUNTANT'] },
     { name: 'Staff', href: '/dashboard/staff', icon: Users, roles: ['SUPER_ADMIN', 'HOSPITAL_ADMIN'] },
+    { name: 'Departments', href: '/dashboard/departments', icon: Building2, roles: ['SUPER_ADMIN', 'HOSPITAL_ADMIN'] },
     { name: 'Settings', href: '/dashboard/settings', icon: Settings, roles: ['SUPER_ADMIN', 'HOSPITAL_ADMIN'] },
 ];
 

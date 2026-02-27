@@ -6,8 +6,8 @@ export declare class ScheduleService {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        tenantId: string;
         isActive: boolean;
+        tenantId: string;
         doctorId: string;
         startTime: string;
         endTime: string;

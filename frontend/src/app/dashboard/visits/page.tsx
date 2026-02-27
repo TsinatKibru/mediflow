@@ -99,6 +99,7 @@ export default function VisitsPage() {
     useEffect(() => {
         if (token) {
             fetchVisits();
+            fetchAllDepartments();
         }
     }, [token, skip, take, statusFilter, departmentFilter]);
 

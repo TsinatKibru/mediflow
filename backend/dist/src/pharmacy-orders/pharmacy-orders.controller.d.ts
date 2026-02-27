@@ -43,11 +43,11 @@ export declare class PharmacyOrdersController {
             isVoided: boolean;
             voidReason: string | null;
             voidedAt: Date | null;
-            labOrderId: string | null;
-            pharmacyOrderId: string | null;
-            voidedById: string | null;
             insurancePolicyId: string | null;
             verifiedById: string | null;
+            voidedById: string | null;
+            labOrderId: string | null;
+            pharmacyOrderId: string | null;
         }[];
         visit: {
             patient: {
@@ -86,13 +86,13 @@ export declare class PharmacyOrdersController {
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            isActive: boolean;
             tenantId: string;
             firstName: string;
             lastName: string;
             email: string;
             password: string;
             role: import(".prisma/client").$Enums.Role;
-            isActive: boolean;
             departmentId: string | null;
         };
         medication: {
@@ -111,13 +111,13 @@ export declare class PharmacyOrdersController {
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            isActive: boolean;
             tenantId: string;
             firstName: string;
             lastName: string;
             email: string;
             password: string;
             role: import(".prisma/client").$Enums.Role;
-            isActive: boolean;
             departmentId: string | null;
         } | null;
     } & {
@@ -147,11 +147,11 @@ export declare class PharmacyOrdersController {
             isVoided: boolean;
             voidReason: string | null;
             voidedAt: Date | null;
-            labOrderId: string | null;
-            pharmacyOrderId: string | null;
-            voidedById: string | null;
             insurancePolicyId: string | null;
             verifiedById: string | null;
+            voidedById: string | null;
+            labOrderId: string | null;
+            pharmacyOrderId: string | null;
         }[];
         medication: {
             id: string;

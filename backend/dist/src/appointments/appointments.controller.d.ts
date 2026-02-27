@@ -63,13 +63,13 @@ export declare class AppointmentsController {
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            isActive: boolean;
             tenantId: string;
             firstName: string;
             lastName: string;
             email: string;
             password: string;
             role: import(".prisma/client").$Enums.Role;
-            isActive: boolean;
             departmentId: string | null;
         } | null;
     } & {

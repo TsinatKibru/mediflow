@@ -9,10 +9,10 @@ export declare class TenantsService {
         name: string;
         logoUrl: string | null;
         primaryColor: string | null;
-        currency: string;
-        currencySymbol: string;
         createdAt: Date;
         updatedAt: Date;
+        currency: string;
+        currencySymbol: string;
     } | null>;
     updateTenant(tenantId: string, dto: UpdateTenantDto): Promise<{
         id: string;
@@ -20,9 +20,9 @@ export declare class TenantsService {
         name: string;
         logoUrl: string | null;
         primaryColor: string | null;
-        currency: string;
-        currencySymbol: string;
         createdAt: Date;
         updatedAt: Date;
+        currency: string;
+        currencySymbol: string;
     }>;
 }

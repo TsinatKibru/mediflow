@@ -8,8 +8,8 @@ export declare class InsurancePoliciesService {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        tenantId: string;
         isActive: boolean;
+        tenantId: string;
         patientId: string;
         notes: string | null;
         type: import(".prisma/client").$Enums.CoverageType;
@@ -23,8 +23,8 @@ export declare class InsurancePoliciesService {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        tenantId: string;
         isActive: boolean;
+        tenantId: string;
         patientId: string;
         notes: string | null;
         type: import(".prisma/client").$Enums.CoverageType;
@@ -38,8 +38,8 @@ export declare class InsurancePoliciesService {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        tenantId: string;
         isActive: boolean;
+        tenantId: string;
         patientId: string;
         notes: string | null;
         type: import(".prisma/client").$Enums.CoverageType;
@@ -53,8 +53,8 @@ export declare class InsurancePoliciesService {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        tenantId: string;
         isActive: boolean;
+        tenantId: string;
         patientId: string;
         notes: string | null;
         type: import(".prisma/client").$Enums.CoverageType;
@@ -68,8 +68,8 @@ export declare class InsurancePoliciesService {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        tenantId: string;
         isActive: boolean;
+        tenantId: string;
         patientId: string;
         notes: string | null;
         type: import(".prisma/client").$Enums.CoverageType;

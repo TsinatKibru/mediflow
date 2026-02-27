@@ -17,6 +17,9 @@ const common_1 = require("@nestjs/common");
 const departments_service_1 = require("./departments.service");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const tenant_guard_1 = require("../auth/guards/tenant.guard");
+const roles_guard_1 = require("../auth/guards/roles.guard");
+const roles_decorator_1 = require("../auth/decorators/roles.decorator");
+const department_dto_1 = require("./dto/department.dto");
 let DepartmentsController = class DepartmentsController {
     departmentsService;
     constructor(departmentsService) {
@@ -24,6 +27,18 @@ let DepartmentsController = class DepartmentsController {
     }
     findAll(req) {
         return this.departmentsService.findAll(req.user.tenantId);
+    }
+    findOne(req, id) {
+        return this.departmentsService.findOne(req.user.tenantId, id);
+    }
+    create(req, createDepartmentDto) {
+        return this.departmentsService.create(req.user.tenantId, createDepartmentDto);
+    }
+    update(req, id, updateDepartmentDto) {
+        return this.departmentsService.update(req.user.tenantId, id, updateDepartmentDto);
+    }
+    remove(req, id) {
+        return this.departmentsService.remove(req.user.tenantId, id);
     }
 };
 exports.DepartmentsController = DepartmentsController;
@@ -34,9 +49,45 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], DepartmentsController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)(':id'),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], DepartmentsController.prototype, "findOne", null);
+__decorate([
+    (0, common_1.Post)(),
+    (0, roles_decorator_1.Roles)('SUPER_ADMIN', 'HOSPITAL_ADMIN'),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, department_dto_1.CreateDepartmentDto]),
+    __metadata("design:returntype", void 0)
+], DepartmentsController.prototype, "create", null);
+__decorate([
+    (0, common_1.Patch)(':id'),
+    (0, roles_decorator_1.Roles)('SUPER_ADMIN', 'HOSPITAL_ADMIN'),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, department_dto_1.UpdateDepartmentDto]),
+    __metadata("design:returntype", void 0)
+], DepartmentsController.prototype, "update", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    (0, roles_decorator_1.Roles)('SUPER_ADMIN', 'HOSPITAL_ADMIN'),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], DepartmentsController.prototype, "remove", null);
 exports.DepartmentsController = DepartmentsController = __decorate([
     (0, common_1.Controller)('departments'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, tenant_guard_1.TenantGuard),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, tenant_guard_1.TenantGuard, roles_guard_1.RolesGuard),
     __metadata("design:paramtypes", [departments_service_1.DepartmentsService])
 ], DepartmentsController);
 //# sourceMappingURL=departments.controller.js.map

@@ -18,11 +18,11 @@ export declare class LabOrdersController {
             isVoided: boolean;
             voidReason: string | null;
             voidedAt: Date | null;
-            labOrderId: string | null;
-            pharmacyOrderId: string | null;
-            voidedById: string | null;
             insurancePolicyId: string | null;
             verifiedById: string | null;
+            voidedById: string | null;
+            labOrderId: string | null;
+            pharmacyOrderId: string | null;
         }[];
         visit: {
             patient: {
@@ -84,11 +84,11 @@ export declare class LabOrdersController {
             isVoided: boolean;
             voidReason: string | null;
             voidedAt: Date | null;
-            labOrderId: string | null;
-            pharmacyOrderId: string | null;
-            voidedById: string | null;
             insurancePolicyId: string | null;
             verifiedById: string | null;
+            voidedById: string | null;
+            labOrderId: string | null;
+            pharmacyOrderId: string | null;
         }[];
         prescribedBy: {
             firstName: string;

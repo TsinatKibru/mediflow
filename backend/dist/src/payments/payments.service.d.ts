@@ -21,11 +21,11 @@ export declare class PaymentsService {
             isVoided: boolean;
             voidReason: string | null;
             voidedAt: Date | null;
-            labOrderId: string | null;
-            pharmacyOrderId: string | null;
-            voidedById: string | null;
             insurancePolicyId: string | null;
             verifiedById: string | null;
+            voidedById: string | null;
+            labOrderId: string | null;
+            pharmacyOrderId: string | null;
         };
         coverageRecord: any;
     }>;
@@ -49,11 +49,11 @@ export declare class PaymentsService {
             isVoided: boolean;
             voidReason: string | null;
             voidedAt: Date | null;
-            labOrderId: string | null;
-            pharmacyOrderId: string | null;
-            voidedById: string | null;
             insurancePolicyId: string | null;
             verifiedById: string | null;
+            voidedById: string | null;
+            labOrderId: string | null;
+            pharmacyOrderId: string | null;
         })[];
         coverage: ({
             verifiedBy: {
@@ -73,8 +73,8 @@ export declare class PaymentsService {
             issuedToName: string | null;
             issueYear: number | null;
             expiryYear: number | null;
-            claimStatus: import(".prisma/client").$Enums.ClaimStatus;
             verifiedAt: Date;
+            claimStatus: import(".prisma/client").$Enums.ClaimStatus;
         }) | null;
     }>;
     update(id: string, dto: UpdatePaymentDto): Promise<{
@@ -91,11 +91,11 @@ export declare class PaymentsService {
         isVoided: boolean;
         voidReason: string | null;
         voidedAt: Date | null;
-        labOrderId: string | null;
-        pharmacyOrderId: string | null;
-        voidedById: string | null;
         insurancePolicyId: string | null;
         verifiedById: string | null;
+        voidedById: string | null;
+        labOrderId: string | null;
+        pharmacyOrderId: string | null;
     }>;
     void(id: string, dto: VoidPaymentDto, userId: string): Promise<{
         id: string;
@@ -111,11 +111,11 @@ export declare class PaymentsService {
         isVoided: boolean;
         voidReason: string | null;
         voidedAt: Date | null;
-        labOrderId: string | null;
-        pharmacyOrderId: string | null;
-        voidedById: string | null;
         insurancePolicyId: string | null;
         verifiedById: string | null;
+        voidedById: string | null;
+        labOrderId: string | null;
+        pharmacyOrderId: string | null;
     }>;
     remove(id: string): Promise<{
         id: string;
@@ -131,11 +131,11 @@ export declare class PaymentsService {
         isVoided: boolean;
         voidReason: string | null;
         voidedAt: Date | null;
-        labOrderId: string | null;
-        pharmacyOrderId: string | null;
-        voidedById: string | null;
         insurancePolicyId: string | null;
         verifiedById: string | null;
+        voidedById: string | null;
+        labOrderId: string | null;
+        pharmacyOrderId: string | null;
     }>;
     bulkCreate(dto: BulkCreatePaymentDto, userId: string): Promise<any[]>;
     updateClaimStatus(visitId: string, status: string, userId: string): Promise<{
@@ -151,8 +151,8 @@ export declare class PaymentsService {
         issuedToName: string | null;
         issueYear: number | null;
         expiryYear: number | null;
-        claimStatus: import(".prisma/client").$Enums.ClaimStatus;
         verifiedAt: Date;
+        claimStatus: import(".prisma/client").$Enums.ClaimStatus;
     }>;
     findAll(tenantId: string, skip?: number, take?: number): Promise<{
         total: number;
@@ -161,6 +161,10 @@ export declare class PaymentsService {
                 department: {
                     id: string;
                     name: string;
+                    createdAt: Date;
+                    updatedAt: Date | null;
+                    description: string | null;
+                    isActive: boolean;
                     tenantId: string;
                 };
                 patient: {
@@ -206,11 +210,11 @@ export declare class PaymentsService {
             isVoided: boolean;
             voidReason: string | null;
             voidedAt: Date | null;
-            labOrderId: string | null;
-            pharmacyOrderId: string | null;
-            voidedById: string | null;
             insurancePolicyId: string | null;
             verifiedById: string | null;
+            voidedById: string | null;
+            labOrderId: string | null;
+            pharmacyOrderId: string | null;
         })[];
     }>;
 }

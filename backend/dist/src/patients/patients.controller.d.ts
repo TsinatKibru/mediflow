@@ -46,6 +46,10 @@ export declare class PatientsController {
         department: {
             id: string;
             name: string;
+            createdAt: Date;
+            updatedAt: Date | null;
+            description: string | null;
+            isActive: boolean;
             tenantId: string;
         };
         labOrders: {
@@ -84,24 +88,28 @@ export declare class PatientsController {
             medicationId: string;
             dispensedById: string | null;
         })[];
-        vitals: {
-            id: string;
-            createdAt: Date;
-            height: number | null;
-            weight: number | null;
-            bpSystolic: number | null;
-            bpDiastolic: number | null;
-            temperature: number | null;
-            pulse: number | null;
-            notes: string | null;
-            visitId: string;
-        } | null;
         consultation: {
             id: string;
             createdAt: Date;
             notes: string;
             visitId: string;
             prescription: string | null;
+        } | null;
+        coverage: {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            notes: string | null;
+            visitId: string;
+            insurancePolicyId: string | null;
+            verifiedById: string | null;
+            type: import(".prisma/client").$Enums.CoverageType;
+            referenceNumber: string | null;
+            issuedToName: string | null;
+            issueYear: number | null;
+            expiryYear: number | null;
+            verifiedAt: Date;
+            claimStatus: import(".prisma/client").$Enums.ClaimStatus;
         } | null;
         payments: {
             id: string;
@@ -117,27 +125,23 @@ export declare class PatientsController {
             isVoided: boolean;
             voidReason: string | null;
             voidedAt: Date | null;
+            insurancePolicyId: string | null;
+            verifiedById: string | null;
+            voidedById: string | null;
             labOrderId: string | null;
             pharmacyOrderId: string | null;
-            voidedById: string | null;
-            insurancePolicyId: string | null;
-            verifiedById: string | null;
         }[];
-        coverage: {
+        vitals: {
             id: string;
             createdAt: Date;
-            updatedAt: Date;
+            height: number | null;
+            weight: number | null;
+            bpSystolic: number | null;
+            bpDiastolic: number | null;
+            temperature: number | null;
+            pulse: number | null;
             notes: string | null;
             visitId: string;
-            insurancePolicyId: string | null;
-            verifiedById: string | null;
-            type: import(".prisma/client").$Enums.CoverageType;
-            referenceNumber: string | null;
-            issuedToName: string | null;
-            issueYear: number | null;
-            expiryYear: number | null;
-            claimStatus: import(".prisma/client").$Enums.ClaimStatus;
-            verifiedAt: Date;
         } | null;
     } & {
         id: string;

@@ -23,6 +23,30 @@ let DepartmentsService = class DepartmentsService {
             orderBy: { name: 'asc' },
         });
     }
+    async findOne(tenantId, id) {
+        return this.prisma.department.findFirst({
+            where: { id, tenantId },
+        });
+    }
+    async create(tenantId, data) {
+        return this.prisma.department.create({
+            data: {
+                ...data,
+                tenantId,
+            },
+        });
+    }
+    async update(tenantId, id, data) {
+        return this.prisma.department.update({
+            where: { id, tenantId },
+            data,
+        });
+    }
+    async remove(tenantId, id) {
+        return this.prisma.department.delete({
+            where: { id, tenantId },
+        });
+    }
 };
 exports.DepartmentsService = DepartmentsService;
 exports.DepartmentsService = DepartmentsService = __decorate([

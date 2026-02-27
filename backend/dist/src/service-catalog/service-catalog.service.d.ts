@@ -8,11 +8,11 @@ export declare class ServiceCatalogService {
         name: string;
         createdAt: Date;
         updatedAt: Date;
-        tenantId: string;
+        description: string | null;
         isActive: boolean;
+        tenantId: string;
         category: import(".prisma/client").$Enums.ServiceType;
         code: string | null;
-        description: string | null;
         price: import("@prisma/client/runtime/library").Decimal;
     }>;
     findAll(tenantId: string, category?: string): Promise<{
@@ -20,11 +20,11 @@ export declare class ServiceCatalogService {
         name: string;
         createdAt: Date;
         updatedAt: Date;
-        tenantId: string;
+        description: string | null;
         isActive: boolean;
+        tenantId: string;
         category: import(".prisma/client").$Enums.ServiceType;
         code: string | null;
-        description: string | null;
         price: import("@prisma/client/runtime/library").Decimal;
     }[]>;
     findOne(tenantId: string, id: string): Promise<{
@@ -32,11 +32,11 @@ export declare class ServiceCatalogService {
         name: string;
         createdAt: Date;
         updatedAt: Date;
-        tenantId: string;
+        description: string | null;
         isActive: boolean;
+        tenantId: string;
         category: import(".prisma/client").$Enums.ServiceType;
         code: string | null;
-        description: string | null;
         price: import("@prisma/client/runtime/library").Decimal;
     }>;
     update(tenantId: string, id: string, dto: UpdateServiceCatalogDto): Promise<{
@@ -44,11 +44,11 @@ export declare class ServiceCatalogService {
         name: string;
         createdAt: Date;
         updatedAt: Date;
-        tenantId: string;
+        description: string | null;
         isActive: boolean;
+        tenantId: string;
         category: import(".prisma/client").$Enums.ServiceType;
         code: string | null;
-        description: string | null;
         price: import("@prisma/client/runtime/library").Decimal;
     }>;
     remove(tenantId: string, id: string): Promise<{
@@ -56,11 +56,11 @@ export declare class ServiceCatalogService {
         name: string;
         createdAt: Date;
         updatedAt: Date;
-        tenantId: string;
+        description: string | null;
         isActive: boolean;
+        tenantId: string;
         category: import(".prisma/client").$Enums.ServiceType;
         code: string | null;
-        description: string | null;
         price: import("@prisma/client/runtime/library").Decimal;
     }>;
 }
