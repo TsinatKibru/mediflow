@@ -51,7 +51,7 @@ export default function PatientsPage() {
     const fetchPatients = async () => {
         setLoading(true);
         try {
-            const result = await patientService.getPatients(searchQuery, skip / take + 1, take);
+            const result = await patientService.getPatients(searchQuery, skip, take);
             setPatients(result.data);
             setTotal(result.total);
         } catch (error) {

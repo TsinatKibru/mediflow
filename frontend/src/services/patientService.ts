@@ -13,8 +13,8 @@ export interface Patient {
 }
 
 export const patientService = {
-    getPatients: async (search?: string, page: number = 1, limit: number = 10) => {
-        let url = `${API_ENDPOINTS.PATIENTS.BASE}?page=${page}&limit=${limit}`;
+    getPatients: async (search?: string, skip: number = 0, take: number = 10) => {
+        let url = `${API_ENDPOINTS.PATIENTS.BASE}?skip=${skip}&take=${take}`;
         if (search) url += `&search=${search}`;
         return apiClient.get(url);
     },
