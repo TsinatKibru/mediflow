@@ -1,5 +1,4 @@
 import 'dotenv/config';
-import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
@@ -52,26 +51,17 @@ async function main() {
 
     // Create Departments
     console.log('🏢 Creating departments...');
-    const departments = await Promise.all([
-        prisma.department.create({
-            data: { name: 'Cardiology', tenantId: tenant.id },
-        }),
-        prisma.department.create({
-            data: { name: 'Neurology', tenantId: tenant.id },
-        }),
-        prisma.department.create({
-            data: { name: 'Orthopedics', tenantId: tenant.id },
-        }),
-        prisma.department.create({
-            data: { name: 'Pediatrics', tenantId: tenant.id },
-        }),
-        prisma.department.create({
-            data: { name: 'General Medicine', tenantId: tenant.id },
-        }),
-        prisma.department.create({
-            data: { name: 'Emergency', tenantId: tenant.id },
-        }),
-    ]);
+    const departmentNames = [
+        'Cardiology', 'Neurology', 'Orthopedics',
+        'Pediatrics', 'General Medicine', 'Emergency'
+    ];
+    const departments: any[] = [];
+    for (const name of departmentNames) {
+        const dept = await prisma.department.create({
+            data: { name, tenantId: tenant.id },
+        });
+        departments.push(dept);
+    }
 
     // Create Doctors with Departments
     console.log('🩺 Creating doctors...');
@@ -101,173 +91,38 @@ async function main() {
 
     // Create Patients
     console.log('👥 Creating patients...');
-    const patients = await Promise.all([
-        prisma.patient.create({
+    const patientData = [
+        { firstName: 'Jane', lastName: 'Smith', dob: '1985-03-15', gender: 'FEMALE', phone: '+1-555-0101', email: 'jane.smith@email.com' },
+        { firstName: 'Robert', lastName: 'Johnson', dob: '1978-07-22', gender: 'MALE', phone: '+1-555-0102', email: 'robert.j@email.com' },
+        { firstName: 'Maria', lastName: 'Garcia', dob: '1992-11-08', gender: 'FEMALE', phone: '+1-555-0103', email: 'maria.garcia@email.com' },
+        { firstName: 'David', lastName: 'Williams', dob: '1965-05-30', gender: 'MALE', phone: '+1-555-0104', email: 'david.w@email.com' },
+        { firstName: 'Emily', lastName: 'Brown', dob: '2000-09-12', gender: 'FEMALE', phone: '+1-555-0105', email: 'emily.brown@email.com' },
+        { firstName: 'Michael', lastName: 'Chen', dob: '1990-06-18', gender: 'MALE', phone: '+1-555-0106', email: 'michael.chen@email.com' },
+        { firstName: 'Sarah', lastName: 'Martinez', dob: '1988-12-03', gender: 'FEMALE', phone: '+1-555-0107', email: 'sarah.m@email.com' },
+        { firstName: 'James', lastName: 'Anderson', dob: '1975-04-25', gender: 'MALE', phone: '+1-555-0108', email: 'james.anderson@email.com' },
+        { firstName: 'Lisa', lastName: 'Taylor', dob: '1995-08-14', gender: 'FEMALE', phone: '+1-555-0109', email: 'lisa.taylor@email.com' },
+        { firstName: 'Christopher', lastName: 'Lee', dob: '1982-01-30', gender: 'MALE', phone: '+1-555-0110', email: 'chris.lee@email.com' },
+        { firstName: 'Amanda', lastName: 'White', dob: '1998-11-22', gender: 'FEMALE', phone: '+1-555-0111', email: 'amanda.white@email.com' },
+        { firstName: 'Daniel', lastName: 'Harris', dob: '1970-07-08', gender: 'MALE', phone: '+1-555-0112', email: 'daniel.harris@email.com' },
+        { firstName: 'Jennifer', lastName: 'Clark', dob: '1987-03-19', gender: 'FEMALE', phone: '+1-555-0113', email: 'jennifer.clark@email.com' },
+        { firstName: 'Thomas', lastName: 'Rodriguez', dob: '1993-09-27', gender: 'MALE', phone: '+1-555-0114', email: 'thomas.r@email.com' },
+        { firstName: 'Patricia', lastName: 'Lewis', dob: '1960-05-11', gender: 'FEMALE', phone: '+1-555-0115', email: 'patricia.lewis@email.com' },
+    ];
+    const patients: any[] = [];
+    for (const data of patientData) {
+        const p = await prisma.patient.create({
             data: {
-                firstName: 'Jane',
-                lastName: 'Smith',
-                dateOfBirth: new Date('1985-03-15'),
-                gender: 'FEMALE',
-                phone: '+1-555-0101',
-                email: 'jane.smith@email.com',
+                firstName: data.firstName,
+                lastName: data.lastName,
+                dateOfBirth: new Date(data.dob),
+                gender: data.gender as any,
+                phone: data.phone,
+                email: data.email,
                 tenantId: tenant.id,
             },
-        }),
-        prisma.patient.create({
-            data: {
-                firstName: 'Robert',
-                lastName: 'Johnson',
-                dateOfBirth: new Date('1978-07-22'),
-                gender: 'MALE',
-                phone: '+1-555-0102',
-                email: 'robert.j@email.com',
-                tenantId: tenant.id,
-            },
-        }),
-        prisma.patient.create({
-            data: {
-                firstName: 'Maria',
-                lastName: 'Garcia',
-                dateOfBirth: new Date('1992-11-08'),
-                gender: 'FEMALE',
-                phone: '+1-555-0103',
-                email: 'maria.garcia@email.com',
-                tenantId: tenant.id,
-            },
-        }),
-        prisma.patient.create({
-            data: {
-                firstName: 'David',
-                lastName: 'Williams',
-                dateOfBirth: new Date('1965-05-30'),
-                gender: 'MALE',
-                phone: '+1-555-0104',
-                email: 'david.w@email.com',
-                tenantId: tenant.id,
-            },
-        }),
-        prisma.patient.create({
-            data: {
-                firstName: 'Emily',
-                lastName: 'Brown',
-                dateOfBirth: new Date('2000-09-12'),
-                gender: 'FEMALE',
-                phone: '+1-555-0105',
-                email: 'emily.brown@email.com',
-                tenantId: tenant.id,
-            },
-        }),
-        prisma.patient.create({
-            data: {
-                firstName: 'Michael',
-                lastName: 'Chen',
-                dateOfBirth: new Date('1990-06-18'),
-                gender: 'MALE',
-                phone: '+1-555-0106',
-                email: 'michael.chen@email.com',
-                tenantId: tenant.id,
-            },
-        }),
-        prisma.patient.create({
-            data: {
-                firstName: 'Sarah',
-                lastName: 'Martinez',
-                dateOfBirth: new Date('1988-12-03'),
-                gender: 'FEMALE',
-                phone: '+1-555-0107',
-                email: 'sarah.m@email.com',
-                tenantId: tenant.id,
-            },
-        }),
-        prisma.patient.create({
-            data: {
-                firstName: 'James',
-                lastName: 'Anderson',
-                dateOfBirth: new Date('1975-04-25'),
-                gender: 'MALE',
-                phone: '+1-555-0108',
-                email: 'james.anderson@email.com',
-                tenantId: tenant.id,
-            },
-        }),
-        prisma.patient.create({
-            data: {
-                firstName: 'Lisa',
-                lastName: 'Taylor',
-                dateOfBirth: new Date('1995-08-14'),
-                gender: 'FEMALE',
-                phone: '+1-555-0109',
-                email: 'lisa.taylor@email.com',
-                tenantId: tenant.id,
-            },
-        }),
-        prisma.patient.create({
-            data: {
-                firstName: 'Christopher',
-                lastName: 'Lee',
-                dateOfBirth: new Date('1982-01-30'),
-                gender: 'MALE',
-                phone: '+1-555-0110',
-                email: 'chris.lee@email.com',
-                tenantId: tenant.id,
-            },
-        }),
-        prisma.patient.create({
-            data: {
-                firstName: 'Amanda',
-                lastName: 'White',
-                dateOfBirth: new Date('1998-11-22'),
-                gender: 'FEMALE',
-                phone: '+1-555-0111',
-                email: 'amanda.white@email.com',
-                tenantId: tenant.id,
-            },
-        }),
-        prisma.patient.create({
-            data: {
-                firstName: 'Daniel',
-                lastName: 'Harris',
-                dateOfBirth: new Date('1970-07-08'),
-                gender: 'MALE',
-                phone: '+1-555-0112',
-                email: 'daniel.harris@email.com',
-                tenantId: tenant.id,
-            },
-        }),
-        prisma.patient.create({
-            data: {
-                firstName: 'Jennifer',
-                lastName: 'Clark',
-                dateOfBirth: new Date('1987-03-19'),
-                gender: 'FEMALE',
-                phone: '+1-555-0113',
-                email: 'jennifer.clark@email.com',
-                tenantId: tenant.id,
-            },
-        }),
-        prisma.patient.create({
-            data: {
-                firstName: 'Thomas',
-                lastName: 'Rodriguez',
-                dateOfBirth: new Date('1993-09-27'),
-                gender: 'MALE',
-                phone: '+1-555-0114',
-                email: 'thomas.r@email.com',
-                tenantId: tenant.id,
-            },
-        }),
-        prisma.patient.create({
-            data: {
-                firstName: 'Patricia',
-                lastName: 'Lewis',
-                dateOfBirth: new Date('1960-05-11'),
-                gender: 'FEMALE',
-                phone: '+1-555-0115',
-                email: 'patricia.lewis@email.com',
-                tenantId: tenant.id,
-            },
-        }),
-    ]);
+        });
+        patients.push(p);
+    }
 
     // Create Visits with Vitals and Consultations
     console.log('🏥 Creating visits...');
@@ -522,63 +377,23 @@ async function main() {
     });
 
     console.log('💊 Creating medications...');
-    const medications = await Promise.all([
-        prisma.medication.create({
+    const medicationData = [
+        { name: 'Amoxicillin', genericName: 'Amoxicillin', dosageForm: 'Capsule', strength: '500mg', stockBalance: 1000, unitPrice: 0.50 },
+        { name: 'Lisinopril', genericName: 'Lisinopril', dosageForm: 'Tablet', strength: '10mg', stockBalance: 500, unitPrice: 0.75 },
+        { name: 'Metformin', genericName: 'Metformin', dosageForm: 'Tablet', strength: '850mg', stockBalance: 800, unitPrice: 0.30 },
+        { name: 'Paracetamol', genericName: 'Acetaminophen', dosageForm: 'Tablet', strength: '500mg', stockBalance: 2000, unitPrice: 0.10 },
+        { name: 'Salbutamol', genericName: 'Albuterol', dosageForm: 'Inhaler', strength: '100mcg', stockBalance: 50, unitPrice: 12.00 },
+    ];
+    const medications: any[] = [];
+    for (const data of medicationData) {
+        const med = await prisma.medication.create({
             data: {
-                name: 'Amoxicillin',
-                genericName: 'Amoxicillin',
-                dosageForm: 'Capsule',
-                strength: '500mg',
-                stockBalance: 1000,
-                unitPrice: 0.50,
+                ...data,
                 tenantId: tenant.id,
             },
-        }),
-        prisma.medication.create({
-            data: {
-                name: 'Lisinopril',
-                genericName: 'Lisinopril',
-                dosageForm: 'Tablet',
-                strength: '10mg',
-                stockBalance: 500,
-                unitPrice: 0.75,
-                tenantId: tenant.id,
-            },
-        }),
-        prisma.medication.create({
-            data: {
-                name: 'Metformin',
-                genericName: 'Metformin',
-                dosageForm: 'Tablet',
-                strength: '850mg',
-                stockBalance: 800,
-                unitPrice: 0.30,
-                tenantId: tenant.id,
-            },
-        }),
-        prisma.medication.create({
-            data: {
-                name: 'Paracetamol',
-                genericName: 'Acetaminophen',
-                dosageForm: 'Tablet',
-                strength: '500mg',
-                stockBalance: 2000,
-                unitPrice: 0.10,
-                tenantId: tenant.id,
-            },
-        }),
-        prisma.medication.create({
-            data: {
-                name: 'Salbutamol',
-                genericName: 'Albuterol',
-                dosageForm: 'Inhaler',
-                strength: '100mcg',
-                stockBalance: 50,
-                unitPrice: 12.00,
-                tenantId: tenant.id,
-            },
-        }),
-    ]);
+        });
+        medications.push(med);
+    }
 
     // Pharmacy Order for Visit 2
     const po1 = await prisma.pharmacyOrder.create({
