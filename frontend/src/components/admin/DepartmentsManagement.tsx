@@ -155,7 +155,7 @@ export function DepartmentsManagement() {
                                                 <ShieldCheck className="h-3 w-3" /> Active
                                             </Badge>
                                         ) : (
-                                            <Badge variant="secondary" className="flex items-center w-fit gap-1">
+                                            <Badge variant="default" className="flex items-center w-fit gap-1">
                                                 <XCircle className="h-3 w-3" /> Inactive
                                             </Badge>
                                         )}
