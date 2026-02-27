@@ -88,11 +88,46 @@ export class VisitsService {
             }
         }
 
-        // Add payment status filtering if provided (complex with Prisma, but we handle the type safely)
         if (paymentStatus) {
-            // Note: This is an approximation as calculating this in a single findMany where is difficult 
-            // without custom SQL or complex nested filters. For now, we at least prevent crashes.
-            // Ideally, the frontend should filter this if we don't have a view/aggregation table.
+            const activePaymentFilter = { isVoided: false };
+
+            if (paymentStatus === 'PAID') {
+                // All active payments must be COMPLETED, and at least one must exist
+                where.payments = {
+                    some: activePaymentFilter,
+                    every: {
+                        ...activePaymentFilter,
+                        status: 'COMPLETED',
+                    },
+                };
+            } else if (paymentStatus === 'UNPAID') {
+                // No active payments OR all active payments are PENDING
+                where.OR = [
+                    { payments: { none: activePaymentFilter } },
+                    {
+                        payments: {
+                            every: {
+                                ...activePaymentFilter,
+                                status: 'PENDING',
+                            },
+                        },
+                    },
+                ];
+            } else if (paymentStatus === 'PARTIAL') {
+                // Some are COMPLETED AND some are PENDING among active payments
+                where.AND = [
+                    {
+                        payments: {
+                            some: { ...activePaymentFilter, status: 'COMPLETED' },
+                        },
+                    },
+                    {
+                        payments: {
+                            some: { ...activePaymentFilter, status: 'PENDING' },
+                        },
+                    },
+                ];
+            }
         }
 
         if (search) {

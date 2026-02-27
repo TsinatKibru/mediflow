@@ -74,6 +74,43 @@ let VisitsService = class VisitsService {
             }
         }
         if (paymentStatus) {
+            const activePaymentFilter = { isVoided: false };
+            if (paymentStatus === 'PAID') {
+                where.payments = {
+                    some: activePaymentFilter,
+                    every: {
+                        ...activePaymentFilter,
+                        status: 'COMPLETED',
+                    },
+                };
+            }
+            else if (paymentStatus === 'UNPAID') {
+                where.OR = [
+                    { payments: { none: activePaymentFilter } },
+                    {
+                        payments: {
+                            every: {
+                                ...activePaymentFilter,
+                                status: 'PENDING',
+                            },
+                        },
+                    },
+                ];
+            }
+            else if (paymentStatus === 'PARTIAL') {
+                where.AND = [
+                    {
+                        payments: {
+                            some: { ...activePaymentFilter, status: 'COMPLETED' },
+                        },
+                    },
+                    {
+                        payments: {
+                            some: { ...activePaymentFilter, status: 'PENDING' },
+                        },
+                    },
+                ];
+            }
         }
         if (search) {
             where.patient = {
