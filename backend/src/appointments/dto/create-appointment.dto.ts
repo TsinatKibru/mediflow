@@ -19,6 +19,17 @@ export class CreateAppointmentDto {
 
     @IsOptional()
     @IsString()
+    localStartTimeStr?: string;
+
+    @IsOptional()
+    @IsString()
+    localEndTimeStr?: string;
+
+    @IsOptional()
+    localDayOfWeek?: number;
+
+    @IsOptional()
+    @IsString()
     reason?: string;
 
     @IsOptional()

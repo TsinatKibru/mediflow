@@ -169,8 +169,35 @@ export class AppointmentsService {
     }
 
     private async isDoctorAvailable(doctorId: string, start: string, end: string, tenantId: string): Promise<boolean> {
-        const startDate = new Date(start);
-        const dayOfWeek = startDate.getDay();
+        // Extract the exact time explicitly passed or originally generated from string
+        const startTimeStrMatch = start.match(/T(\d{2}:\d{2})/);
+        const endTimeStrMatch = end.match(/T(\d{2}:\d{2})/);
+        
+        let aptStartStr = "";
+        let aptEndStr = "";
+        let dayOfWeek = 0;
+
+        if (startTimeStrMatch && endTimeStrMatch) {
+            // If it's a standard ISO string, parsing back the date part works flawlessly
+            aptStartStr = startTimeStrMatch[1];
+            aptEndStr = endTimeStrMatch[1];
+            // Just get the date part straight up to avoid timezone offset changes by new Date
+            const dtMatch = start.match(/^(\d{4}-\d{2}-\d{2})/);
+            if (dtMatch) {
+                // Ensure parse assumes UTC implicitly if passed like this, but since it's just year-month-day,
+                // we'll get the day of the week accurately.
+                const tempDate = new Date(dtMatch[1] + "T00:00:00"); 
+                dayOfWeek = tempDate.getDay();
+            } else {
+                dayOfWeek = new Date(start).getDay();
+            }
+        } else {
+            // Fallback for non-standard formats just in case
+            const startDate = new Date(start);
+            dayOfWeek = startDate.getDay();
+            aptStartStr = startDate.toTimeString().slice(0, 5);
+            aptEndStr = new Date(end).toTimeString().slice(0, 5);
+        }
 
         const availability = await this.prisma.doctorAvailability.findFirst({
             where: {
@@ -187,10 +214,6 @@ export class AppointmentsService {
             // Let's assume they must have a schedule set to be bookable.
             return false;
         }
-
-        // Compare times as strings "HH:mm"
-        const aptStartStr = startDate.toTimeString().slice(0, 5);
-        const aptEndStr = new Date(end).toTimeString().slice(0, 5);
 
         return aptStartStr >= availability.startTime && aptEndStr <= availability.endTime;
     }

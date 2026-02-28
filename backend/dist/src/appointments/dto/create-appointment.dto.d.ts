@@ -3,6 +3,9 @@ export declare class CreateAppointmentDto {
     doctorId?: string;
     startTime: string;
     endTime: string;
+    localStartTimeStr?: string;
+    localEndTimeStr?: string;
+    localDayOfWeek?: number;
     reason?: string;
     notes?: string;
 }

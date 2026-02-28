@@ -16,6 +16,9 @@ class CreateAppointmentDto {
     doctorId;
     startTime;
     endTime;
+    localStartTimeStr;
+    localEndTimeStr;
+    localDayOfWeek;
     reason;
     notes;
 }
@@ -40,6 +43,20 @@ __decorate([
     (0, class_validator_1.IsDateString)(),
     __metadata("design:type", String)
 ], CreateAppointmentDto.prototype, "endTime", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateAppointmentDto.prototype, "localStartTimeStr", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateAppointmentDto.prototype, "localEndTimeStr", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], CreateAppointmentDto.prototype, "localDayOfWeek", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),

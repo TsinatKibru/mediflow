@@ -147,8 +147,29 @@ let AppointmentsService = class AppointmentsService {
         });
     }
     async isDoctorAvailable(doctorId, start, end, tenantId) {
-        const startDate = new Date(start);
-        const dayOfWeek = startDate.getDay();
+        const startTimeStrMatch = start.match(/T(\d{2}:\d{2})/);
+        const endTimeStrMatch = end.match(/T(\d{2}:\d{2})/);
+        let aptStartStr = "";
+        let aptEndStr = "";
+        let dayOfWeek = 0;
+        if (startTimeStrMatch && endTimeStrMatch) {
+            aptStartStr = startTimeStrMatch[1];
+            aptEndStr = endTimeStrMatch[1];
+            const dtMatch = start.match(/^(\d{4}-\d{2}-\d{2})/);
+            if (dtMatch) {
+                const tempDate = new Date(dtMatch[1] + "T00:00:00");
+                dayOfWeek = tempDate.getDay();
+            }
+            else {
+                dayOfWeek = new Date(start).getDay();
+            }
+        }
+        else {
+            const startDate = new Date(start);
+            dayOfWeek = startDate.getDay();
+            aptStartStr = startDate.toTimeString().slice(0, 5);
+            aptEndStr = new Date(end).toTimeString().slice(0, 5);
+        }
         const availability = await this.prisma.doctorAvailability.findFirst({
             where: {
                 doctorId,
@@ -160,8 +181,6 @@ let AppointmentsService = class AppointmentsService {
         if (!availability) {
             return false;
         }
-        const aptStartStr = startDate.toTimeString().slice(0, 5);
-        const aptEndStr = new Date(end).toTimeString().slice(0, 5);
         return aptStartStr >= availability.startTime && aptEndStr <= availability.endTime;
     }
     async checkForOverlap(doctorId, start, end, tenantId, excludeId) {
