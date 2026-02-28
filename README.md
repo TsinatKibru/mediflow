@@ -99,3 +99,97 @@ Standard Next.js deployment.
 
 ## 📄 License
 This project is licensed under the MIT License.
+
+---
+
+## 📸 App Screenshots
+
+### Dashboard
+![Dashboard](./screenshots/dashboard.png)
+
+### Patients
+![Patients](./screenshots/patients.png)
+
+### Patient Detail
+![Patient Detail](./screenshots/patient-detail.png)
+
+### Patient Detail Visit History
+![Patient Detail Visit History](./screenshots/patient-detail-visit-history.png)
+
+### Patient Detail Billing
+![Patient Detail Billing](./screenshots/patient-detail-billing.png)
+
+### Patient Detail Add Insurance
+![Patient Detail Add Insurance](./screenshots/patient-detail-add-insurance.png)
+
+### Patient Detail Insurance
+![Patient Detail Insurance](./screenshots/patient-detail-insurance.png)
+
+### Visits Page
+![Visits Page](./screenshots/visits-page.png)
+
+### Visits Clinical View
+![Visits Clinical View](./screenshots/visits-clinical-view.png)
+
+### To Be Removed Clinical View
+![To Be Removed Clinical View](./screenshots/to-be-removed-clinical-view.png)
+
+### Clinical View Physician Consultation
+![Clinical View Physician Consultation](./screenshots/clinical-view-physician-consultation.png)
+
+### Clinical View Laboratory
+![Clinical View Laboratory](./screenshots/clinical-view-laboratory.png)
+
+### Clinical View Pharmacy Prescription
+![Clinical View Pharmacy Prescription](./screenshots/clinical-view-pharmacy-prescription.png)
+
+### Check In Patient
+![Check In Patient](./screenshots/check-in-patient.png)
+
+### New Appointment Creation
+![New Appointment Creation](./screenshots/new-appointment-creation.png)
+
+### Doctor Schedule
+![Doctor Schedule](./screenshots/doctor-schedule.png)
+
+### Doctor Schedule Repeat
+![Doctor Schedule Repeat](./screenshots/doctor-schedule-repeat.png)
+
+### Appointments
+![Appointments](./screenshots/appointments.png)
+
+### Pharmacy
+![Pharmacy](./screenshots/pharmacy.png)
+
+### Laboratory
+![Laboratory](./screenshots/laboratory.png)
+
+### Medication Inventory
+![Medication Inventory](./screenshots/medication-inventory.png)
+
+### Billing
+![Billing](./screenshots/billing.png)
+
+### Staff Management
+![Staff Management](./screenshots/staff-management.png)
+
+### Department Management
+![Department Management](./screenshots/department-management.png)
+
+### Settings Profile
+![Settings Profile](./screenshots/settings-profile.png)
+
+### Settings Clinics Set Profile
+![Settings Clinics Set Profile](./screenshots/settings-clinics-set-profile.png)
+
+### Settings Price List
+![Settings Price List](./screenshots/settings-price-list.png)
+
+### Settings Financial
+![Settings Financial](./screenshots/settings-financial.png)
+
+### Billing Ledger
+![Billing Ledger](./screenshots/billing-ledger.png)
+
+### Billing Printed Receipt
+![Billing Printed Receipt](./screenshots/billing-printed-receipt.png)
